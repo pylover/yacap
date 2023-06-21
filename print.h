@@ -16,61 +16,26 @@
  *  
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
+#ifndef PRINT_H_
+#define PRINT_H_
 
-
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-
-#include <clog.h>
 
 #include "carg.h"
-#include "print.h"
 
 
-static int _outfile = STDOUT_FILENO;
-static int _errfile = STDERR_FILENO;
-
-
-void
-carg_outfile_set(int fd) {
-    _outfile = fd;
-}
+#define HELP_LINESIZE 79
 
 
 void
-carg_errfile_set(int fd) {
-    _errfile = fd;
-}
+print_multiline(int fd, const char *string, int indent, int linemax);
 
 
 void
-carg_print_help(struct carg *c, const char *prog) {
-    /* Usage */
-    print_usage(_outfile, c, prog);
-
-    /* Document */
-    if (c->doc) {
-        print_multiline(_outfile, c->doc, 0, HELP_LINESIZE);
-    }
-
-    /* Options */
-    print_options(_outfile, c);
-
-    /* Footer */
-    if (c->footer) {
-        print_multiline(_outfile, c->footer, 0, HELP_LINESIZE);
-    }
-}
+print_options(int fd, struct carg *c);
 
 
-int
-carg_parse(struct carg *c, int argc, char **argv) {
-    if (argc < 1) {
-        return -1;
-    }
-    carg_print_help(c, argv[0]);
+void
+print_usage(int fd, struct carg *c, const char *prog);
 
-    return 1;
-}
+
+#endif  // PRINT_H_

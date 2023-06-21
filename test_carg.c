@@ -109,7 +109,7 @@ test_help_arg() {
         .footer = NULL,
         .version = NULL,
     };
-    
+
     char *help =
         "Usage: foo [OPTION...] bar\n"
         "   or: foo [OPTION...] baz\n"
