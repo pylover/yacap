@@ -140,8 +140,10 @@ _print_options(struct carg *c) {
             gapsize - 4, gap);
     dprintf(_outfile, "  -?, --usage%.*sGive a short usage message\n",
             gapsize - 5, gap);
-    dprintf(_outfile, "  -V, --version%.*sPrint program version\n",
-            gapsize - 7, gap);
+    if (c->version) {
+        dprintf(_outfile, "  -V, --version%.*sPrint program version\n",
+                gapsize - 7, gap);
+    }
     dprintf(_outfile, "\n");
 }
 

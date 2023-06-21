@@ -26,12 +26,14 @@
 #include "carg.h"
 
 
-
 #define BUFFSIZE    1023
 #define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
     "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
     "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
     "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
+
+
+static struct carg_option nooption[] = {{ NULL }};
 
 
 int
@@ -80,15 +82,12 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
 
 void
 test_help_doc() {
-    struct carg_option options[] = {
-        { NULL }
-    };
-
     struct carg carg = {
         .args = NULL,
         .doc = LOREM,
-        .options = options,
+        .options = nooption,
         .footer = LOREM,
+        .version = NULL,
     };
 
     char *help =
@@ -100,7 +99,6 @@ test_help_doc() {
 "\n"  // NOLINT
 "  -h, --help           Give this help list\n"  // NOLINT
 "  -?, --usage          Give a short usage message\n"  // NOLINT
-"  -V, --version        Print program version\n"  // NOLINT
 "\n"  // NOLINT
 "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
@@ -117,15 +115,12 @@ test_help_doc() {
 
 void
 test_help_nooptions() {
-    struct carg_option options[] = {
-        { NULL }
-    };
-
     struct carg carg = {
         .args = "FOO",
         .doc = NULL,
-        .options = options,
-        .footer = "Lorem ipsum footer"
+        .options = nooption,
+        .footer = "Lorem ipsum footer",
+        .version = "1.0.0a",
     };
 
     char *help =
@@ -159,7 +154,8 @@ test_help_options() {
         .args = NULL,
         .doc = NULL,
         .options = options,
-        .footer = "Lorem ipsum footer"
+        .footer = "Lorem ipsum footer",
+        .version = NULL,
     };
 
     char *help =
@@ -174,7 +170,6 @@ test_help_options() {
 "                       odo consequat. Duis aute irure dolor.\n"  // NOLINT
 "  -h, --help           Give this help list\n"
 "  -?, --usage          Give a short usage message\n"
-"  -V, --version        Print program version\n"
 "\n"
 "Lorem ipsum footer\n";
 

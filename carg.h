@@ -33,6 +33,7 @@ struct carg {
     const char *args;
     struct carg_option *options;
     const char *footer;
+    const char *version;
 };
 
 
