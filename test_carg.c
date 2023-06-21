@@ -20,10 +20,35 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <cutest.h>
 #include <clog.h>
 #include "carg.h"
+
+
+int
+carg_parse_string(struct carg *c, char *restrict line) {
+    char *argv[256];
+    int argc = 0;
+    char *delim = " ";
+    char *needle;
+    static char buff[1024];
+    strcpy(buff, line);
+
+    needle = strtok(buff, delim);
+    argv[argc++] = needle;
+    DEBUG("%s", needle);
+    while (true) {
+        needle = strtok(NULL, delim);
+        if (needle == NULL) {
+            break;
+        }
+        argv[argc++] = needle;
+    }
+ 
+    return carg_parse(c, argc, argv);
+}
 
 
 /*
@@ -55,12 +80,14 @@ struct carg_option options[] = {
 };
 
 
-#define HELP ""
+#define HELP "hey"
 
 
 void
 test_carg() {
+    clog_verbosity = CLOG_DEBUG;
     struct carg carg = {
+        .args = "FOO",
         .doc = "Lorem ipsum indit cunfto",
         .options = options,
         .footer = "Lorem ipsum footer"
@@ -75,7 +102,7 @@ test_carg() {
 
     carg_outfile_set(outpipe[1]);
     carg_errfile_set(errpipe[1]);
-    carg_parse_string(&carg, "--help");
+    eqint(0, carg_parse_string(&carg, "foo --help"));
     
     close(outpipe[1]);
     close(errpipe[1]);
@@ -83,9 +110,6 @@ test_carg() {
     read(errpipe[0], err, 1023);
     eqstr(HELP, out);
     eqstr("", err);
-    // eqint(10, state.all);
-    // eqint(5, state.foo);
-    // eqint(5, state.bar);
 }
 
 

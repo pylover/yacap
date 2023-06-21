@@ -18,11 +18,13 @@
  */
 
 
-#include "carg.h"
-
-
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
+
+#include <clog.h>
+
+#include "carg.h"
 
 
 static int _outfile = STDOUT_FILENO;
@@ -41,8 +43,18 @@ carg_errfile_set(int fd) {
 }
 
 
+void
+carg_print_help(struct carg *c, const char *prog) {
+    dprintf(_outfile, "Usage: %s [OPTIONS] %s", prog, c->args);
+}
+
+
 int
-carg_parse_string(struct carg *c, const char *string) {
-    return -1;
-    dprintf(_outfile, "hey");
+carg_parse(struct carg *c, int argc, char **argv) {
+    if (argc < 1) {
+        return -1;
+    }
+    carg_print_help(c, argv[0]);
+
+    return 0;
 }

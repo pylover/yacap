@@ -28,6 +28,7 @@ struct carg_option {
 
 struct carg {
     const char *doc;
+    const char *args;
     struct carg_option *options;
     const char *footer;
 };
@@ -42,7 +43,7 @@ carg_errfile_set(int fd);
 
 
 int
-carg_parse_string(struct carg *c, const char *string);
+carg_parse(struct carg *c, int argc, char **argv);
 
 
 #endif  // CARG_H_
