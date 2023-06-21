@@ -27,18 +27,21 @@
 #include "carg.h"
 
 
+
+#define BUFFSIZE    1023
+
+
 int
-carg_parse_string(struct carg *c, char *restrict line) {
+carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     char *argv[256];
     int argc = 0;
     char *delim = " ";
     char *needle;
-    static char buff[1024];
+    static char buff[BUFFSIZE + 1];
     strcpy(buff, line);
 
     needle = strtok(buff, delim);
     argv[argc++] = needle;
-    DEBUG("%s", needle);
     while (true) {
         needle = strtok(NULL, delim);
         if (needle == NULL) {
@@ -46,8 +49,62 @@ carg_parse_string(struct carg *c, char *restrict line) {
         }
         argv[argc++] = needle;
     }
- 
-    return carg_parse(c, argc, argv);
+
+    /* Piping */
+    int outpipe[2];
+    int errpipe[2];
+    out[0] = '\0';
+    err[0] = '\0';
+    pipe(outpipe);
+    pipe(errpipe);
+
+    carg_outfile_set(outpipe[1]);
+    carg_errfile_set(errpipe[1]);
+
+    int ret = carg_parse(c, argc, argv);
+
+    close(outpipe[1]);
+    close(errpipe[1]);
+    read(outpipe[0], out, BUFFSIZE);
+    read(errpipe[0], err, BUFFSIZE);
+    close(outpipe[0]);
+    close(errpipe[0]);
+
+    return ret;
+}
+
+
+void
+test_carg() {
+    clog_verbosity = CLOG_DEBUG;
+    struct carg_option options[] = {
+        { NULL }
+    };
+
+    struct carg carg = {
+        .args = "FOO",
+        .doc = "Lorem ipsum indit cunfto",
+        .options = options,
+        .footer = "Lorem ipsum footer"
+    };
+    
+#define HELP \
+    "Usage: foo [OPTIONS] FOO\n" \
+    "\n" \
+    "Lorem ipsum indit cunfto\n" \
+    "\n" \
+    "  -h, --help                 Give this help list\n" \
+    "  -?, --usage                Give a short usage message\n" \
+    "  -V, --version              Print program version\n" \
+    "\n" \
+    "Lorem ipsum footer\n"
+
+
+    char out[1024] = "\0";
+    char err[1024] = "\0";
+    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqstr(HELP, out);
+    eqstr("", err);
 }
 
 
@@ -73,44 +130,6 @@ for any corresponding short options.
 
 Report bugs to http://github.com/pylover/wepn.
 */
-
-
-struct carg_option options[] = {
-    { NULL }
-};
-
-
-#define HELP "hey"
-
-
-void
-test_carg() {
-    clog_verbosity = CLOG_DEBUG;
-    struct carg carg = {
-        .args = "FOO",
-        .doc = "Lorem ipsum indit cunfto",
-        .options = options,
-        .footer = "Lorem ipsum footer"
-    };
-    
-    int outpipe[2];
-    int errpipe[2];
-    char out[1024] = "\0";
-    char err[1024] = "\0";
-    pipe(outpipe);
-    pipe(errpipe);
-
-    carg_outfile_set(outpipe[1]);
-    carg_errfile_set(errpipe[1]);
-    eqint(0, carg_parse_string(&carg, "foo --help"));
-    
-    close(outpipe[1]);
-    close(errpipe[1]);
-    read(outpipe[0], out, 1023);
-    read(errpipe[0], err, 1023);
-    eqstr(HELP, out);
-    eqstr("", err);
-}
 
 
 int

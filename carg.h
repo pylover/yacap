@@ -23,6 +23,8 @@
 struct carg_option {
     const char *longname;
     const char shortname;
+    const char *arg;
+    const char *help;
 };
 
 

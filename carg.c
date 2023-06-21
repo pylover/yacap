@@ -43,9 +43,54 @@ carg_errfile_set(int fd) {
 }
 
 
+static void
+_print_options(struct carg *c) {
+    int gapsize = 21;
+    char gap[gapsize + 1];
+    int i = 0;
+    struct carg_option *opt;
+
+    gap[gapsize] = '\0';
+    memset(gap, ' ', gapsize);
+
+    while (true) {
+        opt = &(c->options[i]);
+        
+        if (opt->longname == NULL) {
+            break;
+        }
+    }
+    dprintf(_outfile, "  -h, --help%.*sGive this help list\n", 
+            gapsize - 4, gap);
+    dprintf(_outfile, "  -?, --usage%.*sGive a short usage message\n", 
+            gapsize - 5, gap); 
+    dprintf(_outfile, "  -V, --version%.*sPrint program version\n", 
+            gapsize - 7, gap); 
+    dprintf(_outfile, "\n");
+}
+
+
 void
 carg_print_help(struct carg *c, const char *prog) {
-    dprintf(_outfile, "Usage: %s [OPTIONS] %s", prog, c->args);
+    /* Usage */
+    dprintf(_outfile, "Usage: %s [OPTIONS]", prog);
+    if (c->args) {
+        dprintf(_outfile, " %s\n", c->args);
+    }
+    dprintf(_outfile, "\n");
+
+    /* Document */
+    if (c->doc) {
+        dprintf(_outfile, "%s\n\n", c->doc);
+    }
+
+    /* Options */
+    _print_options(c);
+    
+    /* Footer */
+    if (c->footer) {
+        dprintf(_outfile, "%s\n", c->footer);
+    }
 }
 
 
@@ -56,5 +101,5 @@ carg_parse(struct carg *c, int argc, char **argv) {
     }
     carg_print_help(c, argv[0]);
 
-    return 0;
+    return 1;
 }
