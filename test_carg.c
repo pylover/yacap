@@ -31,7 +31,7 @@
 #define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
     "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
     "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
-    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor"
+    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
 
 
 int
@@ -79,6 +79,43 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
 
 
 void
+test_help_doc() {
+    struct carg_option options[] = {
+        { NULL }
+    };
+
+    struct carg carg = {
+        .args = NULL,
+        .doc = LOREM,
+        .options = options,
+        .footer = LOREM,
+    };
+
+    char *help =
+"Usage: foo [OPTION...]\n"  // NOLINT
+"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
+"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
+"at. Duis aute irure dolor.\n"  // NOLINT
+"\n"  // NOLINT
+"  -h, --help           Give this help list\n"  // NOLINT
+"  -?, --usage          Give a short usage message\n"  // NOLINT
+"  -V, --version        Print program version\n"  // NOLINT
+"\n"  // NOLINT
+"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
+"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
+"at. Duis aute irure dolor.\n";  // NOLINT
+
+    char out[1024] = "\0";
+    char err[1024] = "\0";
+    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqstr(help, out);
+    eqstr("", err);
+}
+
+
+void
 test_help_nooptions() {
     struct carg_option options[] = {
         { NULL }
@@ -86,15 +123,13 @@ test_help_nooptions() {
 
     struct carg carg = {
         .args = "FOO",
-        .doc = "Lorem ipsum indit cunfto",
+        .doc = NULL,
         .options = options,
         .footer = "Lorem ipsum footer"
     };
 
     char *help =
-        "Usage: foo [OPTIONS] FOO\n"
-        "\n"
-        "Lorem ipsum indit cunfto\n"
+        "Usage: foo [OPTION...] FOO\n"
         "\n"
         "  -h, --help           Give this help list\n"
         "  -?, --usage          Give a short usage message\n"
@@ -128,7 +163,7 @@ test_help_options() {
     };
 
     char *help =
-"Usage: foo [OPTIONS]\n"
+"Usage: foo [OPTION...]\n"
 "\n"
 "  -f, --foo            Foo flag\n"
 "  -b, --bar=BAR        Bar option with value\n"
@@ -136,7 +171,7 @@ test_help_options() {
 "                       elit, sed do eiusmod tempor incididunt ut labore et dol-\n"  // NOLINT
 "                       ore magna aliqua. Ut enim ad minim veniam, quis nostrud \n"  // NOLINT
 "                       exercitation ullamco laboris nisi ut aliquip ex ea comm-\n"  // NOLINT
-"                       odo consequat. Duis aute irure dolor\n"  // NOLINT
+"                       odo consequat. Duis aute irure dolor.\n"  // NOLINT
 "  -h, --help           Give this help list\n"
 "  -?, --usage          Give a short usage message\n"
 "  -V, --version        Print program version\n"
@@ -178,6 +213,7 @@ Report bugs to http://github.com/pylover/wepn.
 
 int
 main() {
+    test_help_doc();
     test_help_nooptions();
     test_help_options();
     return EXIT_SUCCESS;

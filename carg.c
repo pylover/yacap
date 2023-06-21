@@ -149,15 +149,16 @@ _print_options(struct carg *c) {
 void
 carg_print_help(struct carg *c, const char *prog) {
     /* Usage */
-    dprintf(_outfile, "Usage: %s [OPTIONS]", prog);
+    dprintf(_outfile, "Usage: %s [OPTION...]", prog);
     if (c->args) {
-        dprintf(_outfile, " %s\n", c->args);
+        dprintf(_outfile, " %s", c->args);
     }
     dprintf(_outfile, "\n");
 
     /* Document */
     if (c->doc) {
-        dprintf(_outfile, "%s\n", c->doc);
+        _print_multiline(c->doc, 0, LINESIZE);
+        // dprintf(_outfile, "%s\n", c->doc);
     }
 
     /* Options */
@@ -165,7 +166,7 @@ carg_print_help(struct carg *c, const char *prog) {
 
     /* Footer */
     if (c->footer) {
-        dprintf(_outfile, "%s\n", c->footer);
+        _print_multiline(c->footer, 0, LINESIZE);
     }
 }
 
