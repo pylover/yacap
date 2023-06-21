@@ -7,6 +7,16 @@ project(carg
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fms-extensions -D_GNU_SOURCE=1")
 
 
+# Valgrind, Profiling
+set(VALGRIND_FLAGS
+    -s
+    --tool=memcheck 
+    --leak-check=yes 
+    --show-reachable=yes 
+    --num-callers=20 
+    --track-fds=yes 
+)
+
 configure_file(manifest.h.in manifest.h)
 include_directories(
     ${PROJECT_SOURCE_DIR}
@@ -55,37 +65,8 @@ include(CPack)
 
 # Testing
 if (NOT DEFINED ENV{SKIP_TESTS})
-include(CTest)
-list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
-
-
-# Valgrind, Profiling
-set(VALGRIND_FLAGS
-    -s
-    --tool=memcheck 
-    --leak-check=yes 
-    --show-reachable=yes 
-    --num-callers=20 
-    --track-fds=yes 
-)
-
-add_custom_target(profile 
-    DEPENDS 
-    profile_test_carg
-)
-
-# Test carg
-add_executable(test_carg 
-    $<TARGET_OBJECTS:carg>
-    test_carg.c)
-target_include_directories(test_carg PUBLIC "${PROJECT_BINARY_DIR}")
-target_link_libraries(test_carg PUBLIC clog)
-add_test(NAME test_carg COMMAND test_carg)
-add_custom_target(profile_test_carg
-    COMMAND "valgrind" 
-    ${VALGRIND_FLAGS}
-    $<TARGET_FILE:test_carg>
-)
+    enable_testing()
+    add_subdirectory(tests)
 endif()
 
 

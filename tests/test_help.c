@@ -16,90 +16,23 @@
  *  
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
+
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 
-#include <cutest.h>
 #include <clog.h>
+#include <cutest.h>
+
 #include "carg.h"
-
-
-#define BUFFSIZE    1023
-#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
-    "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
-    "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
-    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
+#include "helpers.h"
 
 
 static struct carg_option nooption[] = {{ NULL }};
 
 
-int
-carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
-    char *argv[256];
-    int argc = 0;
-    char delim[1] = {' '};
-    char *needle;
-    char *saveptr = NULL;
-    static char buff[BUFFSIZE + 1];
-    strcpy(buff, line);
-
-    needle = strtok_r(buff, delim, &saveptr);
-    argv[argc++] = needle;
-    while (true) {
-        needle = strtok_r(NULL, delim, &saveptr);
-        if (needle == NULL) {
-            break;
-        }
-        argv[argc++] = needle;
-    }
-
-    /* Piping */
-    int outpipe[2];
-    int errpipe[2];
-    out[0] = '\0';
-    err[0] = '\0';
-    pipe(outpipe);
-    pipe(errpipe);
-
-    carg_outfile_set(outpipe[1]);
-    carg_errfile_set(errpipe[1]);
-
-    int ret = carg_parse(c, argc, argv);
-
-    close(outpipe[1]);
-    close(errpipe[1]);
-    read(outpipe[0], out, BUFFSIZE);
-    read(errpipe[0], err, BUFFSIZE);
-    close(outpipe[0]);
-    close(errpipe[0]);
-
-    return ret;
-}
-
-
-/*
-Usage: wepn [OPTION...] serve
-  or:  wepn [OPTION...] connect <HOST>
-  or:  wepn [OPTION...] token list
-  or:  wepn [OPTION...] token create
-  or:  wepn [OPTION...] token delete <INDEX>
-
-Simple Virtual Private Network
-
-  -c, --configuration-file=FILENAME
-                             Configuration filename, default:
-                             /etc/wepn/wepn.conf (if exists)
-  -v, --verbosity=LEVEL      Verbosity level: 0-5. default: 4
-  -?, --help                 Give this help list
-      --usage                Give a short usage message
-  -V, --version              Print program version
-
-Mandatory or optional arguments to long options are also mandatory or optional
-for any corresponding short options.
-*/
 void
 test_help_arg() {
     struct carg carg = {
