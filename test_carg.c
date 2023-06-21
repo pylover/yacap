@@ -17,7 +17,6 @@
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
 #include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -29,6 +28,10 @@
 
 
 #define BUFFSIZE    1023
+#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, " \
+    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " \
+    "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi " \
+    "ut aliquip ex ea commodo consequat. Duis aute irure dolor"
 
 
 int
@@ -37,13 +40,14 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     int argc = 0;
     char *delim = " ";
     char *needle;
+    char *saveptr = NULL;
     static char buff[BUFFSIZE + 1];
     strcpy(buff, line);
 
-    needle = strtok(buff, delim);
+    needle = strtok_r(buff, delim, &saveptr);
     argv[argc++] = needle;
     while (true) {
-        needle = strtok(NULL, delim);
+        needle = strtok_r(NULL, delim, &saveptr);
         if (needle == NULL) {
             break;
         }
@@ -75,8 +79,7 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
 
 
 void
-test_carg() {
-    clog_verbosity = CLOG_DEBUG;
+test_help_nooptions() {
     struct carg_option options[] = {
         { NULL }
     };
@@ -87,23 +90,60 @@ test_carg() {
         .options = options,
         .footer = "Lorem ipsum footer"
     };
-    
-#define HELP \
-    "Usage: foo [OPTIONS] FOO\n" \
-    "\n" \
-    "Lorem ipsum indit cunfto\n" \
-    "\n" \
-    "  -h, --help                 Give this help list\n" \
-    "  -?, --usage                Give a short usage message\n" \
-    "  -V, --version              Print program version\n" \
-    "\n" \
-    "Lorem ipsum footer\n"
+
+    char *help =
+        "Usage: foo [OPTIONS] FOO\n"
+        "\n"
+        "Lorem ipsum indit cunfto\n"
+        "\n"
+        "  -h, --help                 Give this help list\n"
+        "  -?, --usage                Give a short usage message\n"
+        "  -V, --version              Print program version\n"
+        "\n"
+        "Lorem ipsum footer\n";
 
 
     char out[1024] = "\0";
     char err[1024] = "\0";
     eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
-    eqstr(HELP, out);
+    eqstr(help, out);
+    eqstr("", err);
+}
+
+
+void
+test_help_options() {
+    struct carg_option options[] = {
+        {"foo", 'f', NULL, "Foo flag"},
+        {"bar", 'b', "BAR", "Bar option with value"},
+        {"baz", 'z', "BAZ", LOREM},
+        {NULL}
+    };
+
+    struct carg carg = {
+        .args = NULL,
+        .doc = NULL,
+        .options = options,
+        .footer = "Lorem ipsum footer"
+    };
+
+    char *help =
+"Usage: foo [OPTIONS]\n"
+"\n"
+"  -f, --foo                  Foo flag\n"
+"  -b, --bar=BAR              Bar option with value\n"
+"  -z, --baz=BAZ              \n"
+"  -h, --help                 Give this help list\n"
+"  -?, --usage                Give a short usage message\n"
+"  -V, --version              Print program version\n"
+"\n"
+"Lorem ipsum footer\n";
+
+
+    char out[1024] = "\0";
+    char err[1024] = "\0";
+    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqstr(help, out);
     eqstr("", err);
 }
 
@@ -134,6 +174,7 @@ Report bugs to http://github.com/pylover/wepn.
 
 int
 main() {
-    test_carg();
+    test_help_nooptions();
+    test_help_options();
     return EXIT_SUCCESS;
 }
