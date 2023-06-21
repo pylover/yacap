@@ -30,6 +30,7 @@
 
 #define LINESIZE 79
 #define MIN(x, y) ((x) < (y)? (x): (y))
+#define MAX(x, y) ((x) > (y)? (x): (y))
 
 
 static int _outfile = STDOUT_FILENO;
@@ -49,64 +50,72 @@ carg_errfile_set(int fd) {
 
 
 static void
-_print_option_help(struct carg_option *opt, int gapsize) {
-    const char *help = opt->help;
+_print_multiline(const char *string, int indent, int linemax) {
     int remain;
-    int leftpad = gapsize + 8;
-    int linesize = LINESIZE - leftpad;
+    int linesize = linemax - indent;
     int ls;
-    ssize_t bytes;
     bool dash = false;
 
-    if (help == NULL) {
+    if (string == NULL) {
         dprintf(_outfile, "\n");
         return;
     }
 
-    remain = strlen(help);
+    remain = strlen(string);
     while (remain) {
         dash = false;
-        while (remain && isspace(help[0])) {
-            help++;
+        while (remain && isspace(string[0])) {
+            string++;
             remain--;
         }
 
         if (remain <= linesize) {
-            dprintf(_outfile, "%s\n", help);
+            dprintf(_outfile, "%s\n", string);
             remain = 0;
             break;
         }
-        
+
         ls = linesize;
-        if (help[ls - 2] == ' ') {
+        if (string[ls - 2] == ' ') {
             ls--;
         }
-        else if ((help[ls - 1] != ' ') && (help[ls] != ' ')) {
+        else if ((string[ls - 1] != ' ') && (string[ls] != ' ')) {
             ls--;
             dash = true;
         }
 
-        dprintf(_outfile, "%.*s%s\n", ls, help, dash? "-": "");
+        dprintf(_outfile, "%.*s%s\n", ls, string, dash? "-": "");
         remain -= ls;
-        help += ls;
-            
-        dprintf(_outfile, "%*s", leftpad, "");
+        string += ls;
+        dprintf(_outfile, "%*s", indent, "");
     }
 }
 
 
 static void
 _print_options(struct carg *c) {
-    int gapsize = 21;
-    char gap[gapsize + 1];
+    int gapsize = 7;
     int i = 0;
     struct carg_option *opt;
     int gs = 0;
 
+    while (true) {
+        opt = &(c->options[i++]);
+
+        if (opt->longname == NULL) {
+            break;
+        }
+
+        gapsize = MAX(gapsize, strlen(opt->longname) +
+                (opt->arg? strlen(opt->arg) + 1: 0));
+    }
+    gapsize += 8;
+    char gap[gapsize + 1];
     gap[gapsize] = '\0';
     memset(gap, ' ', gapsize);
 
     dprintf(_outfile, "\n");
+    i = 0;
     while (true) {
         opt = &(c->options[i++]);
 
@@ -115,17 +124,17 @@ _print_options(struct carg *c) {
         }
 
         if (opt->arg == NULL) {
-            dprintf(_outfile, "  -%c, --%s%.*s", opt->shortname, 
-                    opt->longname, gapsize - ((int)strlen(opt->longname)), 
+            dprintf(_outfile, "  -%c, --%s%.*s", opt->shortname,
+                    opt->longname, gapsize - ((int)strlen(opt->longname)),
                     gap);
         }
         else {
             gs = gapsize - (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
-            dprintf(_outfile, "  -%c, --%s=%s%.*s", opt->shortname, 
+            dprintf(_outfile, "  -%c, --%s=%s%.*s", opt->shortname,
                 opt->longname, opt->arg, gs, gap);
         }
 
-        _print_option_help(opt, gapsize);
+        _print_multiline(opt->help, gapsize + 8, LINESIZE);
     }
     dprintf(_outfile, "  -h, --help%.*sGive this help list\n",
             gapsize - 4, gap);

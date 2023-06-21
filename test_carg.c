@@ -28,10 +28,10 @@
 
 
 #define BUFFSIZE    1023
-#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, " \
-    "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut " \
-    "enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi " \
-    "ut aliquip ex ea commodo consequat. Duis aute irure dolor"
+#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
+    "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
+    "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
+    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor"
 
 
 int
@@ -96,9 +96,9 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum indit cunfto\n"
         "\n"
-        "  -h, --help                 Give this help list\n"
-        "  -?, --usage                Give a short usage message\n"
-        "  -V, --version              Print program version\n"
+        "  -h, --help           Give this help list\n"
+        "  -?, --usage          Give a short usage message\n"
+        "  -V, --version        Print program version\n"
         "\n"
         "Lorem ipsum footer\n";
 
@@ -130,12 +130,16 @@ test_help_options() {
     char *help =
 "Usage: foo [OPTIONS]\n"
 "\n"
-"  -f, --foo                  Foo flag\n"
-"  -b, --bar=BAR              Bar option with value\n"
-"  -z, --baz=BAZ              \n"
-"  -h, --help                 Give this help list\n"
-"  -?, --usage                Give a short usage message\n"
-"  -V, --version              Print program version\n"
+"  -f, --foo            Foo flag\n"
+"  -b, --bar=BAR        Bar option with value\n"
+"  -z, --baz=BAZ        Lorem merol ipsum dolor sit amet, consectetur adipiscing\n"  // NOLINT
+"                       elit, sed do eiusmod tempor incididunt ut labore et dol-\n"  // NOLINT
+"                       ore magna aliqua. Ut enim ad minim veniam, quis nostrud \n"  // NOLINT
+"                       exercitation ullamco laboris nisi ut aliquip ex ea comm-\n"  // NOLINT
+"                       odo consequat. Duis aute irure dolor\n"  // NOLINT
+"  -h, --help           Give this help list\n"
+"  -?, --usage          Give a short usage message\n"
+"  -V, --version        Print program version\n"
 "\n"
 "Lorem ipsum footer\n";
 
