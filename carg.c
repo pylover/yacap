@@ -140,10 +140,41 @@ _print_options(struct carg *c) {
             gapsize - 4, gap);
     dprintf(_outfile, "  -?, --usage%.*sGive a short usage message\n",
             gapsize - 5, gap);
+
     if (c->version) {
         dprintf(_outfile, "  -V, --version%.*sPrint program version\n",
                 gapsize - 7, gap);
     }
+
+    dprintf(_outfile, "\n");
+}
+
+
+static void
+_print_usage(struct carg *c, const char *prog) {
+    char delim[1] = {'\n'};
+    char *needle;
+    char *saveptr = NULL;
+
+    dprintf(_outfile, "Usage: %s [OPTION...]", prog);
+    if (c->args == NULL) {
+        goto done;
+    }
+    
+    static char buff[1024];
+    strcpy(buff, c->args);
+
+    needle = strtok_r(buff, delim, &saveptr);
+    dprintf(_outfile, " %s", needle);
+    while (true) {
+        needle = strtok_r(NULL, delim, &saveptr);
+        if (needle == NULL) {
+            break;
+        }
+        dprintf(_outfile, "\n   or: %s [OPTION...] %s", prog, needle);
+    }
+
+done:
     dprintf(_outfile, "\n");
 }
 
@@ -151,11 +182,7 @@ _print_options(struct carg *c) {
 void
 carg_print_help(struct carg *c, const char *prog) {
     /* Usage */
-    dprintf(_outfile, "Usage: %s [OPTION...]", prog);
-    if (c->args) {
-        dprintf(_outfile, " %s", c->args);
-    }
-    dprintf(_outfile, "\n");
+    _print_usage(c, prog);
 
     /* Document */
     if (c->doc) {

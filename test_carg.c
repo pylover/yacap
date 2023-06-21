@@ -40,7 +40,7 @@ int
 carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     char *argv[256];
     int argc = 0;
-    char *delim = " ";
+    char delim[1] = {' '};
     char *needle;
     char *saveptr = NULL;
     static char buff[BUFFSIZE + 1];
@@ -77,6 +77,53 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     close(errpipe[0]);
 
     return ret;
+}
+
+
+/*
+Usage: wepn [OPTION...] serve
+  or:  wepn [OPTION...] connect <HOST>
+  or:  wepn [OPTION...] token list
+  or:  wepn [OPTION...] token create
+  or:  wepn [OPTION...] token delete <INDEX>
+
+Simple Virtual Private Network
+
+  -c, --configuration-file=FILENAME
+                             Configuration filename, default:
+                             /etc/wepn/wepn.conf (if exists)
+  -v, --verbosity=LEVEL      Verbosity level: 0-5. default: 4
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
+*/
+void
+test_help_arg() {
+    struct carg carg = {
+        .args = "bar\nbaz",
+        .doc = NULL,
+        .options = nooption,
+        .footer = NULL,
+        .version = NULL,
+    };
+    
+    char *help =
+        "Usage: foo [OPTION...] bar\n"
+        "   or: foo [OPTION...] baz\n"
+        "\n"
+        "  -h, --help           Give this help list\n"
+        "  -?, --usage          Give a short usage message\n"
+        "\n";
+
+
+    char out[1024] = "\0";
+    char err[1024] = "\0";
+    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqstr(help, out);
+    eqstr("", err);
 }
 
 
@@ -182,32 +229,9 @@ test_help_options() {
 }
 
 
-/*
-Usage: wepn [OPTION...] serve
-  or:  wepn [OPTION...] connect <HOST>
-  or:  wepn [OPTION...] token list
-  or:  wepn [OPTION...] token create
-  or:  wepn [OPTION...] token delete <INDEX>
-
-Simple Virtual Private Network
-
-  -c, --configuration-file=FILENAME
-                             Configuration filename, default:
-                             /etc/wepn/wepn.conf (if exists)
-  -v, --verbosity=LEVEL      Verbosity level: 0-5. default: 4
-  -?, --help                 Give this help list
-      --usage                Give a short usage message
-  -V, --version              Print program version
-
-Mandatory or optional arguments to long options are also mandatory or optional
-for any corresponding short options.
-
-Report bugs to http://github.com/pylover/wepn.
-*/
-
-
 int
 main() {
+    test_help_arg();
     test_help_doc();
     test_help_nooptions();
     test_help_options();
