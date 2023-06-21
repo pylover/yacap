@@ -78,7 +78,7 @@ print_options(int fd, struct carg *c) {
     int gapsize = 7;
     int i = 0;
     struct carg_option *opt;
-    int gs = 0;
+    int tmp = 0;
 
     while (true) {
         opt = &(c->options[i++]);
@@ -87,8 +87,8 @@ print_options(int fd, struct carg *c) {
             break;
         }
 
-        gapsize = MAX(gapsize, strlen(opt->longname) +
-                (opt->arg? strlen(opt->arg) + 1: 0));
+        tmp = strlen(opt->longname) + (opt->arg? strlen(opt->arg) + 1: 0);
+        gapsize = MAX(gapsize, tmp);
     }
     gapsize += 8;
     char gap[gapsize + 1];
@@ -110,9 +110,9 @@ print_options(int fd, struct carg *c) {
                     gap);
         }
         else {
-            gs = gapsize - (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
+            tmp = gapsize - (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
             dprintf(fd, "  -%c, --%s=%s%.*s", opt->shortname,
-                opt->longname, opt->arg, gs, gap);
+                opt->longname, opt->arg, tmp, gap);
         }
 
         print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
