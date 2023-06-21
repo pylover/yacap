@@ -28,6 +28,9 @@
 #include "helpers.h"
 
 
+struct carg_option nooption[] = {{ NULL }};
+
+
 int
 carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     char *argv[256];

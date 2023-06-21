@@ -30,6 +30,9 @@
     "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
 
 
+extern struct carg_option nooption[];
+
+
 int
 carg_parse_string(struct carg *c, char *out, char *err, const char * line);
 

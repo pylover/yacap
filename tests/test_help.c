@@ -30,9 +30,6 @@
 #include "helpers.h"
 
 
-static struct carg_option nooption[] = {{ NULL }};
-
-
 void
 test_help_arg() {
     struct carg carg = {
