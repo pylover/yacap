@@ -114,6 +114,7 @@ test_option_value() {
     struct carg_option options[] = {
         {"foo", 'f', "FOO", 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {"baz", 'z', NULL, 0, NULL},
         {NULL}
     };
     struct carg carg = {
@@ -152,6 +153,11 @@ test_option_value() {
     eqstr("", out);
     eqstr("", err);
     eqint(5, args.foo);
+
+    eqint(CARG_ERR, carg_parse_string(&carg, out, err, "foo -z2"));
+    eqstr("", out);
+    eqstr("foo: unrecognized option '-z2'\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
 }
 
 int
