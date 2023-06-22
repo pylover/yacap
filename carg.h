@@ -33,7 +33,7 @@ enum carg_status {
 enum carg_eatresult {
     CARG_EATEN,
     CARG_EATEN_EXIT,
-    CARG_UNRECOGNIZED,
+    CARG_NOT_EATEN,
     CARG_VALUE_REQUIRED,
 };
 

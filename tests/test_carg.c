@@ -30,7 +30,7 @@
 #include "helpers.h"
 
 
-void
+static void
 test_version() {
     struct carg carg = {
         .args = NULL,
@@ -59,8 +59,35 @@ test_version() {
 }
 
 
+static void
+test_program_error() {
+    struct carg_option options[] = {
+        {"foo", 'f', NULL, 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {NULL}
+    };
+    struct carg carg = {
+        .args = NULL,
+        .doc = NULL,
+        .eat = NULL,
+        .options = options,
+        .footer = NULL,
+        .version = "foo 1.2.3",
+    };
+
+    char out[1024] = "\0";
+    char err[1024] = "\0";
+
+    eqint(CARG_ERR, carg_parse_string(&carg, out, err, "foo -f"));
+    eqstr("", out);
+    eqstr("foo: -f: (PROGRAM ERROR) Option should have been recognized!?\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
+}
+
+
 int
 main() {
     test_version();
+    test_program_error();
     return EXIT_SUCCESS;
 }

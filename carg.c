@@ -120,6 +120,15 @@ _unrecognized_option(struct carg_state *state) {
 
 
 static void
+_not_eaten_option(struct carg_state *state, struct carg_option *opt) {
+    char *prog = state->argv[0];
+    dprintf(_errfile, "%s: -%c: (PROGRAM ERROR) "
+            "Option should have been recognized!?\n", prog, opt->key);
+    TRYHELP(prog);
+}
+
+
+static void
 _value_required(struct carg_state *state) {
     char *prog = state->argv[0];
     dprintf(_errfile, "%s: option requires an argument -- '%s'\n", prog,
@@ -129,7 +138,7 @@ _value_required(struct carg_state *state) {
 
 
 static struct carg_option *
-_option_bykey(struct carg_option *options, const char user) {
+_option_bykey(struct carg_option *opt, const char user) {
     switch (user) {
         case 'h':
             return &opt_help;
@@ -138,12 +147,19 @@ _option_bykey(struct carg_option *options, const char user) {
         case '?':
             return &opt_usage;
     }
+
+    while (opt->longname) {
+        if (opt->key == user) {
+            return opt;
+        }
+        opt++;
+    }
     return NULL;
 }
 
 
 static struct carg_option *
-_option_bylongname(struct carg_option *options, const char *user, int len) {
+_option_bylongname(struct carg_option *opt, const char *user, int len) {
     if (CMP(user, "help", 4)) {
         return &opt_help;
     }
@@ -154,6 +170,12 @@ _option_bylongname(struct carg_option *options, const char *user, int len) {
         return &opt_usage;
     }
 
+    while (opt->longname) {
+        if (CMP(user, opt->longname, len)) {
+            return opt;
+        }
+        opt++;
+    }
     return NULL;
 }
 
@@ -227,13 +249,13 @@ _eatopt(int key, const char *value, struct carg_state *state) {
 
         case 'V':
             if (state->carg->version == NULL) {
-                return CARG_UNRECOGNIZED;
+                return CARG_NOT_EATEN;
             }
             dprintf(state->fd, "%s\n", state->carg->version);
             return CARG_EATEN_EXIT;
     }
 
-    return CARG_UNRECOGNIZED;
+    return CARG_NOT_EATEN;
 }
 
 
@@ -295,7 +317,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
 
         /* Ask user to solve it */
         if (state.carg->eat == NULL) {
-            _unrecognized_option(&state);
+            _not_eaten_option(&state, opt);
             return CARG_ERR;
         }
 
@@ -303,8 +325,8 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
         switch (eatresult) {
             case CARG_EATEN_EXIT:
                 return CARG_OK_EXIT;
-            case CARG_UNRECOGNIZED:
-                _unrecognized_option(&state);
+            case CARG_NOT_EATEN:
+                _not_eaten_option(&state, opt);
                 return CARG_ERR;
             case CARG_VALUE_REQUIRED:
                 _value_required(&state);
