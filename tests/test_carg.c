@@ -131,7 +131,7 @@ test_option_value() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    
+
     eqint(CARG_ERR, carg_parse_string(&carg, out, err, "foo -f"));
     eqstr("", out);
     eqstr("foo: option requires an argument -- '-f'\n"
@@ -142,19 +142,19 @@ test_option_value() {
     eqstr("foo: unrecognized option '--foo5'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    memset(&args, 0, sizeof(args)); 
+    memset(&args, 0, sizeof(args));
     eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo -f3"));
     eqstr("", out);
     eqstr("", err);
     eqint(3, args.foo);
 
-    memset(&args, 0, sizeof(args)); 
+    memset(&args, 0, sizeof(args));
     eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo --foo 4"));
     eqstr("", out);
     eqstr("", err);
     eqint(4, args.foo);
 
-    memset(&args, 0, sizeof(args)); 
+    memset(&args, 0, sizeof(args));
     eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo --foo=5"));
     eqstr("", out);
     eqstr("", err);
