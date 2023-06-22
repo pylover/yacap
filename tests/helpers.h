@@ -33,7 +33,7 @@
 extern struct carg_option nooption[];
 
 
-int
+enum carg_status
 carg_parse_string(struct carg *c, char *out, char *err, const char * line);
 
 

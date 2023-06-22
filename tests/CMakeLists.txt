@@ -1,7 +1,5 @@
 # Testing
 include(CTest)
-list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
-
 
 add_library(helpers OBJECT helpers.c helpers.h)
 

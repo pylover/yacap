@@ -29,7 +29,7 @@
 
 #define MAX(x, y) ((x) > (y)? (x): (y))
 #define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
-#define ISCHAR(c) ( \
+#define ISCHAR(c) ((c == '?') || \
         BETWEEN(c, 48, 57) || \
         BETWEEN(c, 65, 90) || \
         BETWEEN(c, 97, 122))

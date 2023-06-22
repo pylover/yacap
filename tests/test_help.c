@@ -46,7 +46,7 @@ test_usage() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(1, carg_parse_string(&carg, out, err, "foo --usage"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --usage"));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -79,7 +79,7 @@ test_help_doc() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --help"));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -106,7 +106,7 @@ test_help_nooptions() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --help"));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -115,10 +115,10 @@ test_help_nooptions() {
 void
 test_help_options() {
     struct carg_option options[] = {
-        {"foo", 'f', NULL, "Foo flag"},
-        {"bar", 'b', "BAR", "Bar option with value"},
-        {"baz", 'z', "BAZ", LOREM},
-        {"qux", 1, "QUX", NULL},
+        {"foo", 'f', NULL, 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {"baz", 'z', "BAZ", 0, LOREM},
+        {"qux", 1, "QUX",  0, NULL},
         {NULL}
     };
 
@@ -148,7 +148,7 @@ test_help_options() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --help"));
     eqstr(help, out);
     eqstr("", err);
 }

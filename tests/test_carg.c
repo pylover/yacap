@@ -35,6 +35,7 @@ test_version() {
     struct carg carg = {
         .args = NULL,
         .doc = NULL,
+        .eat = NULL,
         .options = nooption,
         .footer = NULL,
         .version = "foo 1.2.3",
@@ -42,7 +43,17 @@ test_version() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(1, carg_parse_string(&carg, out, err, "foo --version"));
+
+    eqint(CARG_ERR, carg_parse_string(&carg, out, err, "foo -V2"));
+    eqstr("", out);
+    eqstr("foo: unrecognized option '-V2'\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --version"));
+    eqstr("foo 1.2.3\n", out);
+    eqstr("", err);
+    
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo -V"));
     eqstr("foo 1.2.3\n", out);
     eqstr("", err);
 }
@@ -50,6 +61,6 @@ test_version() {
 
 int
 main() {
-    // test_version();
+    test_version();
     return EXIT_SUCCESS;
 }

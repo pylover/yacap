@@ -20,16 +20,46 @@
 #define CARG_H_
 
 
+#include <stdbool.h>
+
+
+enum carg_status {
+    CARG_ERR = -1,
+    CARG_OK = 0,
+    CARG_OK_EXIT = 1,
+};
+
+
+enum carg_eatresult {
+    CARG_EATEN,
+    CARG_EATEN_EXIT,
+    CARG_UNRECOGNIZED,
+    CARG_VALUE_REQUIRED,
+};
+
+
+enum carg_optionflags {
+    COF_NONE,
+};
+
+
 struct carg_option {
     const char *longname;
     const int key;
     const char *arg;
+    enum carg_optionflags flags;
     const char *help;
 };
 
 
+struct carg_state;
+typedef enum carg_eatresult (*carg_eater) (int key, const char *value, 
+        struct carg_state *state);
+
+
 struct carg {
     const char *doc;
+    carg_eater eat;
     const char *args;
     struct carg_option *options;
     const char *footer;
@@ -42,6 +72,10 @@ struct carg_state {
     int argc;
     char **argv;
     int fd;
+    void *userptr;
+    int current;
+    int next;
+    bool dashdash;
 };
 
 
@@ -53,8 +87,8 @@ void
 carg_errfile_set(int fd);
 
 
-int
-carg_parse(struct carg *c, int argc, char **argv);
+enum carg_status
+carg_parse(struct carg *c, int argc, char **argv, void *userptr);
 
 
 #endif  // CARG_H_

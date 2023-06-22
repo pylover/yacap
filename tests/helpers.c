@@ -31,7 +31,7 @@
 struct carg_option nooption[] = {{ NULL }};
 
 
-int
+enum carg_status
 carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     char *argv[256];
     int argc = 0;
@@ -63,7 +63,7 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     carg_outfile_set(outpipe[1]);
     carg_errfile_set(errpipe[1]);
 
-    int ret = carg_parse(c, argc, argv);
+    int ret = carg_parse(c, argc, argv, NULL);
 
     close(outpipe[1]);
     close(errpipe[1]);
