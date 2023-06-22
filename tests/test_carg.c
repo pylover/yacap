@@ -46,6 +46,9 @@ eatarg(int key, const char *value, struct carg_state *state) {
         case 'b':
             args.bar = atoi(value);
             break;
+        case 'z':
+            args.baz = 1;
+            break;
         default:
             return CARG_NOT_EATEN;
     }
@@ -139,16 +142,19 @@ test_option_value() {
     eqstr("foo: unrecognized option '--foo5'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
+    memset(&args, 0, sizeof(args)); 
     eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo -f3"));
     eqstr("", out);
     eqstr("", err);
     eqint(3, args.foo);
 
+    memset(&args, 0, sizeof(args)); 
     eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo --foo 4"));
     eqstr("", out);
     eqstr("", err);
     eqint(4, args.foo);
 
+    memset(&args, 0, sizeof(args)); 
     eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo --foo=5"));
     eqstr("", out);
     eqstr("", err);
