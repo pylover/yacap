@@ -116,11 +116,11 @@ print_options(int fd, struct carg *c) {
         }
 
         if (opt->arg == NULL) {
-            dprintf(fd, "--%s%.*s", opt->longname, 
+            dprintf(fd, "--%s%.*s", opt->longname,
                     gapsize - ((int)strlen(opt->longname)), gap);
         }
         else {
-            tmp = gapsize - 
+            tmp = gapsize -
                 (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
             dprintf(fd, "--%s=%s%.*s", opt->longname, opt->arg, tmp, gap);
         }

@@ -104,7 +104,6 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-
     char out[1024] = "\0";
     char err[1024] = "\0";
     eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
@@ -157,7 +156,7 @@ test_help_options() {
 
 int
 main() {
-    // test_usage();
+    test_usage();
     test_help_doc();
     test_help_nooptions();
     test_help_options();

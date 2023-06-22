@@ -66,7 +66,8 @@ carg_print_usage(struct carg_state *state) {
         if (needle == NULL) {
             break;
         }
-        dprintf(state->fd, "\n   or: %s [OPTION...] %s", state->argv[0], needle);
+        dprintf(state->fd, "\n   or: %s [OPTION...] %s", state->argv[0],
+                needle);
     }
 
 done:
