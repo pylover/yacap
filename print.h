@@ -34,8 +34,4 @@ void
 print_options(int fd, struct carg *c);
 
 
-void
-print_usage(int fd, struct carg *c, const char *prog);
-
-
 #endif  // PRINT_H_

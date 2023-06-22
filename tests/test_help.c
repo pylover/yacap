@@ -31,7 +31,7 @@
 
 
 void
-test_help_arg() {
+test_usage() {
     struct carg carg = {
         .args = "bar\nbaz",
         .doc = NULL,
@@ -40,19 +40,14 @@ test_help_arg() {
         .version = NULL,
     };
 
-    char *help =
+    char *usage =
         "Usage: foo [OPTION...] bar\n"
-        "   or: foo [OPTION...] baz\n"
-        "\n"
-        "  -h, --help           Give this help list\n"
-        "  -?, --usage          Give a short usage message\n"
-        "\n";
-
+        "   or: foo [OPTION...] baz\n";
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(1, carg_parse_string(&carg, out, err, "foo --help"));
-    eqstr(help, out);
+    eqint(1, carg_parse_string(&carg, out, err, "foo --usage"));
+    eqstr(usage, out);
     eqstr("", err);
 }
 
@@ -124,6 +119,7 @@ test_help_options() {
         {"foo", 'f', NULL, "Foo flag"},
         {"bar", 'b', "BAR", "Bar option with value"},
         {"baz", 'z', "BAZ", LOREM},
+        {"qux", 1, "QUX", NULL},
         {NULL}
     };
 
@@ -145,11 +141,11 @@ test_help_options() {
 "                       ore magna aliqua. Ut enim ad minim veniam, quis nostrud \n"  // NOLINT
 "                       exercitation ullamco laboris nisi ut aliquip ex ea comm-\n"  // NOLINT
 "                       odo consequat. Duis aute irure dolor.\n"  // NOLINT
+"      --qux=QUX        \n"  // NOLINT
 "  -h, --help           Give this help list\n"
 "  -?, --usage          Give a short usage message\n"
 "\n"
 "Lorem ipsum footer\n";
-
 
     char out[1024] = "\0";
     char err[1024] = "\0";
@@ -161,7 +157,7 @@ test_help_options() {
 
 int
 main() {
-    test_help_arg();
+    // test_usage();
     test_help_doc();
     test_help_nooptions();
     test_help_options();

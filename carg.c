@@ -46,22 +46,52 @@ carg_errfile_set(int fd) {
 
 
 void
-carg_print_help(struct carg *c, const char *prog) {
+carg_print_usage(struct carg_state *state) {
+    char delim[1] = {'\n'};
+    char *needle;
+    char *saveptr = NULL;
+
+    dprintf(state->fd, "Usage: %s [OPTION...]", state->argv[0]);
+    if (state->carg->args == NULL) {
+        goto done;
+    }
+
+    static char buff[1024];
+    strcpy(buff, state->carg->args);
+
+    needle = strtok_r(buff, delim, &saveptr);
+    dprintf(state->fd, " %s", needle);
+    while (true) {
+        needle = strtok_r(NULL, delim, &saveptr);
+        if (needle == NULL) {
+            break;
+        }
+        dprintf(state->fd, "\n   or: %s [OPTION...] %s", state->argv[0], needle);
+    }
+
+done:
+    dprintf(state->fd, "\n");
+}
+
+
+void
+carg_print_help(struct carg_state *state) {
     /* Usage */
-    print_usage(_outfile, c, prog);
+    carg_print_usage(state);
 
     /* Document */
-    if (c->doc) {
-        print_multiline(_outfile, c->doc, 0, HELP_LINESIZE);
-    }
+    print_multiline(state->fd, state->carg->doc, 0, HELP_LINESIZE);
 
     /* Options */
-    print_options(_outfile, c);
+    print_options(state->fd, state->carg);
 
     /* Footer */
-    if (c->footer) {
-        print_multiline(_outfile, c->footer, 0, HELP_LINESIZE);
-    }
+    print_multiline(state->fd, state->carg->footer, 0, HELP_LINESIZE);
+}
+
+
+static int
+carg_parseopt(struct carg_state *state) {
 }
 
 
@@ -70,7 +100,15 @@ carg_parse(struct carg *c, int argc, char **argv) {
     if (argc < 1) {
         return -1;
     }
-    carg_print_help(c, argv[0]);
+
+    struct carg_state state = {
+        .carg = c,
+        .argc = argc,
+        .argv = argv,
+        .fd = _outfile,
+    };
+
+    carg_print_help(&state);
 
     return 1;
 }

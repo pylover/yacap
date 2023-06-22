@@ -28,6 +28,11 @@
 
 
 #define MAX(x, y) ((x) > (y)? (x): (y))
+#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
+#define ISCHAR(c) ( \
+        BETWEEN(c, 48, 57) || \
+        BETWEEN(c, 65, 90) || \
+        BETWEEN(c, 97, 122))
 
 
 void
@@ -38,7 +43,6 @@ print_multiline(int fd, const char *string, int indent, int linemax) {
     bool dash = false;
 
     if (string == NULL) {
-        dprintf(fd, "\n");
         return;
     }
 
@@ -104,18 +108,29 @@ print_options(int fd, struct carg *c) {
             break;
         }
 
-        if (opt->arg == NULL) {
-            dprintf(fd, "  -%c, --%s%.*s", opt->shortname,
-                    opt->longname, gapsize - ((int)strlen(opt->longname)),
-                    gap);
+        if (ISCHAR(opt->key)) {
+            dprintf(fd, "  -%c, ", opt->key);
         }
         else {
-            tmp = gapsize - (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
-            dprintf(fd, "  -%c, --%s=%s%.*s", opt->shortname,
-                opt->longname, opt->arg, tmp, gap);
+            dprintf(fd, "      ");
         }
 
-        print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
+        if (opt->arg == NULL) {
+            dprintf(fd, "--%s%.*s", opt->longname, 
+                    gapsize - ((int)strlen(opt->longname)), gap);
+        }
+        else {
+            tmp = gapsize - 
+                (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
+            dprintf(fd, "--%s=%s%.*s", opt->longname, opt->arg, tmp, gap);
+        }
+
+        if (opt->help) {
+            print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
+        }
+        else {
+            dprintf(fd, "\n");
+        }
     }
     dprintf(fd, "  -h, --help%.*sGive this help list\n",
             gapsize - 4, gap);
@@ -127,34 +142,5 @@ print_options(int fd, struct carg *c) {
                 gapsize - 7, gap);
     }
 
-    dprintf(fd, "\n");
-}
-
-
-void
-print_usage(int fd, struct carg *c, const char *prog) {
-    char delim[1] = {'\n'};
-    char *needle;
-    char *saveptr = NULL;
-
-    dprintf(fd, "Usage: %s [OPTION...]", prog);
-    if (c->args == NULL) {
-        goto done;
-    }
-
-    static char buff[1024];
-    strcpy(buff, c->args);
-
-    needle = strtok_r(buff, delim, &saveptr);
-    dprintf(fd, " %s", needle);
-    while (true) {
-        needle = strtok_r(NULL, delim, &saveptr);
-        if (needle == NULL) {
-            break;
-        }
-        dprintf(fd, "\n   or: %s [OPTION...] %s", prog, needle);
-    }
-
-done:
     dprintf(fd, "\n");
 }

@@ -22,7 +22,7 @@
 
 struct carg_option {
     const char *longname;
-    const char shortname;
+    const int key;
     const char *arg;
     const char *help;
 };
@@ -34,6 +34,14 @@ struct carg {
     struct carg_option *options;
     const char *footer;
     const char *version;
+};
+
+
+struct carg_state {
+    struct carg *carg;
+    int argc;
+    char **argv;
+    int fd;
 };
 
 

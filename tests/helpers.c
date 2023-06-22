@@ -56,6 +56,7 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     int errpipe[2];
     out[0] = '\0';
     err[0] = '\0';
+
     pipe(outpipe);
     pipe(errpipe);
 
