@@ -28,14 +28,14 @@
 #include "carg.h"
 #include "print.h"
 
-        
+
 static int _outfile = STDOUT_FILENO;
 static int _errfile = STDERR_FILENO;
-static struct carg_option opt_version = {"version", 'V', NULL, 0, 
+static struct carg_option opt_version = {"version", 'V', NULL, 0,
     "Print program version"};
-static struct carg_option opt_help = {"help", 'h', NULL, 0, 
+static struct carg_option opt_help = {"help", 'h', NULL, 0,
     "Give this help list"};
-static struct carg_option opt_usage = {"usage", '?', NULL, 0, 
+static struct carg_option opt_usage = {"usage", '?', NULL, 0,
     "Give a short usage message"};
 
 
@@ -113,7 +113,7 @@ carg_print_help(struct carg_state *state) {
 static void
 _unrecognized_option(struct carg_state *state) {
     char *prog = state->argv[0];
-    dprintf(_errfile, "%s: unrecognized option '%s'\n", prog, 
+    dprintf(_errfile, "%s: unrecognized option '%s'\n", prog,
             state->argv[state->current]);
     TRYHELP(prog);
 }
@@ -122,7 +122,7 @@ _unrecognized_option(struct carg_state *state) {
 static void
 _value_required(struct carg_state *state) {
     char *prog = state->argv[0];
-    dprintf(_errfile, "%s: option requires an argument -- '%s'\n", prog, 
+    dprintf(_errfile, "%s: option requires an argument -- '%s'\n", prog,
             state->argv[state->current]);
     TRYHELP(prog);
 }
@@ -130,7 +130,7 @@ _value_required(struct carg_state *state) {
 
 static struct carg_option *
 _option_bykey(struct carg_option *options, const char user) {
-    switch(user) {
+    switch (user) {
         case 'h':
             return &opt_help;
         case 'V':
@@ -164,7 +164,7 @@ _find_opt(struct carg_state *state, const char **value) {
     int len = strlen(user);
     enum carg_argtype argtype;
     struct carg_option *opt = NULL;
-    
+
     if (len == 0) {
         return NULL;
     }
@@ -184,7 +184,7 @@ _find_opt(struct carg_state *state, const char **value) {
     else {
         argtype = CAT_COMMAND;
     }
-    
+
     if (len == 0) {
         state->dashdash = true;
         return NULL;
@@ -194,14 +194,14 @@ _find_opt(struct carg_state *state, const char **value) {
         case CAT_SHORT:
             opt = _option_bykey(state->carg->options, user[0]);
             if (opt && (len > 1)) {
-                *value = user + 1; 
+                *value = user + 1;
             }
             break;
 
         case CAT_LONG:
             opt = _option_bylongname(state->carg->options, user, len);
             break;
-        
+
         case CAT_COMMAND:
             // TODO: Implement
             opt = NULL;
@@ -220,7 +220,7 @@ _eatopt(int key, const char *value, struct carg_state *state) {
         case 'h':
             carg_print_help(state);
             return CARG_EATEN_EXIT;
-        
+
         case '?':
             carg_print_usage(state);
             return CARG_EATEN_EXIT;
@@ -245,7 +245,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
     const char *value = NULL;
 
     if (argc < 1) {
-        return CARG_ERR; 
+        return CARG_ERR;
     }
 
     struct carg_state state = {
@@ -257,7 +257,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
         .current = -1,
         .next = -1,
     };
-    
+
     for (i = 1; i < argc; i++) {
         state.current = i;
         state.next = (i + 1) >= argc? -1: i + 1;
@@ -277,22 +277,22 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
                     _value_required(&state);
                     return CARG_ERR;
                 }
-                
-                value = argv[i + 1];            
+
+                value = argv[i + 1];
                 i++;
             }
         }
-        else if (value) { 
+        else if (value) {
             _unrecognized_option(&state);
             return CARG_ERR;
         }
-       
+
         /* Try to solve it internaly */
         eatresult = _eatopt(opt->key, value, &state);
         if (eatresult == CARG_EATEN_EXIT) {
             return CARG_OK_EXIT;
         }
-      
+
         /* Ask user to solve it */
         if (state.carg->eat == NULL) {
             _unrecognized_option(&state);

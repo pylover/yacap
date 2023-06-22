@@ -52,7 +52,7 @@ test_version() {
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --version"));
     eqstr("foo 1.2.3\n", out);
     eqstr("", err);
-    
+
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo -V"));
     eqstr("foo 1.2.3\n", out);
     eqstr("", err);

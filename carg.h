@@ -53,7 +53,7 @@ struct carg_option {
 
 
 struct carg_state;
-typedef enum carg_eatresult (*carg_eater) (int key, const char *value, 
+typedef enum carg_eatresult (*carg_eater) (int key, const char *value,
         struct carg_state *state);
 
 
