@@ -54,8 +54,8 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
     /* Piping */
     int outpipe[2];
     int errpipe[2];
-    out[0] = '\0';
-    err[0] = '\0';
+    memset(out, 0, BUFFSIZE + 1);
+    memset(err, 0, BUFFSIZE + 1);
 
     pipe(outpipe);
     pipe(errpipe);
@@ -74,6 +74,3 @@ carg_parse_string(struct carg *c, char *out, char *err, const char * line) {
 
     return ret;
 }
-
-
-

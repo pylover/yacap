@@ -183,6 +183,7 @@ _option_bylongname(struct carg_option *opt, const char *user, int len) {
 static struct carg_option *
 _find_opt(struct carg_state *state, const char **value) {
     const char *user = state->argv[state->current];
+    char *tmp;
     int len = strlen(user);
     enum carg_argtype argtype;
     struct carg_option *opt = NULL;
@@ -221,6 +222,11 @@ _find_opt(struct carg_state *state, const char **value) {
             break;
 
         case CAT_LONG:
+            tmp = strchr(user, '=');
+            if (tmp) {
+                *value = tmp + 1;
+                tmp[0] = '\0';
+            }
             opt = _option_bylongname(state->carg->options, user, len);
             break;
 
@@ -315,19 +321,21 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
             return CARG_OK_EXIT;
         }
 
-        /* Ask user to solve it */
         if (state.carg->eat == NULL) {
             _not_eaten_option(&state, opt);
             return CARG_ERR;
         }
 
+        /* Ask user to solve it */
         eatresult = state.carg->eat(opt->key, value, &state);
         switch (eatresult) {
             case CARG_EATEN_EXIT:
                 return CARG_OK_EXIT;
+
             case CARG_NOT_EATEN:
                 _not_eaten_option(&state, opt);
                 return CARG_ERR;
+
             case CARG_VALUE_REQUIRED:
                 _value_required(&state);
                 return CARG_ERR;

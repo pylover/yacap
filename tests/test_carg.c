@@ -30,6 +30,30 @@
 #include "helpers.h"
 
 
+static struct {
+    int foo;
+    int bar;
+    int baz;
+} args = {0, 0, 0};
+
+
+static enum carg_eatresult
+eatarg(int key, const char *value, struct carg_state *state) {
+    switch (key) {
+        case 'f':
+            args.foo = atoi(value);
+            break;
+        case 'b':
+            args.bar = atoi(value);
+            break;
+        default:
+            return CARG_NOT_EATEN;
+    }
+
+    return CARG_EATEN;
+}
+
+
 static void
 test_version() {
     struct carg carg = {
@@ -72,7 +96,7 @@ test_program_error() {
         .eat = NULL,
         .options = options,
         .footer = NULL,
-        .version = "foo 1.2.3",
+        .version = NULL,
     };
 
     char out[1024] = "\0";
@@ -85,9 +109,55 @@ test_program_error() {
 }
 
 
+static void
+test_option_value() {
+    struct carg_option options[] = {
+        {"foo", 'f', "FOO", 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {NULL}
+    };
+    struct carg carg = {
+        .args = NULL,
+        .doc = NULL,
+        .eat = eatarg,
+        .options = options,
+        .footer = NULL,
+        .version = NULL,
+    };
+
+    char out[1024] = "\0";
+    char err[1024] = "\0";
+    
+    eqint(CARG_ERR, carg_parse_string(&carg, out, err, "foo -f"));
+    eqstr("", out);
+    eqstr("foo: option requires an argument -- '-f'\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_ERR, carg_parse_string(&carg, out, err, "foo --foo5"));
+    eqstr("", out);
+    eqstr("foo: unrecognized option '--foo5'\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo -f3"));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(3, args.foo);
+
+    eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo --foo 4"));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(4, args.foo);
+
+    eqint(CARG_OK, carg_parse_string(&carg, out, err, "foo --foo=5"));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(5, args.foo);
+}
+
 int
 main() {
     test_version();
     test_program_error();
+    test_option_value();
     return EXIT_SUCCESS;
 }
