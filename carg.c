@@ -26,7 +26,6 @@
 #include <clog.h>
 
 #include "carg.h"
-#include "print.h"
 
 
 static int _outfile = STDOUT_FILENO;
@@ -39,10 +38,17 @@ static struct carg_option opt_usage = {"usage", '?', NULL, 0,
     "Give a short usage message"};
 
 
+#define HELP_LINESIZE 79
 #define USAGE_BUFFSIZE 1024
 #define TRYHELP(p) dprintf(_errfile, \
         "Try `%s --help' or `%s --usage' for more information.\n", p, p);
 #define CMP(x, y, l) (strncmp(x, y, l) == 0)
+#define MAX(x, y) ((x) > (y)? (x): (y))
+#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
+#define ISCHAR(c) ((c == '?') || \
+        BETWEEN(c, 48, 57) || \
+        BETWEEN(c, 65, 90) || \
+        BETWEEN(c, 97, 122))
 
 
 enum carg_argtype {
@@ -61,6 +67,117 @@ carg_outfile_set(int fd) {
 void
 carg_errfile_set(int fd) {
     _errfile = fd;
+}
+
+
+static void
+_print_multiline(int fd, const char *string, int indent, int linemax) {
+    int remain;
+    int linesize = linemax - indent;
+    int ls;
+    bool dash = false;
+
+    if (string == NULL) {
+        return;
+    }
+
+    remain = strlen(string);
+    while (remain) {
+        dash = false;
+        while (remain && isspace(string[0])) {
+            string++;
+            remain--;
+        }
+
+        if (remain <= linesize) {
+            dprintf(fd, "%s\n", string);
+            remain = 0;
+            break;
+        }
+
+        ls = linesize;
+        if (string[ls - 2] == ' ') {
+            ls--;
+        }
+        else if ((string[ls - 1] != ' ') && (string[ls] != ' ')) {
+            ls--;
+            dash = true;
+        }
+
+        dprintf(fd, "%.*s%s\n", ls, string, dash? "-": "");
+        remain -= ls;
+        string += ls;
+        dprintf(fd, "%*s", indent, "");
+    }
+}
+
+
+static void
+_print_options(int fd, struct carg *c) {
+    int gapsize = 7;
+    int i = 0;
+    struct carg_option *opt;
+    int tmp = 0;
+
+    while (true) {
+        opt = &(c->options[i++]);
+
+        if (opt->longname == NULL) {
+            break;
+        }
+
+        tmp = strlen(opt->longname) + (opt->arg? strlen(opt->arg) + 1: 0);
+        gapsize = MAX(gapsize, tmp);
+    }
+    gapsize += 8;
+    char gap[gapsize + 1];
+    gap[gapsize] = '\0';
+    memset(gap, ' ', gapsize);
+
+    dprintf(fd, "\n");
+    i = 0;
+    while (true) {
+        opt = &(c->options[i++]);
+
+        if (opt->longname == NULL) {
+            break;
+        }
+
+        if (ISCHAR(opt->key)) {
+            dprintf(fd, "  -%c, ", opt->key);
+        }
+        else {
+            dprintf(fd, "      ");
+        }
+
+        if (opt->arg == NULL) {
+            dprintf(fd, "--%s%.*s", opt->longname,
+                    gapsize - ((int)strlen(opt->longname)), gap);
+        }
+        else {
+            tmp = gapsize -
+                (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
+            dprintf(fd, "--%s=%s%.*s", opt->longname, opt->arg, tmp, gap);
+        }
+
+        if (opt->help) {
+            _print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
+        }
+        else {
+            dprintf(fd, "\n");
+        }
+    }
+    dprintf(fd, "  -h, --help%.*sGive this help list\n",
+            gapsize - 4, gap);
+    dprintf(fd, "  -?, --usage%.*sGive a short usage message\n",
+            gapsize - 5, gap);
+
+    if (c->version) {
+        dprintf(fd, "  -V, --version%.*sPrint program version\n",
+                gapsize - 7, gap);
+    }
+
+    dprintf(fd, "\n");
 }
 
 
@@ -100,13 +217,13 @@ carg_print_help(struct carg_state *state) {
     carg_print_usage(state);
 
     /* Document */
-    print_multiline(state->fd, state->carg->doc, 0, HELP_LINESIZE);
+    _print_multiline(state->fd, state->carg->doc, 0, HELP_LINESIZE);
 
     /* Options */
-    print_options(state->fd, state->carg);
+    _print_options(state->fd, state->carg);
 
     /* Footer */
-    print_multiline(state->fd, state->carg->footer, 0, HELP_LINESIZE);
+    _print_multiline(state->fd, state->carg->footer, 0, HELP_LINESIZE);
 }
 
 

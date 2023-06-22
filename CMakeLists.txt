@@ -26,7 +26,6 @@ include_directories(
 
 add_library(carg STATIC 
     carg.c carg.h
-    print.c print.h
 )
 
 
