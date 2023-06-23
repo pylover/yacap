@@ -39,10 +39,7 @@ test_usage() {
         "Usage: foo [OPTION...] bar\n"
         "   or: foo [OPTION...] baz\n";
 
-    char out[1024] = "\0";
-    char err[1024] = "\0";
-    eqint(CARG_OK_EXIT,
-            carg_parse_string(&carg, out, err, "foo --usage", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --usage", NULL));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -73,10 +70,7 @@ test_help_doc() {
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n";  // NOLINT
 
-    char out[1024] = "\0";
-    char err[1024] = "\0";
-    eqint(CARG_OK_EXIT,
-            carg_parse_string(&carg, out, err, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -101,10 +95,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    char out[1024] = "\0";
-    char err[1024] = "\0";
-    eqint(CARG_OK_EXIT,
-            carg_parse_string(&carg, out, err, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -144,10 +135,7 @@ test_help_options() {
 "\n"
 "Lorem ipsum footer\n";
 
-    char out[1024] = "\0";
-    char err[1024] = "\0";
-    eqint(CARG_OK_EXIT,
-            carg_parse_string(&carg, out, err, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

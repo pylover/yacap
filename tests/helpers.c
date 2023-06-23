@@ -29,11 +29,12 @@
 
 
 struct carg_option nooption[] = {{ NULL }};
+char out[BUFFSIZE + 1] = "\0";
+char err[BUFFSIZE + 1] = "\0";
 
 
 enum carg_status
-carg_parse_string(struct carg *c, char *out, char *err, const char * line,
-        void *userptr) {
+carg_parse_string(struct carg *c, const char * line, void *userptr) {
     char *argv[256];
     int argc = 0;
     char delim[1] = {' '};

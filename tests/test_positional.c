@@ -72,11 +72,7 @@ test_positionals() {
         .version = NULL,
     };
 
-    char out[1024] = "\0";
-    char err[1024] = "\0";
-
-    eqint(CARG_OK,
-            carg_parse_string(&carg, out, err, "qux foo bar baz", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo bar baz", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foo);

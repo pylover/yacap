@@ -31,11 +31,12 @@
 
 
 extern struct carg_option nooption[];
+extern char out[];
+extern char err[];
 
 
 enum carg_status
-carg_parse_string(struct carg *c, char *out, char *err, const char * line,
-        void *userptr);
+carg_parse_string(struct carg *c, const char *line, void *userptr);
 
 
 #endif  // TESTS_HELPERS_H_
