@@ -67,6 +67,7 @@ test_program_error() {
         .options = options,
         .footer = NULL,
         .version = NULL,
+        .flags = 0,
     };
 
     eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));
@@ -91,6 +92,7 @@ test_option_value() {
         .options = options,
         .footer = NULL,
         .version = NULL,
+        .flags = 0,
     };
 
     eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));

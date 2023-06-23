@@ -8,6 +8,7 @@ add_custom_target(profile
     DEPENDS 
     profile_test_help
     profile_test_version
+    profile_test_logverbosity
     profile_test_options
     profile_test_positional
 )
@@ -38,6 +39,20 @@ add_custom_target(profile_test_version
     COMMAND "valgrind" 
     ${VALGRIND_FLAGS}
     $<TARGET_FILE:test_version>
+)
+
+
+# Test logverbosity
+add_executable(test_logverbosity 
+    $<TARGET_OBJECTS:helpers>
+    test_logverbosity.c)
+target_include_directories(test_logverbosity PUBLIC "${PROJECT_BINARY_DIR}")
+target_link_libraries(test_logverbosity PUBLIC clog carg)
+add_test(NAME test_logverbosity COMMAND test_logverbosity)
+add_custom_target(profile_test_logverbosity
+    COMMAND "valgrind" 
+    ${VALGRIND_FLAGS}
+    $<TARGET_FILE:test_logverbosity>
 )
 
 

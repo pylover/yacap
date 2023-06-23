@@ -23,6 +23,7 @@
 #include <stdbool.h>
 
 
+/* carg special keys */
 #define CARG_POSITIONAL -1
 #define CARG_END -2
 
@@ -38,7 +39,8 @@ enum carg_eatstatus {
     CARG_EAT_OK,
     CARG_EAT_OK_EXIT,
     CARG_EAT_UNRECOGNIZED,
-    CARG_EAT_OPT_VALUE,
+    CARG_EAT_OPT_NOVALUE,
+    CARG_EAT_OPT_BADVALUE,
     CARG_EAT_ARG_INSUFFICIENT,
 };
 
@@ -62,6 +64,14 @@ typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
         struct carg_state *state);
 
 
+/* carg flags */
+enum carg_flags{
+    CARG_NO_HELP = 2,
+    CARG_NO_USAGE = 4,
+    CARG_NO_CLOG = 8,
+};
+
+
 struct carg {
     carg_eater eat;
     struct carg_option *options;
@@ -69,6 +79,7 @@ struct carg {
     const char *header;
     const char *footer;
     const char *version;
+    enum carg_flags flags;
 };
 
 

@@ -75,6 +75,7 @@ test_positionals() {
         .header = NULL,
         .footer = NULL,
         .version = NULL,
+        .flags = 0,
     };
 
     args.foo = NULL;
@@ -151,6 +152,7 @@ test_dashdash() {
         .header = NULL,
         .footer = NULL,
         .version = NULL,
+        .flags = 0,
     };
 
     memset(&args, 0, sizeof(args));

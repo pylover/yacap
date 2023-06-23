@@ -57,13 +57,16 @@ test_help_doc() {
 
     char *help =
 "Usage: foo [OPTION...]\n"  // NOLINT
+"\n"  // NOLINT
 "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n"  // NOLINT
 "\n"  // NOLINT
-"  -h, --help           Give this help list\n"  // NOLINT
-"  -?, --usage          Give a short usage message\n"  // NOLINT
+"  -h, --help               Give this help list\n"  // NOLINT
+"  -?, --usage              Give a short usage message\n"  // NOLINT
+"  -v, --verbosity=LEVEL    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
+"                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
 "\n"  // NOLINT
 "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
@@ -84,14 +87,15 @@ test_help_nooptions() {
         .options = nooption,
         .footer = "Lorem ipsum footer",
         .version = "1.0.0a",
+        .flags = CARG_NO_CLOG,
     };
 
     char *help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
-        "  -h, --help           Give this help list\n"
-        "  -?, --usage          Give a short usage message\n"
-        "  -V, --version        Print program version\n"
+        "  -h, --help       Give this help list\n"
+        "  -?, --usage      Give a short usage message\n"
+        "  -V, --version    Print program version\n"
         "\n"
         "Lorem ipsum footer\n";
 
@@ -122,16 +126,19 @@ test_help_options() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
-"  -f, --foo            Foo flag\n"
-"  -b, --bar=BAR        Bar option with value\n"
-"  -z, --baz=BAZ        Lorem merol ipsum dolor sit amet, consectetur adipiscing\n"  // NOLINT
-"                       elit, sed do eiusmod tempor incididunt ut labore et dol-\n"  // NOLINT
-"                       ore magna aliqua. Ut enim ad minim veniam, quis nostrud \n"  // NOLINT
-"                       exercitation ullamco laboris nisi ut aliquip ex ea comm-\n"  // NOLINT
-"                       odo consequat. Duis aute irure dolor.\n"  // NOLINT
-"      --qux=QUX        \n"  // NOLINT
-"  -h, --help           Give this help list\n"
-"  -?, --usage          Give a short usage message\n"
+"  -f, --foo                Foo flag\n"  // NOLINT
+"  -b, --bar=BAR            Bar option with value\n"  // NOLINT
+"  -z, --baz=BAZ            Lorem merol ipsum dolor sit amet, consectetur adipi-\n"  // NOLINT
+"                           scing elit, sed do eiusmod tempor incididunt ut lab-\n"  // NOLINT
+"                           ore et dolore magna aliqua. Ut enim ad minim veniam,\n"  // NOLINT
+"                           quis nostrud exercitation ullamco laboris nisi ut a-\n"  // NOLINT
+"                           liquip ex ea commodo consequat. Duis aute irure dol-\n"  // NOLINT
+"                           or.\n"  // NOLINT
+"      --qux=QUX            \n"  // NOLINT
+"  -h, --help               Give this help list\n"  // NOLINT
+"  -?, --usage              Give a short usage message\n"  // NOLINT
+"  -v, --verbosity=LEVEL    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
+"                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
 "\n"
 "Lorem ipsum footer\n";
 

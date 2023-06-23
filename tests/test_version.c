@@ -34,6 +34,7 @@ test_version() {
         .options = nooption,
         .footer = NULL,
         .version = "foo 1.2.3",
+        .flags = 0,
     };
 
     eqint(CARG_ERR, carg_parse_string(&carg, "foo -V2", NULL));

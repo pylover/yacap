@@ -20,6 +20,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -28,16 +29,7 @@
 #include "carg.h"
 
 
-static int _outfile = STDOUT_FILENO;
-static int _errfile = STDERR_FILENO;
-static struct carg_option opt_version = {"version", 'V', NULL, 0,
-    "Print program version"};
-static struct carg_option opt_help = {"help", 'h', NULL, 0,
-    "Give this help list"};
-static struct carg_option opt_usage = {"usage", '?', NULL, 0,
-    "Give a short usage message"};
-
-
+#define VERBOSITY_DEFAULT  CLOG_WARNING
 #define HELP_LINESIZE 79
 #define USAGE_BUFFSIZE 1024
 #define TRYHELP(p) dprintf(_errfile, \
@@ -45,10 +37,35 @@ static struct carg_option opt_usage = {"usage", '?', NULL, 0,
 #define CMP(x, y, l) (strncmp(x, y, l) == 0)
 #define MAX(x, y) ((x) > (y)? (x): (y))
 #define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
-#define ISCHAR(c) ((c == '?') || \
-        BETWEEN(c, 48, 57) || \
+#define ISSIGN(c) (\
+        BETWEEN(c, 32, 47) || \
+        BETWEEN(c, 58, 64) || \
+        BETWEEN(c, 123, 126))
+#define ISDIGIT(c) BETWEEN(c, 48, 57)
+#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
         BETWEEN(c, 65, 90) || \
         BETWEEN(c, 97, 122))
+#define OPT_MINGAP   4
+#define OPT_HELPLEN(o) (strlen((o)->longname) + \
+    ((o)->arg? strlen((o)->arg) + 1: 0))
+
+
+static int _outfile = STDOUT_FILENO;
+static int _errfile = STDERR_FILENO;
+static struct carg_option opt_verbosity = {
+    .longname = "verbosity",
+    .key = 'v',
+    .arg = "LEVEL",
+    .flags = 0,
+    .help = "Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|error, "
+        "3|w|warn, 4|i|info 5|d|debug. default: warn."
+};
+static struct carg_option opt_version = {"version", 'V', NULL, 0,
+    "Print program version"};
+static struct carg_option opt_help = {"help", 'h', NULL, 0,
+    "Give this help list"};
+static struct carg_option opt_usage = {"usage", '?', NULL, 0,
+    "Give a short usage message"};
 
 
 enum carg_argtype {
@@ -99,7 +116,8 @@ _print_multiline(int fd, const char *string, int indent, int linemax) {
         if (string[ls - 2] == ' ') {
             ls--;
         }
-        else if ((string[ls - 1] != ' ') && (string[ls] != ' ')) {
+        else if ((string[ls - 1] != ' ') && (string[ls] != ' ') &&
+                (!ISSIGN(string[ls - 1])) && (!ISSIGN(string[ls]))) {
             ls--;
             dash = true;
         }
@@ -113,68 +131,96 @@ _print_multiline(int fd, const char *string, int indent, int linemax) {
 
 
 static void
+_print_option(int fd, struct carg_option *opt, int gapsize) {
+    int rpad = gapsize - OPT_HELPLEN(opt);
+
+    if (ISCHAR(opt->key)) {
+        dprintf(fd, "  -%c, ", opt->key);
+    }
+    else {
+        dprintf(fd, "      ");
+    }
+
+    if (opt->arg == NULL) {
+        dprintf(fd, "--%s%*s", opt->longname, rpad, "");
+    }
+    else {
+        dprintf(fd, "--%s=%s%*s", opt->longname, opt->arg, rpad, "");
+    }
+
+    if (opt->help) {
+        _print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
+    }
+    else {
+        dprintf(fd, "\n");
+    }
+}
+
+
+static int
+_calculate_initial_gapsize(struct carg *c) {
+    int gapsize = 8;
+
+    if (!(c->flags & CARG_NO_CLOG)) {
+        gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
+    }
+
+    if (!(c->flags & CARG_NO_HELP)) {
+        gapsize = MAX(gapsize, OPT_HELPLEN(&opt_help) + OPT_MINGAP);
+    }
+
+    if (!(c->flags & CARG_NO_USAGE)) {
+        gapsize = MAX(gapsize, OPT_HELPLEN(&opt_usage) + OPT_MINGAP);
+    }
+
+    if (c->version) {
+        gapsize = MAX(gapsize, OPT_HELPLEN(&opt_version) + OPT_MINGAP);
+    }
+
+    return gapsize;
+}
+
+
+static void
 _print_options(int fd, struct carg *c) {
-    int gapsize = 7;
+    int gapsize = _calculate_initial_gapsize(c);
     int i = 0;
     struct carg_option *opt;
-    int tmp = 0;
 
     while (true) {
         opt = &(c->options[i++]);
-
         if (opt->longname == NULL) {
             break;
         }
 
-        tmp = strlen(opt->longname) + (opt->arg? strlen(opt->arg) + 1: 0);
-        gapsize = MAX(gapsize, tmp);
+        gapsize = MAX(gapsize, OPT_HELPLEN(opt) + OPT_MINGAP);
     }
-    gapsize += 8;
-    char gap[gapsize + 1];
-    gap[gapsize] = '\0';
-    memset(gap, ' ', gapsize);
 
     dprintf(fd, "\n");
     i = 0;
     while (true) {
         opt = &(c->options[i++]);
-
         if (opt->longname == NULL) {
             break;
         }
 
-        if (ISCHAR(opt->key)) {
-            dprintf(fd, "  -%c, ", opt->key);
-        }
-        else {
-            dprintf(fd, "      ");
-        }
-
-        if (opt->arg == NULL) {
-            dprintf(fd, "--%s%.*s", opt->longname,
-                    gapsize - ((int)strlen(opt->longname)), gap);
-        }
-        else {
-            tmp = gapsize -
-                (int)(strlen(opt->longname) + strlen(opt->arg) + 1);
-            dprintf(fd, "--%s=%s%.*s", opt->longname, opt->arg, tmp, gap);
-        }
-
-        if (opt->help) {
-            _print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
-        }
-        else {
-            dprintf(fd, "\n");
-        }
+        _print_option(fd, opt, gapsize);
     }
-    dprintf(fd, "  -h, --help%.*sGive this help list\n",
-            gapsize - 4, gap);
-    dprintf(fd, "  -?, --usage%.*sGive a short usage message\n",
-            gapsize - 5, gap);
+
+    if (!(c->flags & CARG_NO_HELP)) {
+        _print_option(fd, &opt_help, gapsize);
+    }
+
+    if (!(c->flags & CARG_NO_USAGE)) {
+        _print_option(fd, &opt_usage, gapsize);
+    }
+
+    if (!(c->flags & CARG_NO_CLOG)) {
+        _print_option(fd, &opt_verbosity, gapsize);
+    }
 
     if (c->version) {
-        dprintf(fd, "  -V, --version%.*sPrint program version\n",
-                gapsize - 7, gap);
+        _print_option(fd, &opt_version, gapsize);
     }
 
     dprintf(fd, "\n");
@@ -217,7 +263,10 @@ carg_print_help(struct carg_state *state) {
     carg_print_usage(state);
 
     /* Header */
-    _print_multiline(state->fd, state->carg->header, 0, HELP_LINESIZE);
+    if (state->carg->header) {
+        dprintf(state->fd, "\n");
+        _print_multiline(state->fd, state->carg->header, 0, HELP_LINESIZE);
+    }
 
     /* Options */
     _print_options(state->fd, state->carg);
@@ -266,6 +315,15 @@ _value_required(struct carg_state *state) {
 
 
 static void
+_value_invalid(struct carg_state *state, const char *value) {
+    char *prog = state->argv[0];
+    dprintf(_errfile, "%s: '%s' option, invalid argument: %s\n", prog,
+            state->argv[state->current], value);
+    TRYHELP(prog);
+}
+
+
+static void
 _arg_insufficient(struct carg_state *state) {
     char *prog = state->argv[0];
     dprintf(_errfile, "%s: insufficient argument(s)\n", prog);
@@ -280,6 +338,8 @@ _option_bykey(struct carg_option *opt, const char user) {
             return &opt_help;
         case 'V':
             return &opt_version;
+        case 'v':
+            return &opt_verbosity;
         case '?':
             return &opt_usage;
     }
@@ -301,6 +361,9 @@ _option_bylongname(struct carg_option *opt, const char *user, int len) {
     }
     else if (CMP(user, "version", 7)) {
         return &opt_version;
+    }
+    else if (CMP(user, "verbosity", 9)) {
+        return &opt_verbosity;
     }
     else if (CMP(user, "usage", 5)) {
         return &opt_usage;
@@ -378,24 +441,56 @@ _find_opt(struct carg_state *state, const char **value) {
 
 
 static enum carg_eatstatus
-_eatopt(int key, const char *value, struct carg_state *state) {
+_eat(int key, const char *value, struct carg_state *state) {
+    int valuelen;
+
     switch (key) {
         case 'h':
             carg_print_help(state);
-            return CARG_EAT_OK_EXIT;
+            break;
 
         case '?':
             carg_print_usage(state);
-            return CARG_EAT_OK_EXIT;
+            break;
 
         case 'V':
             if (state->carg->version == NULL) {
-                return CARG_EAT_UNRECOGNIZED;
+                goto ignore;
             }
             dprintf(state->fd, "%s\n", state->carg->version);
-            return CARG_EAT_OK_EXIT;
-    }
+            break;
 
+        case 'v':
+            if (state->carg->flags & CARG_NO_CLOG) {
+                goto ignore;
+            }
+            valuelen = strlen(value);
+
+            if (valuelen == 0) {
+                clog_verbosity = CLOG_INFO;
+            }
+            else if ((valuelen == 1) && (ISDIGIT(value[0]))) {
+                clog_verbosity = atoi(value);
+                if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG)) {
+                    clog_verbosity = CLOG_INFO;
+                    return CARG_EAT_OPT_BADVALUE;
+                }
+            }
+            else {
+                clog_verbosity = clog_verbosity_from_string(value);
+                if (clog_verbosity == CLOG_UNKNOWN) {
+                    clog_verbosity = CLOG_INFO;
+                    return CARG_EAT_OPT_BADVALUE;
+                }
+            }
+            return CARG_EAT_OK;
+
+        default:
+            goto ignore;
+    }
+    return CARG_EAT_OK_EXIT;
+
+ignore:
     return CARG_EAT_UNRECOGNIZED;
 }
 
@@ -469,9 +564,17 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
 
         /* Try to solve it internaly */
         if (opt != NULL) {
-            eatresult = _eatopt(opt->key, value, &state);
-            if (eatresult == CARG_EAT_OK_EXIT) {
-                return CARG_OK_EXIT;
+            eatresult = _eat(opt->key, value, &state);
+            switch (eatresult) {
+                case CARG_EAT_OK:
+                    continue;
+
+                case CARG_EAT_OK_EXIT:
+                    return CARG_OK_EXIT;
+
+                case CARG_EAT_OPT_BADVALUE:
+                    _value_invalid(&state, value);
+                    return CARG_ERR;
             }
         }
 
@@ -491,8 +594,12 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
                 _not_eaten(&state, opt);
                 return CARG_ERR;
 
-            case CARG_EAT_OPT_VALUE:
+            case CARG_EAT_OPT_NOVALUE:
                 _value_required(&state);
+                return CARG_ERR;
+
+            case CARG_EAT_OPT_BADVALUE:
+                _value_invalid(&state, value);
                 return CARG_ERR;
 
             case CARG_EAT_ARG_INSUFFICIENT:
@@ -503,12 +610,15 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
 
     /* Notify the termination to user */
     /* It's normal to user unrecognize this key, so ignoring */
+    if (state.carg->eat == NULL) {
+        return CARG_OK;
+    }
     eatresult = state.carg->eat(CARG_END, NULL, &state);
     switch (eatresult) {
         case CARG_EAT_OK_EXIT:
             return CARG_OK_EXIT;
 
-        case CARG_EAT_OPT_VALUE:
+        case CARG_EAT_OPT_NOVALUE:
             _value_required(&state);
             return CARG_ERR;
 
