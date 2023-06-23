@@ -32,7 +32,7 @@ static struct {
 } args = {0, 0, 0};
 
 
-static enum carg_eatresult
+static enum carg_eatstatus
 eatarg(int key, const char *value, struct carg_state *state) {
     switch (key) {
         case 'f':
@@ -44,11 +44,12 @@ eatarg(int key, const char *value, struct carg_state *state) {
         case 'z':
             args.baz = 1;
             break;
+
         default:
-            return CARG_NOT_EATEN;
+            return CARG_EAT_UNRECOGNIZED;
     }
 
-    return CARG_EATEN;
+    return CARG_EAT_OK;
 }
 
 
@@ -94,7 +95,7 @@ test_option_value() {
 
     eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));
     eqstr("", out);
-    eqstr("foo: option requires an argument -- '-f'\n"
+    eqstr("foo: '-f' option requires an argument\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     eqint(CARG_ERR, carg_parse_string(&carg, "foo --foo5", NULL));

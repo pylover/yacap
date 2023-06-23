@@ -1,5 +1,3 @@
-- Positional arguments
-- Handle -- 
 - Handle sub-command
 - Automatic shortcuts / aliases
 - Error on option key and longname conflicts

@@ -24,6 +24,7 @@
 
 
 #define CARG_POSITIONAL -1
+#define CARG_END -2
 
 
 enum carg_status {
@@ -33,11 +34,12 @@ enum carg_status {
 };
 
 
-enum carg_eatresult {
-    CARG_EATEN,
-    CARG_EATEN_EXIT,
-    CARG_NOT_EATEN,
-    CARG_VALUE_REQUIRED,
+enum carg_eatstatus {
+    CARG_EAT_OK,
+    CARG_EAT_OK_EXIT,
+    CARG_EAT_UNRECOGNIZED,
+    CARG_EAT_OPT_VALUE,
+    CARG_EAT_ARG_INSUFFICIENT,
 };
 
 
@@ -56,7 +58,7 @@ struct carg_option {
 
 
 struct carg_state;
-typedef enum carg_eatresult (*carg_eater) (int key, const char *value,
+typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
         struct carg_state *state);
 
 
