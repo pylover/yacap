@@ -216,8 +216,8 @@ carg_print_help(struct carg_state *state) {
     /* Usage */
     carg_print_usage(state);
 
-    /* Document */
-    _print_multiline(state->fd, state->carg->doc, 0, HELP_LINESIZE);
+    /* Header */
+    _print_multiline(state->fd, state->carg->header, 0, HELP_LINESIZE);
 
     /* Options */
     _print_options(state->fd, state->carg);
@@ -237,10 +237,21 @@ _unrecognized_option(struct carg_state *state) {
 
 
 static void
-_not_eaten_option(struct carg_state *state, struct carg_option *opt) {
+_not_eaten(struct carg_state *state, struct carg_option *opt) {
     char *prog = state->argv[0];
-    dprintf(_errfile, "%s: -%c: (PROGRAM ERROR) "
-            "Option should have been recognized!?\n", prog, opt->key);
+    const char *c = state->argv[state->current];
+
+    if (opt) {
+        dprintf(_errfile, "%s: -%c: (PROGRAM ERROR) "
+                "Option should have been recognized!?\n", prog, opt->key);
+    }
+    else if (c[0] == '-') {
+        _unrecognized_option(state);
+        return;
+    }
+    else {
+        dprintf(_errfile, "%s: Invalid argument: %s\n", prog, c);
+    }
     TRYHELP(prog);
 }
 
@@ -387,6 +398,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
     int i;
     enum carg_eatresult eatresult;
     struct carg_option *opt;
+    int key;
     const char *value = NULL;
 
     if (argc < 1) {
@@ -401,56 +413,63 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
         .userptr = userptr,
         .current = -1,
         .next = -1,
+        .posindex = -1,
     };
 
     for (i = 1; i < argc; i++) {
+        /* Preserve current and next arg */
         state.current = i;
         state.next = (i + 1) >= argc? -1: i + 1;
         value = NULL;
 
         /* Find option */
         opt = _find_opt(&state, &value);
-        if (opt == NULL) {
-            _unrecognized_option(&state);
-            return CARG_ERR;
-        }
+        if (opt != NULL) {
+            if (opt->arg) {
+                if (value == NULL) {
+                    if (state.next == -1) {
+                        _value_required(&state);
+                        return CARG_ERR;
+                    }
 
-        /* Preserve current and next arg */
-        if (opt->arg) {
-            if (value == NULL) {
-                if (state.next == -1) {
-                    _value_required(&state);
-                    return CARG_ERR;
+                    value = argv[i + 1];
+                    i++;
                 }
-
-                value = argv[i + 1];
-                i++;
             }
+            else if (value) {
+                _unrecognized_option(&state);
+                return CARG_ERR;
+            }
+
+            key = opt->key;
         }
-        else if (value) {
-            _unrecognized_option(&state);
-            return CARG_ERR;
+        else {
+            key = CARG_POSITIONAL;
+            value = argv[i];
+            state.posindex++;
         }
 
         /* Try to solve it internaly */
-        eatresult = _eatopt(opt->key, value, &state);
-        if (eatresult == CARG_EATEN_EXIT) {
-            return CARG_OK_EXIT;
+        if (opt != NULL) {
+            eatresult = _eatopt(opt->key, value, &state);
+            if (eatresult == CARG_EATEN_EXIT) {
+                return CARG_OK_EXIT;
+            }
         }
 
         if (state.carg->eat == NULL) {
-            _not_eaten_option(&state, opt);
+            _not_eaten(&state, opt);
             return CARG_ERR;
         }
 
         /* Ask user to solve it */
-        eatresult = state.carg->eat(opt->key, value, &state);
+        eatresult = state.carg->eat(key, value, &state);
         switch (eatresult) {
             case CARG_EATEN_EXIT:
                 return CARG_OK_EXIT;
 
             case CARG_NOT_EATEN:
-                _not_eaten_option(&state, opt);
+                _not_eaten(&state, opt);
                 return CARG_ERR;
 
             case CARG_VALUE_REQUIRED:

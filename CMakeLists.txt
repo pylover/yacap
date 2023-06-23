@@ -27,6 +27,7 @@ include_directories(
 add_library(carg STATIC 
     carg.c carg.h
 )
+target_link_libraries(carg PUBLIC clog)
 
 
 # Install

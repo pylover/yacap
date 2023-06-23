@@ -34,7 +34,8 @@ extern struct carg_option nooption[];
 
 
 enum carg_status
-carg_parse_string(struct carg *c, char *out, char *err, const char * line);
+carg_parse_string(struct carg *c, char *out, char *err, const char * line,
+        void *userptr);
 
 
 #endif  // TESTS_HELPERS_H_

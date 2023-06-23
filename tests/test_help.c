@@ -18,11 +18,6 @@
  */
 
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-
 #include <clog.h>
 #include <cutest.h>
 
@@ -34,7 +29,7 @@ void
 test_usage() {
     struct carg carg = {
         .args = "bar\nbaz",
-        .doc = NULL,
+        .header = NULL,
         .options = nooption,
         .footer = NULL,
         .version = NULL,
@@ -46,7 +41,8 @@ test_usage() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --usage"));
+    eqint(CARG_OK_EXIT,
+            carg_parse_string(&carg, out, err, "foo --usage", NULL));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -56,7 +52,7 @@ void
 test_help_doc() {
     struct carg carg = {
         .args = NULL,
-        .doc = LOREM,
+        .header = LOREM,
         .options = nooption,
         .footer = LOREM,
         .version = NULL,
@@ -79,7 +75,8 @@ test_help_doc() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --help"));
+    eqint(CARG_OK_EXIT,
+            carg_parse_string(&carg, out, err, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -89,7 +86,7 @@ void
 test_help_nooptions() {
     struct carg carg = {
         .args = "FOO",
-        .doc = NULL,
+        .header = NULL,
         .options = nooption,
         .footer = "Lorem ipsum footer",
         .version = "1.0.0a",
@@ -106,7 +103,8 @@ test_help_nooptions() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --help"));
+    eqint(CARG_OK_EXIT,
+            carg_parse_string(&carg, out, err, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -124,7 +122,7 @@ test_help_options() {
 
     struct carg carg = {
         .args = NULL,
-        .doc = NULL,
+        .header = NULL,
         .options = options,
         .footer = "Lorem ipsum footer",
         .version = NULL,
@@ -148,7 +146,8 @@ test_help_options() {
 
     char out[1024] = "\0";
     char err[1024] = "\0";
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, out, err, "foo --help"));
+    eqint(CARG_OK_EXIT,
+            carg_parse_string(&carg, out, err, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

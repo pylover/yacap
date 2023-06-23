@@ -23,6 +23,9 @@
 #include <stdbool.h>
 
 
+#define CARG_POSITIONAL -1
+
+
 enum carg_status {
     CARG_ERR = -1,
     CARG_OK = 0,
@@ -58,10 +61,10 @@ typedef enum carg_eatresult (*carg_eater) (int key, const char *value,
 
 
 struct carg {
-    const char *doc;
     carg_eater eat;
-    const char *args;
     struct carg_option *options;
+    const char *args;
+    const char *header;
     const char *footer;
     const char *version;
 };
@@ -76,6 +79,7 @@ struct carg_state {
     int current;
     int next;
     bool dashdash;
+    int posindex;
 };
 
 
