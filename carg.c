@@ -584,7 +584,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
         }
 
         if (opt == NULL) {
-            /* It's not an option, dont startswith: '-' or '--' */
+            /* It's not an option, it doesn't startswith: '-' or '--' */
             key = CARG_POSITIONAL;
             value = argv[i];
             state.posindex++;
