@@ -3,7 +3,7 @@ include(CTest)
 
 list(APPEND testrules
     help
-    logverbosity
+    verbose
     version
     options
     positional
@@ -25,7 +25,7 @@ foreach (t IN LISTS testrules)
     target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
     target_link_libraries(${t} PUBLIC clog carg)
     add_test(NAME ${t} COMMAND ${t})
-    add_custom_target(run_${t} $<TARGET_FILE:${t}>)
+    add_custom_target(run_${t} ctest --verbose -R ${t})
     add_custom_target(profile_${t}
         COMMAND "valgrind" 
         ${VALGRIND_FLAGS}

@@ -362,16 +362,16 @@ _option_bykey(struct carg_option *opt, const char user) {
 
 static struct carg_option *
 _option_bylongname(struct carg_option *opt, const char *user, int len) {
-    if (CMP(user, "help", 4)) {
+    if (CMP(user, opt_help.longname, len)) {
         return &opt_help;
     }
-    else if (CMP(user, "version", 7)) {
+    else if (CMP(user, opt_version.longname, len)) {
         return &opt_version;
     }
-    else if (CMP(user, "verbosity", 9)) {
+    else if (CMP(user, opt_verbosity.longname, len)) {
         return &opt_verbosity;
     }
-    else if (CMP(user, "usage", 5)) {
+    else if (CMP(user, opt_usage.longname, len)) {
         return &opt_usage;
     }
 

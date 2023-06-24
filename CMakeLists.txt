@@ -66,7 +66,7 @@ include(CPack)
 # Testing
 if (NOT DEFINED ENV{SKIP_TESTS})
     enable_testing()
-    list(APPEND CMAKE_CTEST_ARGUMENTS "--verbose")
+    # list(APPEND CMAKE_CTEST_ARGUMENTS "--verbose")
     add_subdirectory(tests)
     list(APPEND CMAKE_CTEST_ARGUMENTS "--output-on-failure")
 endif()
