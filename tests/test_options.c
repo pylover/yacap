@@ -1,19 +1,19 @@
 // Copyright 2023 Vahid Mardani
 /*
  * This file is part of Carrow.
- *  Carrow is free software: you can redistribute it and/or modify it under 
- *  the terms of the GNU General Public License as published by the Free 
- *  Software Foundation, either version 3 of the License, or (at your option) 
+ *  Carrow is free software: you can redistribute it and/or modify it under
+ *  the terms of the GNU General Public License as published by the Free
+ *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
- *  
- *  Carrow is distributed in the hope that it will be useful, but WITHOUT ANY 
- *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
- *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+ *
+ *  Carrow is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
- *  
- *  You should have received a copy of the GNU General Public License along 
- *  with Carrow. If not, see <https://www.gnu.org/licenses/>. 
- *  
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with Carrow. If not, see <https://www.gnu.org/licenses/>.
+ *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
 
@@ -46,10 +46,10 @@ eatarg(int key, const char *value, struct carg_state *state) {
             break;
 
         default:
-            return CARG_EAT_UNRECOGNIZED;
+            return EAT_UNRECOGNIZED;
     }
 
-    return CARG_EAT_OK;
+    return EAT_OK;
 }
 
 
@@ -70,7 +70,7 @@ test_program_error() {
         .flags = 0,
     };
 
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));
+    eqint(STATUS_ERR, carg_parse_string(&carg, "foo -f", NULL));
     eqstr("", out);
     eqstr("foo: -f: (PROGRAM ERROR) Option should have been recognized!?\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -95,35 +95,35 @@ test_option_value() {
         .flags = 0,
     };
 
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));
+    eqint(STATUS_ERR, carg_parse_string(&carg, "foo -f", NULL));
     eqstr("", out);
     eqstr("foo: '-f' option requires an argument\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo --foo5", NULL));
+    eqint(STATUS_ERR, carg_parse_string(&carg, "foo --foo5", NULL));
     eqstr("", out);
     eqstr("foo: unrecognized option '--foo5'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -f3", NULL));
+    eqint(STATUS_OK, carg_parse_string(&carg, "foo -f3", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(3, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo 4", NULL));
+    eqint(STATUS_OK, carg_parse_string(&carg, "foo --foo 4", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(4, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo=5", NULL));
+    eqint(STATUS_OK, carg_parse_string(&carg, "foo --foo=5", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(5, args.foo);
 
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo -z2", NULL));
+    eqint(STATUS_ERR, carg_parse_string(&carg, "foo -z2", NULL));
     eqstr("", out);
     eqstr("foo: unrecognized option '-z2'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);

@@ -24,31 +24,30 @@
 
 
 /* carg special keys */
-#define CARG_POSITIONAL -1
-#define CARG_END -2
+#define KEY_ARG -1
+#define KEY_END -2
 
 
 enum carg_status {
-    CARG_ERR = -1,
-    CARG_OK = 0,
-    CARG_OK_EXIT = 1,
+    STATUS_ERR = -1,
+    STATUS_OK = 0,
+    STATUS_OK_EXIT = 1,
 };
 
 
 enum carg_eatstatus {
-    CARG_EAT_OK,
-    CARG_EAT_OK_EXIT,
-    CARG_EAT_UNRECOGNIZED,
-    CARG_EAT_OPT_VALUE_REQUIRED,
-    CARG_EAT_OPT_WITHOUT_VALUE,
-    CARG_EAT_OPT_BADVALUE,
-    CARG_EAT_ARG_INSUFFICIENT,
+    EAT_OK,
+    EAT_OK_EXIT,
+    EAT_FLAG,
+    EAT_UNRECOGNIZED,
+    EAT_VALUE_REQUIRED,
+    EAT_BAD_VALUE,
+    EAT_ARG_REQUIRED,
 };
 
 
 enum carg_optionflags {
-    CARG_NONE = 0,
-    CARG_OPTIONAL_VALUE = 2,
+    OPTIONAL_VALUE = 2,
 };
 
 
@@ -68,9 +67,9 @@ typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
 
 /* carg flags */
 enum carg_flags{
-    CARG_NO_HELP = 2,
-    CARG_NO_USAGE = 4,
-    CARG_NO_CLOG = 8,
+    NO_HELP = 2,
+    NO_USAGE = 4,
+    NO_CLOG = 8,
 };
 
 
@@ -93,9 +92,9 @@ struct carg_state {
     int argc;
     char **argv;
     void *userptr;
-    int current;
-    int next;
-    int posindex;
+    int index;
+    const char *next;
+    int arg_index;
     bool last;
 };
 

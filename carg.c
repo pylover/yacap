@@ -50,7 +50,7 @@
 #define OPT_HELPLEN(o) ( \
     strlen((o)->longname) + \
     ((o)->arg? strlen((o)->arg) + 1: 0) + \
-    (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
+    (HASFLAG(o, OPTIONAL_VALUE)? 2: 0))
 
 
 static int _outfile = STDOUT_FILENO;
@@ -59,7 +59,7 @@ static struct carg_option opt_verbosity = {
     .longname = "verbose",
     .key = 'v',
     .arg = "LEVEL",
-    .flags = CARG_OPTIONAL_VALUE,
+    .flags = OPTIONAL_VALUE,
     .help = "Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|error, "
         "3|w|warn, 4|i|info 5|d|debug. default: warn."
 };
@@ -147,7 +147,7 @@ _print_option(int fd, struct carg_option *opt, int gapsize) {
     if (opt->arg == NULL) {
         dprintf(fd, "--%s%*s", opt->longname, rpad, "");
     }
-    else if (HASFLAG(opt, CARG_OPTIONAL_VALUE)) {
+    else if (HASFLAG(opt, OPTIONAL_VALUE)) {
         dprintf(fd, "--%s[=%s]%*s", opt->longname, opt->arg, rpad, "");
     }
     else {
@@ -167,15 +167,15 @@ static int
 _calculate_initial_gapsize(struct carg *c) {
     int gapsize = 8;
 
-    if (!HASFLAG(c, CARG_NO_CLOG)) {
+    if (!HASFLAG(c, NO_CLOG)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
     }
 
-    if (!HASFLAG(c, CARG_NO_HELP)) {
+    if (!HASFLAG(c, NO_HELP)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_help) + OPT_MINGAP);
     }
 
-    if (!HASFLAG(c, CARG_NO_USAGE)) {
+    if (!HASFLAG(c, NO_USAGE)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_usage) + OPT_MINGAP);
     }
 
@@ -213,15 +213,15 @@ _print_options(int fd, struct carg *c) {
         _print_option(fd, opt, gapsize);
     }
 
-    if (!(c->flags & CARG_NO_HELP)) {
+    if (!(c->flags & NO_HELP)) {
         _print_option(fd, &opt_help, gapsize);
     }
 
-    if (!(c->flags & CARG_NO_USAGE)) {
+    if (!(c->flags & NO_USAGE)) {
         _print_option(fd, &opt_usage, gapsize);
     }
 
-    if (!(c->flags & CARG_NO_CLOG)) {
+    if (!(c->flags & NO_CLOG)) {
         _print_option(fd, &opt_verbosity, gapsize);
     }
 
@@ -286,7 +286,7 @@ static void
 _unrecognized_option(struct carg_state *state) {
     char *prog = state->argv[0];
     dprintf(_errfile, "%s: unrecognized option '%s'\n", prog,
-            state->argv[state->current]);
+            state->argv[state->index]);
     TRYHELP(prog);
 }
 
@@ -294,7 +294,7 @@ _unrecognized_option(struct carg_state *state) {
 static void
 _not_eaten(struct carg_state *state, struct carg_option *opt) {
     char *prog = state->argv[0];
-    const char *c = state->argv[state->current];
+    const char *c = state->argv[state->index];
 
     if (opt) {
         dprintf(_errfile, "%s: -%c: (PROGRAM ERROR) "
@@ -315,16 +315,16 @@ static void
 _value_required(struct carg_state *state) {
     char *prog = state->argv[0];
     dprintf(_errfile, "%s: '%s' option requires an argument\n", prog,
-            state->argv[state->current]);
+            state->argv[state->index]);
     TRYHELP(prog);
 }
 
 
 static void
-_value_invalid(struct carg_state *state, const char *value) {
+_invalid_value(struct carg_state *state, const char *value) {
     char *prog = state->argv[0];
     dprintf(_errfile, "%s: '%s' option, invalid argument: %s\n", prog,
-            state->argv[state->current], value);
+            state->argv[state->index], value);
     TRYHELP(prog);
 }
 
@@ -344,7 +344,7 @@ _option_bykey(struct carg_state *state, const char user) {
 
     switch (user) {
         case 'h':
-            if (HASFLAG(c, CARG_NO_HELP)) {
+            if (HASFLAG(c, NO_HELP)) {
                 goto search;
             }
             return &opt_help;
@@ -356,13 +356,13 @@ _option_bykey(struct carg_state *state, const char user) {
             return &opt_version;
 
         case 'v':
-            if (HASFLAG(c, CARG_NO_CLOG)) {
+            if (HASFLAG(c, NO_CLOG)) {
                 goto search;
             }
             return &opt_verbosity;
 
         case '?':
-            if (HASFLAG(c, CARG_NO_USAGE)) {
+            if (HASFLAG(c, NO_USAGE)) {
                 goto search;
             }
             return &opt_usage;
@@ -384,17 +384,17 @@ _option_bylongname(struct carg_state *state, const char *user, int len) {
     struct carg_option *opt = state->carg->options;
     struct carg *c = state->carg;
 
-    if ((!HASFLAG(c, CARG_NO_HELP)) && CMP(user, opt_help.longname, len)) {
+    if ((!HASFLAG(c, NO_HELP)) && CMP(user, opt_help.longname, len)) {
         return &opt_help;
     }
     else if ((c->version != NULL) && CMP(user, opt_version.longname, len)) {
         return &opt_version;
     }
-    else if ((!HASFLAG(c, CARG_NO_CLOG)) &&
+    else if ((!HASFLAG(c, NO_CLOG)) &&
             CMP(user, opt_verbosity.longname, len)) {
         return &opt_verbosity;
     }
-    else if ((!HASFLAG(c, CARG_NO_USAGE)) &&
+    else if ((!HASFLAG(c, NO_USAGE)) &&
             CMP(user, opt_usage.longname, len)) {
         return &opt_usage;
     }
@@ -412,7 +412,7 @@ search:
 
 static struct carg_option *
 _find_opt(struct carg_state *state, const char **value) {
-    const char *user = state->argv[state->current];
+    const char *user = state->argv[state->index];
     char *tmp;
     int len = strlen(user);
     enum carg_argtype argtype;
@@ -492,21 +492,21 @@ _eat(int key, const char *value, struct carg_state *state) {
             break;
 
         case 'v':
-            if (state->carg->flags & CARG_NO_CLOG) {
+            if (state->carg->flags & NO_CLOG) {
                 goto ignore;
             }
             valuelen = value? strlen(value): 0;
 
             if (valuelen == 0) {
                 clog_verbosity = CLOG_INFO;
-                return CARG_EAT_OPT_WITHOUT_VALUE;
+                return EAT_FLAG;
             }
 
             if (valuelen == 1) {
                 if (value[0] == 'v') {
                     /* -vv */
                     clog_verbosity = CLOG_DEBUG;
-                    return CARG_EAT_OK;
+                    return EAT_OK;
                 }
 
                 if (ISDIGIT(value[0])) {
@@ -514,26 +514,26 @@ _eat(int key, const char *value, struct carg_state *state) {
                     clog_verbosity = atoi(value);
                     if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG)) {
                         clog_verbosity = CLOG_INFO;
-                        return CARG_EAT_OPT_BADVALUE;
+                        return EAT_BAD_VALUE;
                     }
-                    return CARG_EAT_OK;
+                    return EAT_OK;
                 }
             }
 
             clog_verbosity = clog_verbosity_from_string(value);
             if (clog_verbosity == CLOG_UNKNOWN) {
                 clog_verbosity = CLOG_INFO;
-                return CARG_EAT_OPT_BADVALUE;
+                return EAT_BAD_VALUE;
             }
-            return CARG_EAT_OK;
+            return EAT_OK;
 
         default:
             goto ignore;
     }
-    return CARG_EAT_OK_EXIT;
+    return EAT_OK_EXIT;
 
 ignore:
-    return CARG_EAT_UNRECOGNIZED;
+    return EAT_UNRECOGNIZED;
 }
 
 
@@ -541,22 +541,22 @@ static enum carg_status
 _notify_finish(struct carg_state *state) {
     /* It's normal to user unrecognize this key, so ignoring */
     if (state->carg->eat == NULL) {
-        return CARG_OK;
+        return STATUS_OK;
     }
 
-    switch (state->carg->eat(CARG_END, NULL, state)) {
-        case CARG_EAT_OK_EXIT:
-            return CARG_OK_EXIT;
+    switch (state->carg->eat(KEY_END, NULL, state)) {
+        case EAT_OK_EXIT:
+            return STATUS_OK_EXIT;
 
-        case CARG_EAT_OPT_VALUE_REQUIRED:
+        case EAT_VALUE_REQUIRED:
             _value_required(state);
-            return CARG_ERR;
+            return STATUS_ERR;
 
-        case CARG_EAT_ARG_INSUFFICIENT:
+        case EAT_ARG_REQUIRED:
             _arg_insufficient(state);
-            return CARG_ERR;
+            return STATUS_ERR;
     }
-    return CARG_OK;
+    return STATUS_OK;
 }
 
 
@@ -566,11 +566,11 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
     enum carg_eatstatus eatresult;
     struct carg_option *opt;
     int key;
-    bool nextasvalue = false;
+    bool next_is_value = false;
     const char *value = NULL;
 
     if (argc < 1) {
-        return CARG_ERR;
+        return STATUS_ERR;
     }
 
     struct carg_state state = {
@@ -579,24 +579,24 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
         .argv = argv,
         .fd = _outfile,
         .userptr = userptr,
-        .current = -1,
-        .next = -1,
-        .posindex = -1,
+        .index = -1,
+        .next = NULL,
+        .arg_index = -1,
     };
 
     for (i = 1; i < argc; i++) {
-        /* Preserve current and next arg */
-        state.current = i;
+        /* Preserve current index and next arg */
+        state.index = i;
         if ((i + 1) >= argc) {
             state.last = true;
-            state.next = -1;
+            state.next = NULL;
         }
         else {
             state.last = false;
-            state.next = i + 1;
+            state.next = argv[i + 1];
         }
         value = NULL;
-        nextasvalue = false;
+        next_is_value = false;
 
         if (state.dashdash) {
             opt = NULL;
@@ -609,20 +609,20 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
             /* Option found */
             if ((opt->arg) && (value == NULL)) {
                 /* Option requires argument */
-                if ((!HASFLAG(opt, CARG_OPTIONAL_VALUE)) &&
+                if ((!HASFLAG(opt, OPTIONAL_VALUE)) &&
                         state.last) {
                     _value_required(&state);
-                    return CARG_ERR;
+                    return STATUS_ERR;
                 }
 
                 if (!state.last) {
-                    nextasvalue = true;
+                    next_is_value = true;
                 }
             }
             else if ((opt->arg == NULL) && value) {
                 /* Option not requires any argument */
                 _unrecognized_option(&state);
-                return CARG_ERR;
+                return STATUS_ERR;
             }
         }
         else if ((strlen(argv[i]) == 2) && CMP("--", argv[i], 2)) {
@@ -634,73 +634,73 @@ positional:
 
         if (opt) {
             key = opt->key;
-            if (nextasvalue && (!state.last)) {
-                value = argv[state.next];
+            if (next_is_value && (!state.last)) {
+                value = state.next;
             }
         }
         else {
             /* It's not an option, it doesn't startswith: '-' or '--' */
-            key = CARG_POSITIONAL;
+            key = KEY_ARG;
             value = argv[i];
-            state.posindex++;
+            state.arg_index++;
         }
 
         /* Try to solve it internaly */
         eatresult = _eat(key, value, &state);
         switch (eatresult) {
-            case CARG_EAT_OK:
-                if (nextasvalue) {
+            case EAT_OK:
+                if (next_is_value) {
                     /* Skip one argument due the next one is eaten as
                        option's value. */
                     i++;
                 }
                 continue;
 
-            case CARG_EAT_OPT_WITHOUT_VALUE:
+            case EAT_FLAG:
                 continue;
 
-            case CARG_EAT_OK_EXIT:
-                return CARG_OK_EXIT;
+            case EAT_OK_EXIT:
+                return STATUS_OK_EXIT;
 
-            case CARG_EAT_OPT_BADVALUE:
-                _value_invalid(&state, value);
-                return CARG_ERR;
+            case EAT_BAD_VALUE:
+                _invalid_value(&state, value);
+                return STATUS_ERR;
         }
 
         /* Raise programming error if eat function is not specified */
         if (state.carg->eat == NULL) {
             _not_eaten(&state, opt);
-            return CARG_ERR;
+            return STATUS_ERR;
         }
 
         /* Ask user to solve it */
         eatresult = state.carg->eat(key, value, &state);
         switch (eatresult) {
-            case CARG_EAT_OK:
-                if (nextasvalue) {
+            case EAT_OK:
+                if (next_is_value) {
                     /* Next argument is eaten as option's value. */
                     i++;
                 }
                 continue;
 
-            case CARG_EAT_OK_EXIT:
-                return CARG_OK_EXIT;
+            case EAT_OK_EXIT:
+                return STATUS_OK_EXIT;
 
-            case CARG_EAT_UNRECOGNIZED:
+            case EAT_UNRECOGNIZED:
                 _not_eaten(&state, opt);
-                return CARG_ERR;
+                return STATUS_ERR;
 
-            case CARG_EAT_OPT_VALUE_REQUIRED:
+            case EAT_VALUE_REQUIRED:
                 _value_required(&state);
-                return CARG_ERR;
+                return STATUS_ERR;
 
-            case CARG_EAT_OPT_BADVALUE:
-                _value_invalid(&state, value);
-                return CARG_ERR;
+            case EAT_BAD_VALUE:
+                _invalid_value(&state, value);
+                return STATUS_ERR;
 
-            case CARG_EAT_ARG_INSUFFICIENT:
+            case EAT_ARG_REQUIRED:
                 _arg_insufficient(&state);
-                return CARG_ERR;
+                return STATUS_ERR;
         }
     }
 
