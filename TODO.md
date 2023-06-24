@@ -1,8 +1,6 @@
-- Blank line after usage within help message.
 - Argument grouping
 - Handle sub-command
 - Automatic shortcuts / aliases
 - Error on option key and longname conflicts
-- Embed clog --verbosity/-v/-vv/-vvv
 - Disable help flags
 - Disable usage flags

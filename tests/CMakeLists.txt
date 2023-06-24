@@ -19,16 +19,16 @@ add_library(helpers OBJECT helpers.c helpers.h)
 
 foreach (t IN LISTS testrules) 
     # Test help
-    add_executable(${t} 
-        $<TARGET_OBJECTS:helpers>
-        ${t}.c)
+    add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
     target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
     target_link_libraries(${t} PUBLIC clog carg)
     add_test(NAME ${t} COMMAND ${t})
-    add_custom_target(run_${t} ctest --verbose -R ${t})
+    add_custom_target(run_${t} 
+        COMMAND ctest --verbose -R ${t}
+    )
     add_custom_target(profile_${t}
         COMMAND "valgrind" 
         ${VALGRIND_FLAGS}
-        $<TARGET_FILE:${t}>
+        ctest -R ${t}
     )
 endforeach()
