@@ -338,18 +338,37 @@ _arg_insufficient(struct carg_state *state) {
 
 
 static struct carg_option *
-_option_bykey(struct carg_option *opt, const char user) {
+_option_bykey(struct carg_state *state, const char user) {
+    struct carg_option *opt = state->carg->options;
+    struct carg *c = state->carg;
+
     switch (user) {
         case 'h':
+            if (HASFLAG(c, CARG_NO_HELP)) {
+                goto search;
+            }
             return &opt_help;
+
         case 'V':
+            if (c->version == NULL) {
+                goto search;
+            }
             return &opt_version;
+
         case 'v':
+            if (HASFLAG(c, CARG_NO_CLOG)) {
+                goto search;
+            }
             return &opt_verbosity;
+
         case '?':
+            if (HASFLAG(c, CARG_NO_USAGE)) {
+                goto search;
+            }
             return &opt_usage;
     }
 
+search:
     while (opt->longname) {
         if (opt->key == user) {
             return opt;
@@ -361,20 +380,26 @@ _option_bykey(struct carg_option *opt, const char user) {
 
 
 static struct carg_option *
-_option_bylongname(struct carg_option *opt, const char *user, int len) {
-    if (CMP(user, opt_help.longname, len)) {
+_option_bylongname(struct carg_state *state, const char *user, int len) {
+    struct carg_option *opt = state->carg->options;
+    struct carg *c = state->carg;
+
+    if ((!HASFLAG(c, CARG_NO_HELP)) && CMP(user, opt_help.longname, len)) {
         return &opt_help;
     }
-    else if (CMP(user, opt_version.longname, len)) {
+    else if ((c->version != NULL) && CMP(user, opt_version.longname, len)) {
         return &opt_version;
     }
-    else if (CMP(user, opt_verbosity.longname, len)) {
+    else if ((!HASFLAG(c, CARG_NO_CLOG)) &&
+            CMP(user, opt_verbosity.longname, len)) {
         return &opt_verbosity;
     }
-    else if (CMP(user, opt_usage.longname, len)) {
+    else if ((!HASFLAG(c, CARG_NO_USAGE)) &&
+            CMP(user, opt_usage.longname, len)) {
         return &opt_usage;
     }
 
+search:
     while (opt->longname) {
         if (CMP(user, opt->longname, len)) {
             return opt;
@@ -419,7 +444,7 @@ _find_opt(struct carg_state *state, const char **value) {
 
     switch (argtype) {
         case CAT_SHORT:
-            opt = _option_bykey(state->carg->options, user[0]);
+            opt = _option_bykey(state, user[0]);
             if (opt && (len > 1)) {
                 *value = user + 1;
             }
@@ -431,7 +456,7 @@ _find_opt(struct carg_state *state, const char **value) {
                 *value = tmp + 1;
                 tmp[0] = '\0';
             }
-            opt = _option_bylongname(state->carg->options, user, len);
+            opt = _option_bylongname(state, user, len);
             break;
 
         case CAT_COMMAND:

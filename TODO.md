@@ -1,6 +1,4 @@
-- Argument grouping
 - Handle sub-command
+- Argument grouping
 - Automatic shortcuts / aliases
 - Error on option key and longname conflicts
-- Disable help flags
-- Disable usage flags

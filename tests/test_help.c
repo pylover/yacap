@@ -1,19 +1,19 @@
 // Copyright 2023 Vahid Mardani
 /*
  * This file is part of Carrow.
- *  Carrow is free software: you can redistribute it and/or modify it under 
- *  the terms of the GNU General Public License as published by the Free 
- *  Software Foundation, either version 3 of the License, or (at your option) 
+ *  Carrow is free software: you can redistribute it and/or modify it under
+ *  the terms of the GNU General Public License as published by the Free
+ *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
- *  
- *  Carrow is distributed in the hope that it will be useful, but WITHOUT ANY 
- *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
- *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+ *
+ *  Carrow is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
- *  
- *  You should have received a copy of the GNU General Public License along 
- *  with Carrow. If not, see <https://www.gnu.org/licenses/>. 
- *  
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with Carrow. If not, see <https://www.gnu.org/licenses/>.
+ *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
 
@@ -33,6 +33,7 @@ test_usage() {
         .options = nooption,
         .footer = NULL,
         .version = NULL,
+        .flags = 0,
     };
 
     char *usage =
@@ -86,16 +87,48 @@ test_help_nooptions() {
         .header = NULL,
         .options = nooption,
         .footer = "Lorem ipsum footer",
+        .version = NULL,
+        .flags = CARG_NO_HELP
+    };
+
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo --help", NULL));
+    eqstr("", out);
+    eqstr("foo: unrecognized option '--help'\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    carg.flags = CARG_NO_CLOG | CARG_NO_USAGE;
+    char *help =
+        "Usage: foo [OPTION...] FOO\n"
+        "\n"
+        "  -h, --help    Give this help list\n"
+        "\n"
+        "Lorem ipsum footer\n";
+
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqstr(help, out);
+    eqstr("", err);
+}
+
+
+void
+test_help_default() {
+    struct carg carg = {
+        .args = "FOO",
+        .header = NULL,
+        .options = nooption,
+        .footer = "Lorem ipsum footer",
         .version = "1.0.0a",
-        .flags = CARG_NO_CLOG,
+        .flags = 0,
     };
 
     char *help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
-        "  -h, --help       Give this help list\n"
-        "  -?, --usage      Give a short usage message\n"
-        "  -V, --version    Print program version\n"
+        "  -h, --help               Give this help list\n"  // NOLINT
+        "  -?, --usage              Give a short usage message\n"  // NOLINT
+        "  -v, --verbose[=LEVEL]    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
+        "                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
+        "  -V, --version            Print program version\n"  // NOLINT
         "\n"
         "Lorem ipsum footer\n";
 
@@ -152,6 +185,7 @@ int
 main() {
     test_usage();
     test_help_doc();
+    test_help_default();
     test_help_nooptions();
     test_help_options();
     return EXIT_SUCCESS;
