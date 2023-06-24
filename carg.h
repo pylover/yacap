@@ -39,14 +39,16 @@ enum carg_eatstatus {
     CARG_EAT_OK,
     CARG_EAT_OK_EXIT,
     CARG_EAT_UNRECOGNIZED,
-    CARG_EAT_OPT_NOVALUE,
+    CARG_EAT_OPT_VALUE_REQUIRED,
+    CARG_EAT_OPT_WITHOUT_VALUE,
     CARG_EAT_OPT_BADVALUE,
     CARG_EAT_ARG_INSUFFICIENT,
 };
 
 
 enum carg_optionflags {
-    COF_NONE,
+    CARG_NONE = 0,
+    CARG_OPTIONAL_VALUE = 2,
 };
 
 
@@ -93,6 +95,7 @@ struct carg_state {
     int next;
     bool dashdash;
     int posindex;
+    bool last;
 };
 
 

@@ -38,6 +38,14 @@ test_logverbosity() {
     };
 
     clog_verbosity = -1;
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -v", NULL));
+    eqint(CLOG_INFO, clog_verbosity);
+
+    clog_verbosity = -1;
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -vv", NULL));
+    eqint(CLOG_DEBUG, clog_verbosity);
+
+    clog_verbosity = -1;
     eqint(CARG_OK, carg_parse_string(&carg, "foo -v2", NULL));
     eqint(CLOG_ERROR, clog_verbosity);
 
@@ -77,6 +85,12 @@ test_logverbosity() {
     eqint(CARG_ERR, carg_parse_string(&carg, "foo -v-1", NULL));
     eqstr("", out);
     eqstr("foo: '-v-1' option, invalid argument: -1\n"
+        "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    clog_verbosity = -1;
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo -vvv", NULL));
+    eqstr("", out);
+    eqstr("foo: '-vvv' option, invalid argument: vv\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 }
 

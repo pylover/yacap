@@ -65,7 +65,7 @@ test_help_doc() {
 "\n"  // NOLINT
 "  -h, --help               Give this help list\n"  // NOLINT
 "  -?, --usage              Give a short usage message\n"  // NOLINT
-"  -v, --verbosity=LEVEL    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
+"  -v, --verbose[=LEVEL]    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
 "                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
 "\n"  // NOLINT
 "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
@@ -137,7 +137,7 @@ test_help_options() {
 "      --qux=QUX            \n"  // NOLINT
 "  -h, --help               Give this help list\n"  // NOLINT
 "  -?, --usage              Give a short usage message\n"  // NOLINT
-"  -v, --verbosity=LEVEL    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
+"  -v, --verbose[=LEVEL]    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
 "                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
 "\n"
 "Lorem ipsum footer\n";
