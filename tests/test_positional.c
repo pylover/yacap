@@ -81,7 +81,7 @@ test_positionals() {
     args.foo = NULL;
     args.bar = NULL;
     args.baz = NULL;
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux foo bar baz", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo bar baz", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foo);
@@ -91,7 +91,7 @@ test_positionals() {
     args.foo = NULL;
     args.bar = NULL;
     args.baz = NULL;
-    eqint(STATUS_ERR, carg_parse_string(&carg, "qux foo bar baz thud", &args));
+    eqint(CARG_ERR, carg_parse_string(&carg, "qux foo bar baz thud", &args));
     eqstr("", out);
     eqstr("qux: Invalid argument: thud\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);
@@ -99,7 +99,7 @@ test_positionals() {
     args.foo = NULL;
     args.bar = NULL;
     args.baz = NULL;
-    eqint(STATUS_ERR, carg_parse_string(&carg, "qux foo bar", &args));
+    eqint(CARG_ERR, carg_parse_string(&carg, "qux foo bar", &args));
     eqstr("", out);
     eqstr("qux: insufficient argument(s)\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);
@@ -156,7 +156,7 @@ test_dashdash() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux foo bar baz", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo bar baz", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foos[0]);
@@ -165,7 +165,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux foo -- --bar -zbaz -- quux",
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo -- --bar -zbaz -- quux",
                 &args));
     eqstr("", out);
     eqstr("", err);
@@ -177,7 +177,7 @@ test_dashdash() {
     eqint(5, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux -- foo bar baz", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux -- foo bar baz", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foos[0]);
@@ -186,7 +186,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux foo -- bar baz", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo -- bar baz", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foos[0]);
@@ -195,7 +195,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux foo bar -- baz", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo bar -- baz", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foos[0]);
@@ -204,7 +204,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "qux foo bar baz --", &args));
+    eqint(CARG_OK, carg_parse_string(&carg, "qux foo bar baz --", &args));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foos[0]);

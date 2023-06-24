@@ -541,22 +541,22 @@ static enum carg_status
 _notify_finish(struct carg_state *state) {
     /* It's normal to user unrecognize this key, so ignoring */
     if (state->carg->eat == NULL) {
-        return STATUS_OK;
+        return CARG_OK;
     }
 
     switch (state->carg->eat(KEY_END, NULL, state)) {
         case EAT_OK_EXIT:
-            return STATUS_OK_EXIT;
+            return CARG_OK_EXIT;
 
         case EAT_VALUE_REQUIRED:
             _value_required(state);
-            return STATUS_ERR;
+            return CARG_ERR;
 
         case EAT_ARG_REQUIRED:
             _arg_insufficient(state);
-            return STATUS_ERR;
+            return CARG_ERR;
     }
-    return STATUS_OK;
+    return CARG_OK;
 }
 
 
@@ -570,7 +570,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
     const char *value = NULL;
 
     if (argc < 1) {
-        return STATUS_ERR;
+        return CARG_ERR;
     }
 
     struct carg_state state = {
@@ -612,7 +612,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
                 if ((!HASFLAG(opt, OPTIONAL_VALUE)) &&
                         state.last) {
                     _value_required(&state);
-                    return STATUS_ERR;
+                    return CARG_ERR;
                 }
 
                 if (!state.last) {
@@ -622,7 +622,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
             else if ((opt->arg == NULL) && value) {
                 /* Option not requires any argument */
                 _unrecognized_option(&state);
-                return STATUS_ERR;
+                return CARG_ERR;
             }
         }
         else if ((strlen(argv[i]) == 2) && CMP("--", argv[i], 2)) {
@@ -660,17 +660,17 @@ positional:
                 continue;
 
             case EAT_OK_EXIT:
-                return STATUS_OK_EXIT;
+                return CARG_OK_EXIT;
 
             case EAT_BAD_VALUE:
                 _invalid_value(&state, value);
-                return STATUS_ERR;
+                return CARG_ERR;
         }
 
         /* Raise programming error if eat function is not specified */
         if (state.carg->eat == NULL) {
             _not_eaten(&state, opt);
-            return STATUS_ERR;
+            return CARG_ERR;
         }
 
         /* Ask user to solve it */
@@ -684,23 +684,23 @@ positional:
                 continue;
 
             case EAT_OK_EXIT:
-                return STATUS_OK_EXIT;
+                return CARG_OK_EXIT;
 
             case EAT_UNRECOGNIZED:
                 _not_eaten(&state, opt);
-                return STATUS_ERR;
+                return CARG_ERR;
 
             case EAT_VALUE_REQUIRED:
                 _value_required(&state);
-                return STATUS_ERR;
+                return CARG_ERR;
 
             case EAT_BAD_VALUE:
                 _invalid_value(&state, value);
-                return STATUS_ERR;
+                return CARG_ERR;
 
             case EAT_ARG_REQUIRED:
                 _arg_insufficient(&state);
-                return STATUS_ERR;
+                return CARG_ERR;
         }
     }
 

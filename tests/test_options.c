@@ -70,7 +70,7 @@ test_program_error() {
         .flags = 0,
     };
 
-    eqint(STATUS_ERR, carg_parse_string(&carg, "foo -f", NULL));
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));
     eqstr("", out);
     eqstr("foo: -f: (PROGRAM ERROR) Option should have been recognized!?\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -95,35 +95,35 @@ test_option_value() {
         .flags = 0,
     };
 
-    eqint(STATUS_ERR, carg_parse_string(&carg, "foo -f", NULL));
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL));
     eqstr("", out);
     eqstr("foo: '-f' option requires an argument\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(STATUS_ERR, carg_parse_string(&carg, "foo --foo5", NULL));
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo --foo5", NULL));
     eqstr("", out);
     eqstr("foo: unrecognized option '--foo5'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "foo -f3", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -f3", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(3, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "foo --foo 4", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo 4", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(4, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(STATUS_OK, carg_parse_string(&carg, "foo --foo=5", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo=5", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(5, args.foo);
 
-    eqint(STATUS_ERR, carg_parse_string(&carg, "foo -z2", NULL));
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo -z2", NULL));
     eqstr("", out);
     eqstr("foo: unrecognized option '-z2'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);

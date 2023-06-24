@@ -29,9 +29,9 @@
 
 
 enum carg_status {
-    STATUS_ERR = -1,
-    STATUS_OK = 0,
-    STATUS_OK_EXIT = 1,
+    CARG_ERR = -1,
+    CARG_OK = 0,
+    CARG_OK_EXIT = 1,
 };
 
 
