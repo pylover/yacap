@@ -476,7 +476,9 @@ _find_opt(struct carg_state *state, const char **value) {
 static enum carg_eatstatus
 _eat(int key, const char *value, struct carg_state *state) {
     int valuelen;
+    struct carg *c = state->carg;
 
+    /* Try to solve it internaly */
     switch (key) {
         case 'h':
             carg_print_help(state);
@@ -488,14 +490,14 @@ _eat(int key, const char *value, struct carg_state *state) {
 
         case 'V':
             if (state->carg->version == NULL) {
-                goto ignore;
+                goto usereat;
             }
             dprintf(state->fd, "%s\n", state->carg->version);
             break;
 
         case 'v':
             if (state->carg->flags & CARG_NO_CLOG) {
-                goto ignore;
+                goto usereat;
             }
             valuelen = value? strlen(value): 0;
 
@@ -530,12 +532,19 @@ _eat(int key, const char *value, struct carg_state *state) {
             return CARG_EAT_OK;
 
         default:
-            goto ignore;
+            goto usereat;
     }
     return CARG_EAT_OK_EXIT;
 
-ignore:
-    return CARG_EAT_UNRECOGNIZED;
+usereat:
+
+    /* Raise programming error if eat function is not specified */
+    if (c->eat == NULL) {
+        return CARG_EAT_UNRECOGNIZED;;
+    }
+
+    /* Ask user to solve it */
+    return c->eat(key, value, state);
 }
 
 
@@ -647,42 +656,18 @@ positional:
             state.arg_index++;
         }
 
-        /* Try to solve it internaly */
+        /* Try to eat argument */
         eatresult = _eat(key, value, &state);
-        switch (eatresult) {
-            case CARG_EAT_OK:
-                if (next_is_value) {
-                    /* Skip one argument due the next one is eaten as
-                       option's value. */
-                    i++;
-                }
-                continue;
-
-            case CARG_EAT_FLAG:
-                continue;
-
-            case CARG_EAT_OK_EXIT:
-                return CARG_OK_EXIT;
-
-            case CARG_EAT_BAD_VALUE:
-                _invalid_value(&state, value);
-                return CARG_ERR;
-        }
-
-        /* Raise programming error if eat function is not specified */
-        if (state.carg->eat == NULL) {
-            _not_eaten(&state, opt);
-            return CARG_ERR;
-        }
-
-        /* Ask user to solve it */
-        eatresult = state.carg->eat(key, value, &state);
         switch (eatresult) {
             case CARG_EAT_OK:
                 if (next_is_value) {
                     /* Next argument is eaten as option's value. */
                     i++;
                 }
+                continue;
+
+            case CARG_EAT_FLAG:
+                /* Next argument is not eaten by user. just continue */
                 continue;
 
             case CARG_EAT_OK_EXIT:

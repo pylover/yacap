@@ -23,7 +23,7 @@ foreach (t IN LISTS testrules)
     target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
     target_link_libraries(${t} PUBLIC clog carg)
     add_test(NAME ${t} COMMAND ${t})
-    add_custom_target(run_${t} 
+    add_custom_target(${t}_exec 
         COMMAND ctest --verbose -R ${t}
     )
     add_custom_target(profile_${t}
