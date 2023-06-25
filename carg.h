@@ -46,8 +46,17 @@ enum carg_eatstatus {
 };
 
 
+/* option flags */
 enum carg_optionflags {
-    OPTIONAL_VALUE = 2,
+    CARG_OPTIONAL_VALUE = 2,
+};
+
+
+/* carg flags */
+enum carg_flags{
+    CARG_NO_HELP = 2,
+    CARG_NO_USAGE = 4,
+    CARG_NO_CLOG = 8,
 };
 
 
@@ -63,14 +72,6 @@ struct carg_option {
 struct carg_state;
 typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
         struct carg_state *state);
-
-
-/* carg flags */
-enum carg_flags{
-    NO_HELP = 2,
-    NO_USAGE = 4,
-    NO_CLOG = 8,
-};
 
 
 struct carg {

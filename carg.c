@@ -50,7 +50,7 @@
 #define OPT_HELPLEN(o) ( \
     strlen((o)->longname) + \
     ((o)->arg? strlen((o)->arg) + 1: 0) + \
-    (HASFLAG(o, OPTIONAL_VALUE)? 2: 0))
+    (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
 
 
 static int _outfile = STDOUT_FILENO;
@@ -59,7 +59,7 @@ static struct carg_option opt_verbosity = {
     .longname = "verbose",
     .key = 'v',
     .arg = "LEVEL",
-    .flags = OPTIONAL_VALUE,
+    .flags = CARG_OPTIONAL_VALUE,
     .help = "Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|error, "
         "3|w|warn, 4|i|info 5|d|debug. default: warn."
 };
@@ -147,7 +147,7 @@ _print_option(int fd, struct carg_option *opt, int gapsize) {
     if (opt->arg == NULL) {
         dprintf(fd, "--%s%*s", opt->longname, rpad, "");
     }
-    else if (HASFLAG(opt, OPTIONAL_VALUE)) {
+    else if (HASFLAG(opt, CARG_OPTIONAL_VALUE)) {
         dprintf(fd, "--%s[=%s]%*s", opt->longname, opt->arg, rpad, "");
     }
     else {
@@ -167,15 +167,15 @@ static int
 _calculate_initial_gapsize(struct carg *c) {
     int gapsize = 8;
 
-    if (!HASFLAG(c, NO_CLOG)) {
+    if (!HASFLAG(c, CARG_NO_CLOG)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
     }
 
-    if (!HASFLAG(c, NO_HELP)) {
+    if (!HASFLAG(c, CARG_NO_HELP)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_help) + OPT_MINGAP);
     }
 
-    if (!HASFLAG(c, NO_USAGE)) {
+    if (!HASFLAG(c, CARG_NO_USAGE)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_usage) + OPT_MINGAP);
     }
 
@@ -213,15 +213,15 @@ _print_options(int fd, struct carg *c) {
         _print_option(fd, opt, gapsize);
     }
 
-    if (!(c->flags & NO_HELP)) {
+    if (!(c->flags & CARG_NO_HELP)) {
         _print_option(fd, &opt_help, gapsize);
     }
 
-    if (!(c->flags & NO_USAGE)) {
+    if (!(c->flags & CARG_NO_USAGE)) {
         _print_option(fd, &opt_usage, gapsize);
     }
 
-    if (!(c->flags & NO_CLOG)) {
+    if (!(c->flags & CARG_NO_CLOG)) {
         _print_option(fd, &opt_verbosity, gapsize);
     }
 
@@ -344,7 +344,7 @@ _option_bykey(struct carg_state *state, const char user) {
 
     switch (user) {
         case 'h':
-            if (HASFLAG(c, NO_HELP)) {
+            if (HASFLAG(c, CARG_NO_HELP)) {
                 goto search;
             }
             return &opt_help;
@@ -356,13 +356,13 @@ _option_bykey(struct carg_state *state, const char user) {
             return &opt_version;
 
         case 'v':
-            if (HASFLAG(c, NO_CLOG)) {
+            if (HASFLAG(c, CARG_NO_CLOG)) {
                 goto search;
             }
             return &opt_verbosity;
 
         case '?':
-            if (HASFLAG(c, NO_USAGE)) {
+            if (HASFLAG(c, CARG_NO_USAGE)) {
                 goto search;
             }
             return &opt_usage;
@@ -384,17 +384,17 @@ _option_bylongname(struct carg_state *state, const char *user, int len) {
     struct carg_option *opt = state->carg->options;
     struct carg *c = state->carg;
 
-    if ((!HASFLAG(c, NO_HELP)) && CMP(user, opt_help.longname, len)) {
+    if ((!HASFLAG(c, CARG_NO_HELP)) && CMP(user, opt_help.longname, len)) {
         return &opt_help;
     }
     else if ((c->version != NULL) && CMP(user, opt_version.longname, len)) {
         return &opt_version;
     }
-    else if ((!HASFLAG(c, NO_CLOG)) &&
+    else if ((!HASFLAG(c, CARG_NO_CLOG)) &&
             CMP(user, opt_verbosity.longname, len)) {
         return &opt_verbosity;
     }
-    else if ((!HASFLAG(c, NO_USAGE)) &&
+    else if ((!HASFLAG(c, CARG_NO_USAGE)) &&
             CMP(user, opt_usage.longname, len)) {
         return &opt_usage;
     }
@@ -492,7 +492,7 @@ _eat(int key, const char *value, struct carg_state *state) {
             break;
 
         case 'v':
-            if (state->carg->flags & NO_CLOG) {
+            if (state->carg->flags & CARG_NO_CLOG) {
                 goto ignore;
             }
             valuelen = value? strlen(value): 0;
@@ -609,7 +609,7 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
             /* Option found */
             if ((opt->arg) && (value == NULL)) {
                 /* Option requires argument */
-                if ((!HASFLAG(opt, OPTIONAL_VALUE)) &&
+                if ((!HASFLAG(opt, CARG_OPTIONAL_VALUE)) &&
                         state.last) {
                     _value_required(&state);
                     return CARG_ERR;

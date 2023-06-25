@@ -88,7 +88,7 @@ test_help_nooptions() {
         .options = nooption,
         .footer = "Lorem ipsum footer",
         .version = NULL,
-        .flags = NO_HELP
+        .flags = CARG_NO_HELP
     };
 
     eqint(CARG_ERR, carg_parse_string(&carg, "foo --help", NULL));
@@ -96,7 +96,7 @@ test_help_nooptions() {
     eqstr("foo: unrecognized option '--help'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    carg.flags = NO_CLOG | NO_USAGE;
+    carg.flags = CARG_NO_CLOG | CARG_NO_USAGE;
     char *help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
