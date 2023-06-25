@@ -66,8 +66,11 @@ test_help_doc() {
 "\n"  // NOLINT
 "  -h, --help               Give this help list\n"  // NOLINT
 "  -?, --usage              Give a short usage message\n"  // NOLINT
-"  -v, --verbose[=LEVEL]    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
-"                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
+"  -v, --verbose[=LEVEL]    Verbosity level. one of: '0|s|silent', '1|f|fatal', \n"  // NOLINT
+"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
+"                           if this option is not given, the verbosity level wi-\n"  // NOLINT
+"                           ll be '3|w|warn', but If option is given without va-\n"  // NOLINT
+"                           lue, then the verbosity level will be '4|i|info'.\n"  // NOLINT
 "\n"  // NOLINT
 "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod \n"  // NOLINT
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
@@ -122,15 +125,18 @@ test_help_default() {
     };
 
     char *help =
-        "Usage: foo [OPTION...] FOO\n"
-        "\n"
-        "  -h, --help               Give this help list\n"  // NOLINT
-        "  -?, --usage              Give a short usage message\n"  // NOLINT
-        "  -v, --verbose[=LEVEL]    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
-        "                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
-        "  -V, --version            Print program version\n"  // NOLINT
-        "\n"
-        "Lorem ipsum footer\n";
+"Usage: foo [OPTION...] FOO\n"
+"\n"
+"  -h, --help               Give this help list\n"  // NOLINT
+"  -?, --usage              Give a short usage message\n"  // NOLINT
+"  -v, --verbose[=LEVEL]    Verbosity level. one of: '0|s|silent', '1|f|fatal', \n"  // NOLINT
+"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
+"                           if this option is not given, the verbosity level wi-\n"  // NOLINT
+"                           ll be '3|w|warn', but If option is given without va-\n"  // NOLINT
+"                           lue, then the verbosity level will be '4|i|info'.\n"  // NOLINT
+"  -V, --version            Print program version\n"  // NOLINT
+"\n"
+"Lorem ipsum footer\n";
 
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
@@ -170,8 +176,11 @@ test_help_options() {
 "      --qux=QUX            \n"  // NOLINT
 "  -h, --help               Give this help list\n"  // NOLINT
 "  -?, --usage              Give a short usage message\n"  // NOLINT
-"  -v, --verbose[=LEVEL]    Verbosity level. one of: 0|s|silent, 1|f|fatal, 2|e|\n"  // NOLINT
-"                           error, 3|w|warn, 4|i|info 5|d|debug. default: warn.\n"  // NOLINT
+"  -v, --verbose[=LEVEL]    Verbosity level. one of: '0|s|silent', '1|f|fatal', \n"  // NOLINT
+"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
+"                           if this option is not given, the verbosity level wi-\n"  // NOLINT
+"                           ll be '3|w|warn', but If option is given without va-\n"  // NOLINT
+"                           lue, then the verbosity level will be '4|i|info'.\n"  // NOLINT
 "\n"
 "Lorem ipsum footer\n";
 
