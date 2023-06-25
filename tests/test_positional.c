@@ -37,31 +37,31 @@ eat_foobarbaz(int key, const char *value, struct carg_state *state) {
     struct foobarbaz *a = state->userptr;
 
     if (a == NULL) {
-        return EAT_UNRECOGNIZED;
+        return CARG_EAT_UNRECOGNIZED;
     }
 
     if (key == KEY_ARG) {
         switch (state->arg_index) {
             case 0:
                 a->foo = value;
-                return EAT_OK;
+                return CARG_EAT_OK;
 
             case 1:
                 a->bar = value;
-                return EAT_OK;
+                return CARG_EAT_OK;
 
             case 2:
                 a->baz = value;
-                return EAT_OK;
+                return CARG_EAT_OK;
         }
     }
     else if (key == KEY_END) {
         if (a->baz == NULL) {
-            return EAT_ARG_REQUIRED;
+            return CARG_EAT_ARG_REQUIRED;
         }
-        return EAT_OK;
+        return CARG_EAT_OK;
     }
-    return EAT_UNRECOGNIZED;
+    return CARG_EAT_UNRECOGNIZED;
 }
 
 
@@ -119,22 +119,22 @@ eat_fooargs(int key, const char *value, struct carg_state *state) {
     struct fooargs *a = state->userptr;
 
     if (a == NULL) {
-        return EAT_UNRECOGNIZED;
+        return CARG_EAT_UNRECOGNIZED;
     }
 
     if (key == 'b') {
         a->bar = value;
-        return EAT_OK;
+        return CARG_EAT_OK;
     }
     else if (key == 'z') {
         a->baz = value;
-        return EAT_OK;
+        return CARG_EAT_OK;
     }
     else if (key == KEY_ARG) {
         a->foos[a->count++] = value;
-        return EAT_OK;
+        return CARG_EAT_OK;
     }
-    return EAT_UNRECOGNIZED;
+    return CARG_EAT_UNRECOGNIZED;
 }
 
 static void

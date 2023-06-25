@@ -46,10 +46,10 @@ eatarg(int key, const char *value, struct carg_state *state) {
             break;
 
         default:
-            return EAT_UNRECOGNIZED;
+            return CARG_EAT_UNRECOGNIZED;
     }
 
-    return EAT_OK;
+    return CARG_EAT_OK;
 }
 
 

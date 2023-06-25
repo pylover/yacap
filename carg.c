@@ -501,14 +501,14 @@ _eat(int key, const char *value, struct carg_state *state) {
 
             if (valuelen == 0) {
                 clog_verbosity = CLOG_INFO;
-                return EAT_FLAG;
+                return CARG_EAT_FLAG;
             }
 
             if (valuelen == 1) {
                 if (value[0] == 'v') {
                     /* -vv */
                     clog_verbosity = CLOG_DEBUG;
-                    return EAT_OK;
+                    return CARG_EAT_OK;
                 }
 
                 if (ISDIGIT(value[0])) {
@@ -516,26 +516,26 @@ _eat(int key, const char *value, struct carg_state *state) {
                     clog_verbosity = atoi(value);
                     if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG)) {
                         clog_verbosity = CLOG_INFO;
-                        return EAT_BAD_VALUE;
+                        return CARG_EAT_BAD_VALUE;
                     }
-                    return EAT_OK;
+                    return CARG_EAT_OK;
                 }
             }
 
             clog_verbosity = clog_verbosity_from_string(value);
             if (clog_verbosity == CLOG_UNKNOWN) {
                 clog_verbosity = CLOG_INFO;
-                return EAT_BAD_VALUE;
+                return CARG_EAT_BAD_VALUE;
             }
-            return EAT_OK;
+            return CARG_EAT_OK;
 
         default:
             goto ignore;
     }
-    return EAT_OK_EXIT;
+    return CARG_EAT_OK_EXIT;
 
 ignore:
-    return EAT_UNRECOGNIZED;
+    return CARG_EAT_UNRECOGNIZED;
 }
 
 
@@ -547,14 +547,14 @@ _notify_finish(struct carg_state *state) {
     }
 
     switch (state->carg->eat(KEY_END, NULL, state)) {
-        case EAT_OK_EXIT:
+        case CARG_EAT_OK_EXIT:
             return CARG_OK_EXIT;
 
-        case EAT_VALUE_REQUIRED:
+        case CARG_EAT_VALUE_REQUIRED:
             _value_required(state);
             return CARG_ERR;
 
-        case EAT_ARG_REQUIRED:
+        case CARG_EAT_ARG_REQUIRED:
             _arg_insufficient(state);
             return CARG_ERR;
     }
@@ -650,7 +650,7 @@ positional:
         /* Try to solve it internaly */
         eatresult = _eat(key, value, &state);
         switch (eatresult) {
-            case EAT_OK:
+            case CARG_EAT_OK:
                 if (next_is_value) {
                     /* Skip one argument due the next one is eaten as
                        option's value. */
@@ -658,13 +658,13 @@ positional:
                 }
                 continue;
 
-            case EAT_FLAG:
+            case CARG_EAT_FLAG:
                 continue;
 
-            case EAT_OK_EXIT:
+            case CARG_EAT_OK_EXIT:
                 return CARG_OK_EXIT;
 
-            case EAT_BAD_VALUE:
+            case CARG_EAT_BAD_VALUE:
                 _invalid_value(&state, value);
                 return CARG_ERR;
         }
@@ -678,29 +678,29 @@ positional:
         /* Ask user to solve it */
         eatresult = state.carg->eat(key, value, &state);
         switch (eatresult) {
-            case EAT_OK:
+            case CARG_EAT_OK:
                 if (next_is_value) {
                     /* Next argument is eaten as option's value. */
                     i++;
                 }
                 continue;
 
-            case EAT_OK_EXIT:
+            case CARG_EAT_OK_EXIT:
                 return CARG_OK_EXIT;
 
-            case EAT_UNRECOGNIZED:
+            case CARG_EAT_UNRECOGNIZED:
                 _not_eaten(&state, opt);
                 return CARG_ERR;
 
-            case EAT_VALUE_REQUIRED:
+            case CARG_EAT_VALUE_REQUIRED:
                 _value_required(&state);
                 return CARG_ERR;
 
-            case EAT_BAD_VALUE:
+            case CARG_EAT_BAD_VALUE:
                 _invalid_value(&state, value);
                 return CARG_ERR;
 
-            case EAT_ARG_REQUIRED:
+            case CARG_EAT_ARG_REQUIRED:
                 _arg_insufficient(&state);
                 return CARG_ERR;
         }
