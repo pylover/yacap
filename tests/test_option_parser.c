@@ -33,6 +33,11 @@ static struct {
 
 
 static enum carg_eatstatus
+eatfoo(const char *value, struct carg_state *state) {
+}
+
+
+static enum carg_eatstatus
 eatarg(int key, const char *value, struct carg_state *state) {
     switch (key) {
         case 'f':

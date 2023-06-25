@@ -28,6 +28,7 @@
 #define KEY_END -2
 
 
+/* carg_parse() result */
 enum carg_status {
     CARG_ERR = -1,
     CARG_OK = 0,
@@ -35,6 +36,7 @@ enum carg_status {
 };
 
 
+/* argument eat result */
 enum carg_eatstatus {
     CARG_EAT_OK,
     CARG_EAT_OK_EXIT,
@@ -48,7 +50,9 @@ enum carg_eatstatus {
 
 /* option flags */
 enum carg_optionflags {
-    CARG_OPTIONAL_VALUE = 2,
+    CARG_OPTION = 0,
+    CARG_OPTIONAL_VALUE = 1,
+    CARG_COMMAND = 2,
 };
 
 

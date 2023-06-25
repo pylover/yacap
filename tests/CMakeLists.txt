@@ -1,19 +1,16 @@
 # Testing
 include(CTest)
-
 list(APPEND testrules
     help
     verbose
     version
-    options
+    option
     positional
 )
 list(TRANSFORM testrules PREPEND test_)
 set(profilerules ${testrules})
 list(TRANSFORM profilerules PREPEND profile_)
 add_custom_target(profile DEPENDS ${profilerules})
-
-
 add_library(helpers OBJECT helpers.c helpers.h)
 
 
@@ -27,8 +24,6 @@ foreach (t IN LISTS testrules)
         COMMAND ctest --verbose -R ${t}
     )
     add_custom_target(profile_${t}
-        COMMAND "valgrind" 
-        ${VALGRIND_FLAGS}
-        ctest -R ${t}
+        COMMAND "valgrind" ${VALGRIND_FLAGS} ctest -R ${t}
     )
 endforeach()
