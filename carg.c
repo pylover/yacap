@@ -571,6 +571,85 @@ _notify_finish(struct carg_state *state) {
 }
 
 
+static struct carg_option *
+_findoption(struct carg *c, int key) {
+    int i = 0;
+    struct carg_option *opt;
+
+    while (true) {
+        opt = &(c->options[i++]);
+        if (opt->longname == NULL) {
+            break;
+        }
+
+        if (opt->key == key) {
+            return opt;
+        }
+    }
+
+    return NULL;
+}
+
+
+static int
+_tokenize(struct carg *carg, int argc, char **argv, const char **value,
+        struct carg_option **opt) {
+    static int i = -1;
+    static int j = -1;
+    static int arglen;
+    const char *tok;
+    int toklen;
+
+    if (j > -1) {
+        goto resume_j;
+    }
+
+    if (i > -1) {
+        goto resume_i;
+    }
+
+    for (i = 0; i < argc; i++) {
+        tok = argv[i];
+
+        if (tok == NULL) {
+            goto finish;
+        }
+
+        arglen = strlen(tok);
+        if (arglen == 0) {
+            continue;
+        }
+
+        if ((arglen == 1) || ((tok[0] != '-') || (tok[1] == '-'))) {
+            *value = argv[i];
+            *opt = NULL;
+            return arglen;
+        }
+
+        /* Actual tokenizer logic */
+        for (j = 1; j < arglen; j++) {
+            *value = argv[i] + j;
+            *opt = _findoption(carg, argv[i][j]);
+            if (*opt) {
+                return 1;
+            }
+            toklen = arglen - j;
+            j = -1;
+            return toklen;
+resume_j:
+        }
+
+        j = -1;
+resume_i:
+    }
+
+finish:
+    i = -1;
+    j = -1;
+    return 0;
+}
+
+
 enum carg_status
 carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
     int i;
