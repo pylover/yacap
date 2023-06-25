@@ -540,7 +540,7 @@ usereat:
 
     /* Raise programming error if eat function is not specified */
     if (c->eat == NULL) {
-        return CARG_EAT_UNRECOGNIZED;;
+        return CARG_EAT_UNRECOGNIZED;
     }
 
     /* Ask user to solve it */
@@ -635,24 +635,22 @@ carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
                 _unrecognized_option(&state);
                 return CARG_ERR;
             }
-        }
-        else if ((strlen(argv[i]) == 2) && CMP("--", argv[i], 2)) {
-            state.dashdash = true;
-            continue;
-        }
 
-positional:
-
-        if (opt) {
+            /* Preserve key and value */
             key = opt->key;
             if (next_is_value && (!state.last)) {
                 value = state.next;
             }
         }
+        else if ((strlen(argv[i]) == 2) && CMP("--", argv[i], 2)) {
+                state.dashdash = true;
+                continue;
+        }
         else {
+positional:
+            value = argv[i];
             /* It's not an option, it doesn't startswith: '-' or '--' */
             key = KEY_ARG;
-            value = argv[i];
             state.arg_index++;
         }
 
