@@ -65,7 +65,7 @@ enum carg_flags{
 
 
 struct carg_option {
-    const char *longname;
+    const char *name;
     const int key;
     const char *arg;
     enum carg_optionflags flags;

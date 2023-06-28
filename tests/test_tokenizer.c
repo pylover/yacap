@@ -28,13 +28,14 @@
 void
 test_tokenizer() {
     int count = 5;
-    char *argv[5] = {"foo", "-zbfoo", "bar", "", "--foo"};
+    // char *argv[5] = {"foo", "-fbfoo", "bar", "", "--foo"};
+    char *argv[5] = {"foo", "-fbzoo", "bar", "", "--foo"};
     int len;
     const char *tok;
     struct carg_option *opt;
 
     struct carg_option options[] = {
-        {"foo", 'z', NULL, 0, "Foo flag"},
+        {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {NULL}
     };
@@ -54,9 +55,9 @@ test_tokenizer() {
     eqnstr("foo", tok, 3);
     isnull(opt);
 
-    /* z */
+    /* f */
     eqint(1, _tokenize(&carg, count, argv, &tok, &opt));
-    eqchr('z', tok[0]);
+    eqchr('f', tok[0]);
     isnotnull(opt);
 
     /* b */
@@ -65,7 +66,7 @@ test_tokenizer() {
     isnotnull(opt);
 
     eqint(3, _tokenize(&carg, count, argv, &tok, &opt));
-    eqnstr("foo", tok, 3);
+    eqnstr("zoo", tok, 3);
     isnull(opt);
 
     eqint(3, _tokenize(&carg, count, argv, &tok, &opt));
@@ -74,6 +75,10 @@ test_tokenizer() {
 
     eqint(5, _tokenize(&carg, count, argv, &tok, &opt));
     eqnstr("--foo", tok, 5);
+    isnull(opt);
+
+    eqint(0, _tokenize(&carg, count, argv, &tok, &opt));
+    isnull(tok);
     isnull(opt);
 }
 

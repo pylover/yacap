@@ -48,7 +48,7 @@
 #define HASFLAG(o, f) ((o)->flags & f)  // NOLINT
 #define OPT_MINGAP   4
 #define OPT_HELPLEN(o) ( \
-    strlen((o)->longname) + \
+    strlen((o)->name) + \
     ((o)->arg? strlen((o)->arg) + 1: 0) + \
     (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
 
@@ -56,7 +56,7 @@
 static int _outfile = STDOUT_FILENO;
 static int _errfile = STDERR_FILENO;
 static struct carg_option opt_verbosity = {
-    .longname = "verbose",
+    .name = "verbose",
     .key = 'v',
     .arg = "LEVEL",
     .flags = CARG_OPTIONAL_VALUE,
@@ -147,13 +147,13 @@ _print_option(int fd, struct carg_option *opt, int gapsize) {
     }
 
     if (opt->arg == NULL) {
-        dprintf(fd, "--%s%*s", opt->longname, rpad, "");
+        dprintf(fd, "--%s%*s", opt->name, rpad, "");
     }
     else if (HASFLAG(opt, CARG_OPTIONAL_VALUE)) {
-        dprintf(fd, "--%s[=%s]%*s", opt->longname, opt->arg, rpad, "");
+        dprintf(fd, "--%s[=%s]%*s", opt->name, opt->arg, rpad, "");
     }
     else {
-        dprintf(fd, "--%s=%s%*s", opt->longname, opt->arg, rpad, "");
+        dprintf(fd, "--%s=%s%*s", opt->name, opt->arg, rpad, "");
     }
 
     if (opt->help) {
@@ -197,7 +197,7 @@ _print_options(int fd, struct carg *c) {
 
     while (true) {
         opt = &(c->options[i++]);
-        if (opt->longname == NULL) {
+        if (opt->name == NULL) {
             break;
         }
 
@@ -208,7 +208,7 @@ _print_options(int fd, struct carg *c) {
     i = 0;
     while (true) {
         opt = &(c->options[i++]);
-        if (opt->longname == NULL) {
+        if (opt->name == NULL) {
             break;
         }
 
@@ -371,7 +371,7 @@ _option_bykey(struct carg_state *state, const char user) {
     }
 
 search:
-    while (opt->longname) {
+    while (opt->name) {
         if (opt->key == user) {
             return opt;
         }
@@ -386,24 +386,24 @@ _option_bylongname(struct carg_state *state, const char *user, int len) {
     struct carg_option *opt = state->carg->options;
     struct carg *c = state->carg;
 
-    if ((!HASFLAG(c, CARG_NO_HELP)) && CMP(user, opt_help.longname, len)) {
+    if ((!HASFLAG(c, CARG_NO_HELP)) && CMP(user, opt_help.name, len)) {
         return &opt_help;
     }
-    else if ((c->version != NULL) && CMP(user, opt_version.longname, len)) {
+    else if ((c->version != NULL) && CMP(user, opt_version.name, len)) {
         return &opt_version;
     }
     else if ((!HASFLAG(c, CARG_NO_CLOG)) &&
-            CMP(user, opt_verbosity.longname, len)) {
+            CMP(user, opt_verbosity.name, len)) {
         return &opt_verbosity;
     }
     else if ((!HASFLAG(c, CARG_NO_USAGE)) &&
-            CMP(user, opt_usage.longname, len)) {
+            CMP(user, opt_usage.name, len)) {
         return &opt_usage;
     }
 
 search:
-    while (opt->longname) {
-        if (CMP(user, opt->longname, len)) {
+    while (opt->name) {
+        if (CMP(user, opt->name, len)) {
             return opt;
         }
         opt++;
@@ -572,13 +572,13 @@ _notify_finish(struct carg_state *state) {
 
 
 static struct carg_option *
-_findoption(struct carg *c, int key) {
+_findoption_bykey(struct carg *c, int key) {
     int i = 0;
     struct carg_option *opt;
 
     while (true) {
         opt = &(c->options[i++]);
-        if (opt->longname == NULL) {
+        if (opt->name == NULL) {
             break;
         }
 
@@ -592,61 +592,85 @@ _findoption(struct carg *c, int key) {
 
 
 static int
-_tokenize(struct carg *carg, int argc, char **argv, const char **value,
-        struct carg_option **opt) {
-    static int i = -1;
-    static int j = -1;
-    static int arglen;
-    const char *tok;
-    int toklen;
+_tokenize(struct carg *c, int argc, char **argv, const char **value,
+        struct carg_option **optout) {
+    // TODO: allocate options state nargs [len(options)]
 
-    if (j > -1) {
-        goto resume_j;
-    }
+    /* Coroutine  stuff*/
+    #define CSTART \
+        static int __cline__ = 0; \
+        switch (__cline__) { \
+            case 0:
 
-    if (i > -1) {
-        goto resume_i;
-    }
+    #define CREJECT goto cfinally
 
+    #define CYIELD(v, l, o) do { \
+            __cline__ = __LINE__; \
+            *value = (v); \
+            *optout = o; \
+            return (l); \
+            case __LINE__:; \
+        } while (0)
+
+
+    #define CEND } cfinally: \
+        *value = NULL; \
+        *optout = NULL; \
+        __cline__ = 0; \
+        return 0
+
+    static int i;
+    static int j;
+    static int toklen;
+    static const char *tok;
+    struct carg_option *opt = NULL;
+
+    CSTART;
     for (i = 0; i < argc; i++) {
         tok = argv[i];
+        DEBUG("tok: %s", tok);
+        opt = NULL;
 
         if (tok == NULL) {
-            goto finish;
+            CREJECT;
         }
 
-        arglen = strlen(tok);
-        if (arglen == 0) {
+        toklen = strlen(tok);
+        if (toklen == 0) {
             continue;
         }
 
-        if ((arglen == 1) || ((tok[0] != '-') || (tok[1] == '-'))) {
-            *value = argv[i];
-            *opt = NULL;
-            return arglen;
+        if (toklen == 1) {
+            CYIELD(tok, toklen, NULL);
+            continue;
         }
 
-        /* Actual tokenizer logic */
-        for (j = 1; j < arglen; j++) {
-            *value = argv[i] + j;
-            *opt = _findoption(carg, argv[i][j]);
-            if (*opt) {
-                return 1;
+        if ((tok[0] == '-') && (tok[1] == '-')) {
+            /* Double dashes option: --foo */
+            // opt = _findoption_byname(c, tok + 2);
+            CYIELD(tok, toklen, opt);
+            continue;
+        }
+
+        if (tok[0] == '-') {
+            /* Single dash option: -f */
+            for (j = 1; j < toklen; j++) {
+                opt = _findoption_bykey(c, tok[j]);
+                if (opt == NULL) {
+                    CYIELD(tok + j, toklen - j, NULL);
+                    break;
+                }
+                CYIELD(tok + j, 1, opt);
             }
-            toklen = arglen - j;
-            j = -1;
-            return toklen;
-resume_j:
+
+            continue;
         }
 
-        j = -1;
-resume_i:
+        /* Positional argument */
+        CYIELD(tok, toklen, NULL);
     }
 
-finish:
-    i = -1;
-    j = -1;
-    return 0;
+    CEND;
 }
 
 
