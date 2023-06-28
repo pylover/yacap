@@ -22,7 +22,7 @@
 #include <cutest.h>
 
 
-#include "carg.c"
+#include "tokenizer.c"
 
 
 void
@@ -40,44 +40,34 @@ test_tokenizer() {
         {NULL}
     };
 
-    struct carg carg = {
-        .args = NULL,
-        .header = NULL,
-        .eat = NULL,
-        .options = options,
-        .footer = NULL,
-        .version = NULL,
-        .flags = 0,
-    };
-
     /* foo */
-    eqint(3, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(3, tokenize(options, count, argv, &tok, &opt));
     eqnstr("foo", tok, 3);
     isnull(opt);
 
     /* f */
-    eqint(1, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(1, tokenize(options, count, argv, &tok, &opt));
     eqchr('f', tok[0]);
     isnotnull(opt);
 
     /* b */
-    eqint(1, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(1, tokenize(options, count, argv, &tok, &opt));
     eqchr('b', tok[0]);
     isnotnull(opt);
 
-    eqint(3, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(3, tokenize(options, count, argv, &tok, &opt));
     eqnstr("zoo", tok, 3);
     isnull(opt);
 
-    eqint(3, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(3, tokenize(options, count, argv, &tok, &opt));
     eqnstr("bar", tok, 3);
     isnull(opt);
 
-    eqint(5, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(5, tokenize(options, count, argv, &tok, &opt));
     eqnstr("--foo", tok, 5);
     isnull(opt);
 
-    eqint(0, _tokenize(&carg, count, argv, &tok, &opt));
+    eqint(0, tokenize(options, count, argv, &tok, &opt));
     isnull(tok);
     isnull(opt);
 }

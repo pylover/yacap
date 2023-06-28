@@ -24,7 +24,11 @@ include_directories(
 )
 
 
+add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
+add_library(option OBJECT option.c option.h)
 add_library(carg STATIC 
+    $<TARGET_OBJECTS:option> 
+    $<TARGET_OBJECTS:tokenizer> 
     carg.c carg.h
 )
 target_link_libraries(carg PUBLIC clog)

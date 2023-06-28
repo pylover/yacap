@@ -27,6 +27,7 @@
 #include <clog.h>
 
 #include "carg.h"
+#include "tokenizer.h"
 
 
 #define VERBOSITY_DEFAULT  CLOG_WARNING
@@ -568,109 +569,6 @@ _notify_finish(struct carg_state *state) {
             return CARG_ERR;
     }
     return CARG_OK;
-}
-
-
-static struct carg_option *
-_findoption_bykey(struct carg *c, int key) {
-    int i = 0;
-    struct carg_option *opt;
-
-    while (true) {
-        opt = &(c->options[i++]);
-        if (opt->name == NULL) {
-            break;
-        }
-
-        if (opt->key == key) {
-            return opt;
-        }
-    }
-
-    return NULL;
-}
-
-
-static int
-_tokenize(struct carg *c, int argc, char **argv, const char **value,
-        struct carg_option **optout) {
-    // TODO: allocate options state nargs [len(options)]
-
-    /* Coroutine  stuff*/
-    #define CSTART \
-        static int __cline__ = 0; \
-        switch (__cline__) { \
-            case 0:
-
-    #define CREJECT goto cfinally
-
-    #define CYIELD(v, l, o) do { \
-            __cline__ = __LINE__; \
-            *value = (v); \
-            *optout = o; \
-            return (l); \
-            case __LINE__:; \
-        } while (0)
-
-
-    #define CEND } cfinally: \
-        *value = NULL; \
-        *optout = NULL; \
-        __cline__ = 0; \
-        return 0
-
-    static int i;
-    static int j;
-    static int toklen;
-    static const char *tok;
-    struct carg_option *opt = NULL;
-
-    CSTART;
-    for (i = 0; i < argc; i++) {
-        tok = argv[i];
-        DEBUG("tok: %s", tok);
-        opt = NULL;
-
-        if (tok == NULL) {
-            CREJECT;
-        }
-
-        toklen = strlen(tok);
-        if (toklen == 0) {
-            continue;
-        }
-
-        if (toklen == 1) {
-            CYIELD(tok, toklen, NULL);
-            continue;
-        }
-
-        if ((tok[0] == '-') && (tok[1] == '-')) {
-            /* Double dashes option: --foo */
-            // opt = _findoption_byname(c, tok + 2);
-            CYIELD(tok, toklen, opt);
-            continue;
-        }
-
-        if (tok[0] == '-') {
-            /* Single dash option: -f */
-            for (j = 1; j < toklen; j++) {
-                opt = _findoption_bykey(c, tok[j]);
-                if (opt == NULL) {
-                    CYIELD(tok + j, toklen - j, NULL);
-                    break;
-                }
-                CYIELD(tok + j, 1, opt);
-            }
-
-            continue;
-        }
-
-        /* Positional argument */
-        CYIELD(tok, toklen, NULL);
-    }
-
-    CEND;
 }
 
 
