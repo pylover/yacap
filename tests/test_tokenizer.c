@@ -27,14 +27,14 @@
 
 void
 test_tokenizer() {
-    const int count = 9;
+    const int count = 10;
     struct carg_token tok;
     struct carg_option options[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {NULL}
     };
-    char *argv[9] = {
+    char *argv[10] = {
         "foo",
         "-fbzoo",
         "bar",
@@ -42,6 +42,7 @@ test_tokenizer() {
         "",
         "--foo=bar",
         "--foo=",
+        "--foo",
         "--",
         "--foo"
     };
@@ -82,19 +83,26 @@ test_tokenizer() {
     eqstr("-qux", tok.value);
     isnull(tok.option);
 
-    /* --foo (option) */
+    /* --foo=bar (option) */
     eqint(1, tokenize(options, count, argv, &tok));
     eqint(2, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("bar", tok.value);
 
-    /* --foo (option) */
+    /* --foo= (option) */
     eqint(1, tokenize(options, count, argv, &tok));
     eqint(3, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("", tok.value);
+
+    /* --foo (option) */
+    eqint(1, tokenize(options, count, argv, &tok));
+    eqint(4, tok.occurance);
+    isnotnull(tok.option);
+    isnull(tok.value);
+    eqchr('f', tok.option->key);
 
     /* --foo (positional) */
     eqint(1, tokenize(options, count, argv, &tok));

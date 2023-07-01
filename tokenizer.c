@@ -31,13 +31,13 @@
 
 
 /* Coroutine  stuff*/
-#define CSTART \
+#define START \
     static int __cline__ = 0; \
     switch (__cline__) { \
         case 0:
 
 
-#define CREJECT goto cfinally
+#define REJECT goto cfinally
 
 
 #define YIELD_OPT(o, v) do { \
@@ -60,7 +60,7 @@
     } while (0)
 
 
-#define CEND } cfinally: \
+#define END } cfinally: \
     __cline__ = 0; \
     token->value = NULL; \
     token->option = NULL; \
@@ -71,8 +71,6 @@
 int
 tokenize(struct carg_option *options, int argc, char **argv,
         struct carg_token *token) {
-    // TODO: allocate options state nargs [len(options)]
-
     static int i;
     static int j;
     static int toklen;
@@ -80,18 +78,18 @@ tokenize(struct carg_option *options, int argc, char **argv,
     static int state[sizeof(char)];
     static struct carg_option *opt = NULL;
     static struct carg_option *opt2 = NULL;
-    const char *eq;
     static bool dashdash = false;
+    const char *eq;
 
     memset(state, 0, sizeof(int) * sizeof(char));
-    CSTART;
+    START;
     for (i = 0; i < argc; i++) {
         tok = argv[i];
         opt = NULL;
         opt2 = NULL;
 
         if (tok == NULL) {
-            CREJECT;
+            REJECT;
         }
 
         toklen = strlen(tok);
@@ -148,5 +146,5 @@ positional:
         YIELD_ARG(tok);
     }
 
-    CEND;
+    END;
 }
