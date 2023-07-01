@@ -44,5 +44,9 @@ struct carg_option *
 option_findbykey(struct carg_option *options, int key);
 
 
+struct carg_option *
+option_findbyname(struct carg_option *options, const char *name, int len);
+
+
 #endif  // OPTION_H_
 

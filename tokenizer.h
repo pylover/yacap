@@ -20,5 +20,14 @@
 #define TOKENIZER_H_
 
 
+#include "option.h"
+
+
+struct carg_token {
+    const char *value;
+    struct carg_option *option;
+    int occurance;
+};
+
 
 #endif  // TOKENIZER_H_

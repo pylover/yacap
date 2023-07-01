@@ -19,17 +19,19 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "option.h"
 
 
+#define CMP(x, y, l) (strncmp(x, y, l) == 0)
+
+
 struct carg_option *
 option_findbykey(struct carg_option *options, int key) {
-    int i = 0;
-    struct carg_option *opt;
+    struct carg_option *opt = options;;
 
-    while (true) {
-        opt = &(options[i++]);
+    while (opt->name) {
         if (opt->name == NULL) {
             break;
         }
@@ -37,7 +39,23 @@ option_findbykey(struct carg_option *options, int key) {
         if (opt->key == key) {
             return opt;
         }
+
+        opt++;
     }
 
+    return NULL;
+}
+
+
+struct carg_option *
+option_findbyname(struct carg_option *options, const char *name, int len) {
+    struct carg_option *opt = options;;
+
+    while (opt->name) {
+        if (CMP(name, opt->name, len)) {
+            return opt;
+        }
+        opt++;
+    }
     return NULL;
 }
