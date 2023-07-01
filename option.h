@@ -40,6 +40,10 @@ struct carg_option {
 };
 
 
+int
+option_count(struct carg_option *options);
+
+
 struct carg_option *
 option_findbykey(struct carg_option *options, int key);
 

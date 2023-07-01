@@ -23,11 +23,26 @@
 #include "option.h"
 
 
+struct tokenizer;
+
+
 struct carg_token {
     const char *value;
     struct carg_option *option;
     int occurance;
 };
+
+
+struct tokenizer *
+tokenizer_new(struct carg_option *options, int argc, char **argv);
+
+
+void
+tokenizer_dispose(struct tokenizer *t);
+
+
+int
+tokenizer_next(struct tokenizer *t, struct carg_token *token);
 
 
 #endif  // TOKENIZER_H_

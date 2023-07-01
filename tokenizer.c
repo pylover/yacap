@@ -31,111 +31,140 @@
 
 
 /* Coroutine  stuff*/
-#define START \
-    static int __cline__ = 0; \
-    switch (__cline__) { \
-        case 0:
-
-
-#define REJECT goto cfinally
+#define START switch (t->line) { case 0:
+#define REJECT goto finally
 
 
 #define YIELD_OPT(o, v) do { \
-        __cline__ = __LINE__; \
+        t->line = __LINE__; \
         token->value = v; \
         token->option = o; \
-        token->occurance = ++state[(o)->key]; \
-        return 1; \
+        token->occurance = ++(t->occurances[(o)->key]); \
+        return 0; \
         case __LINE__:; \
     } while (0)
 
 
 #define YIELD_ARG(v) do { \
-        __cline__ = __LINE__; \
+        t->line = __LINE__; \
         token->value = v; \
         token->option = NULL; \
         token->occurance = -1; \
-        return 1; \
+        return 0; \
         case __LINE__:; \
     } while (0)
 
 
-#define END } cfinally: \
-    __cline__ = 0; \
+#define END } finally: \
+    t->line = 0; \
     token->value = NULL; \
     token->option = NULL; \
     token->occurance = -1; \
-    return 0
+    return -1
+
+
+struct tokenizer {
+    struct carg_option *options;
+    int argc;
+    char **argv;
+
+    /* tokenizer state */
+    int line;
+    int w;
+    int c;
+    int toklen;
+    const char *tok;
+    int occurances[256];
+    struct carg_option *opt;
+    struct carg_option *opt2;
+    bool dashdash;
+};
+
+
+struct tokenizer *
+tokenizer_new(struct carg_option *options, int argc, char **argv) {
+    struct tokenizer *t = malloc(sizeof(struct tokenizer));
+    if (t == NULL) {
+        return NULL;
+    }
+
+    t->line = 0;
+    t->options = options;
+    t->argc = argc;
+    t->argv = argv;
+    t->dashdash = false;
+    memset(t->occurances, 0, 255 * sizeof(int));
+    return t;
+}
+
+void
+tokenizer_dispose(struct tokenizer *t) {
+    if (t == NULL) {
+        return;
+    }
+
+    free(t);
+}
 
 
 int
-tokenize(struct carg_option *options, int argc, char **argv,
-        struct carg_token *token) {
-    static int i;
-    static int j;
-    static int toklen;
-    static const char *tok;
-    static int state[sizeof(char)];
-    static struct carg_option *opt = NULL;
-    static struct carg_option *opt2 = NULL;
-    static bool dashdash = false;
+tokenizer_next(struct tokenizer *t, struct carg_token *token) {
     const char *eq;
 
-    memset(state, 0, sizeof(int) * sizeof(char));
     START;
-    for (i = 0; i < argc; i++) {
-        tok = argv[i];
-        opt = NULL;
-        opt2 = NULL;
+    for (t->w = 0; t->w < t->argc; t->w++) {
+        t->tok = t->argv[t->w];
+        t->opt = NULL;
+        t->opt2 = NULL;
 
-        if (tok == NULL) {
+        if (t->tok == NULL) {
             REJECT;
         }
 
-        toklen = strlen(tok);
-        if (toklen == 0) {
+        t->toklen = strlen(t->tok);
+        if (t->toklen == 0) {
             continue;
         }
 
-        if ((toklen == 1) || dashdash) {
+        if ((t->toklen == 1) || t->dashdash) {
             goto positional;
         }
 
-        if ((tok[0] == '-') && (tok[1] == '-')) {
-            if (toklen == 2) {
-                dashdash = true;
+        if ((t->tok[0] == '-') && (t->tok[1] == '-')) {
+            if (t->toklen == 2) {
+                t->dashdash = true;
                 continue;
             }
 
             /* Double dashes option: '-foo' or '--foo=bar' */
-            eq = strchr(tok, '=');
-            opt = option_findbyname(options, tok + 2,
-                    (eq? eq - tok: toklen) - 2);
+            eq = strchr(t->tok, '=');
+            t->opt = option_findbyname(t->options, t->tok + 2,
+                    (eq? eq - t->tok: t->toklen) - 2);
 
-            if (opt == NULL) {
+            if (t->opt == NULL) {
                 goto positional;
             }
 
-            YIELD_OPT(opt, eq? eq+1: NULL);
+            YIELD_OPT(t->opt, eq? eq+1: NULL);
             continue;
         }
 
-        if (tok[0] == '-') {
+        if (t->tok[0] == '-') {
             /* Single dash option: -f */
-            opt = option_findbykey(options, tok[1]);
-            if (opt == NULL) {
+            t->opt = option_findbykey(t->options, t->tok[1]);
+            if (t->opt == NULL) {
                 goto positional;
             }
 
-            for (j = 2; j < toklen; j++) {
-                opt2 = option_findbykey(options, tok[j]);
-                if (opt2 == NULL) {
-                    YIELD_OPT(opt, tok + j);
+            for (t->c = 2; t->c < t->toklen; t->c++) {
+                t->opt2 = option_findbykey(t->options, t->tok[t->c]);
+                if (t->opt2 == NULL) {
+                    YIELD_OPT(t->opt, t->tok + t->c);
                     break;
                 }
 
-                YIELD_OPT(opt, NULL);
-                opt = opt2;
+                YIELD_OPT(t->opt, NULL);
+                t->opt = t->opt2;
             }
 
             continue;
@@ -143,7 +172,7 @@ tokenize(struct carg_option *options, int argc, char **argv,
 
         /* Positional argument */
 positional:
-        YIELD_ARG(tok);
+        YIELD_ARG(t->tok);
     }
 
     END;

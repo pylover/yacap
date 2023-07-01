@@ -27,15 +27,29 @@
 #define CMP(x, y, l) (strncmp(x, y, l) == 0)
 
 
+int
+option_count(struct carg_option *options) {
+    if (options == NULL) {
+        return -1;
+    }
+
+    struct carg_option *opt = options;;
+    int count = 0;
+
+    while (opt->name) {
+        count++;
+        opt++;
+    }
+
+    return count;
+}
+
+
 struct carg_option *
 option_findbykey(struct carg_option *options, int key) {
     struct carg_option *opt = options;;
 
     while (opt->name) {
-        if (opt->name == NULL) {
-            break;
-        }
-
         if (opt->key == key) {
             return opt;
         }

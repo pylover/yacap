@@ -22,19 +22,19 @@
 #include <cutest.h>
 
 
-#include "tokenizer.c"
+#include "tokenizer.h"
 
 
 void
 test_tokenizer() {
-    const int count = 10;
+#define C   10
     struct carg_token tok;
     struct carg_option options[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {NULL}
     };
-    char *argv[10] = {
+    char *argv[C] = {
         "foo",
         "-fbzoo",
         "bar",
@@ -47,16 +47,19 @@ test_tokenizer() {
         "--foo"
     };
 
+    struct tokenizer *t = tokenizer_new(options, C, argv);
+    isnotnull(t);
+
     /* foo */
     memset(&tok, 0, sizeof(tok));
-    eqint(1, tokenize(options, count, argv, &tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     eqstr("foo", tok.value);
     isnull(tok.option);
 
     /* f */
     memset(&tok, 0, sizeof(tok));
-    eqint(1, tokenize(options, count, argv, &tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(1, tok.occurance);
     isnull(tok.value);
     isnotnull(tok.option);
@@ -64,7 +67,7 @@ test_tokenizer() {
 
     /* b */
     memset(&tok, 0, sizeof(tok));
-    eqint(1, tokenize(options, count, argv, &tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(1, tok.occurance);
     isnotnull(tok.option);
     isnotnull(tok.value);
@@ -72,49 +75,58 @@ test_tokenizer() {
     eqstr("zoo", tok.value);
 
     /* bar */
-    eqint(1, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     eqstr("bar", tok.value);
     isnull(tok.option);
 
     /* -qux */
-    eqint(1, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     eqstr("-qux", tok.value);
     isnull(tok.option);
 
     /* --foo=bar (option) */
-    eqint(1, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(2, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("bar", tok.value);
 
     /* --foo= (option) */
-    eqint(1, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(3, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("", tok.value);
 
     /* --foo (option) */
-    eqint(1, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(4, tok.occurance);
     isnotnull(tok.option);
     isnull(tok.value);
     eqchr('f', tok.option->key);
 
     /* --foo (positional) */
-    eqint(1, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     eqstr("--foo", tok.value);
     isnull(tok.option);
 
     /* Termination */
-    eqint(0, tokenize(options, count, argv, &tok));
+    memset(&tok, 0, sizeof(tok));
+    eqint(-1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     isnull(tok.value);
     isnull(tok.option);
+
+    tokenizer_dispose(t);
 }
 
 
