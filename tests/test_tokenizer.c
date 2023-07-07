@@ -30,7 +30,7 @@
 
 void
 test_tokenizer() {
-#define TOTAL   13
+#define TOTAL   14
     struct carg_token tok;
     struct carg_option options1[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
@@ -46,6 +46,7 @@ test_tokenizer() {
 
     char *argv[TOTAL] = {
         "foo",
+        "-fthud",
         "-fbbar",
         "bar",
         "-qux",
@@ -78,6 +79,21 @@ test_tokenizer() {
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
 
+    /* thud */
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
+    eqint(-1, tok.occurance);
+    eqstr("thud", tok.value);
+    isnull(tok.option);
+
+    /* f */
+    memset(&tok, 0, sizeof(tok));
+    eqint(0, tokenizer_next(t, &tok));
+    eqint(2, tok.occurance);
+    isnull(tok.value);
+    isnotnull(tok.option);
+    eqchr('f', tok.option->key);
+
     /* b */
     memset(&tok, 0, sizeof(tok));
     eqint(0, tokenizer_next(t, &tok));
@@ -104,7 +120,7 @@ test_tokenizer() {
     /* --foo=bar (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(0, tokenizer_next(t, &tok));
-    eqint(2, tok.occurance);
+    eqint(3, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("bar", tok.value);
@@ -112,7 +128,7 @@ test_tokenizer() {
     /* --foo=bar baz (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(0, tokenizer_next(t, &tok));
-    eqint(3, tok.occurance);
+    eqint(4, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("bar baz", tok.value);
@@ -120,7 +136,7 @@ test_tokenizer() {
     /* --foo= (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(0, tokenizer_next(t, &tok));
-    eqint(4, tok.occurance);
+    eqint(5, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("", tok.value);
@@ -128,7 +144,7 @@ test_tokenizer() {
     /* --foo (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(0, tokenizer_next(t, &tok));
-    eqint(5, tok.occurance);
+    eqint(6, tok.occurance);
     isnotnull(tok.option);
     isnull(tok.value);
     eqchr('f', tok.option->key);
