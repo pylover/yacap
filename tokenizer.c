@@ -64,7 +64,8 @@
 
 
 struct tokenizer {
-    struct carg_option *options;
+    struct carg_option **options;
+    int options_count;
     int argc;
     char **argv;
 
@@ -82,7 +83,8 @@ struct tokenizer {
 
 
 struct tokenizer *
-tokenizer_new(struct carg_option *options, int argc, char **argv) {
+tokenizer_new(int argc, char **argv, struct carg_option *options[],
+        int count) {
     struct tokenizer *t = malloc(sizeof(struct tokenizer));
     if (t == NULL) {
         return NULL;
@@ -90,12 +92,14 @@ tokenizer_new(struct carg_option *options, int argc, char **argv) {
 
     t->line = 0;
     t->options = options;
+    t->options_count = count;
     t->argc = argc;
     t->argv = argv;
     t->dashdash = false;
     memset(t->occurances, 0, 255 * sizeof(int));
     return t;
 }
+
 
 void
 tokenizer_dispose(struct tokenizer *t) {
@@ -138,8 +142,8 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
 
             /* Double dashes option: '-foo' or '--foo=bar' */
             eq = strchr(t->tok, '=');
-            t->opt = option_findbyname(t->options, t->tok + 2,
-                    (eq? eq - t->tok: t->toklen) - 2);
+            t->opt = option_findbyname(t->options, t->options_count,
+                    t->tok + 2, (eq? eq - t->tok: t->toklen) - 2);
 
             if (t->opt == NULL) {
                 goto positional;
@@ -151,20 +155,20 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
 
         if (t->tok[0] == '-') {
             /* Single dash option: -f */
-            t->opt = option_findbykey(t->options, t->tok[1]);
-            if (t->opt == NULL) {
-                goto positional;
-            }
-
-            for (t->c = 2; t->c < t->toklen; t->c++) {
-                t->opt2 = option_findbykey(t->options, t->tok[t->c]);
-                if (t->opt2 == NULL) {
-                    YIELD_OPT(t->opt, t->tok + t->c);
+            for (t->c = 1; t->c < t->toklen; t->c++) {
+                t->opt = option_findbykey(t->options, t->options_count,
+                        t->tok[t->c]);
+                if (t->opt == NULL) {
+                    YIELD_ARG(t->tok + (t->c == 1? 0: t->c));
                     break;
                 }
-
-                YIELD_OPT(t->opt, NULL);
-                t->opt = t->opt2;
+                else if (t->opt->arg && ((t->c + 1) < t->toklen)) {
+                    YIELD_OPT(t->opt, t->tok + t->c + 1);
+                    break;
+                }
+                else {
+                    YIELD_OPT(t->opt, NULL);
+                }
             }
 
             continue;

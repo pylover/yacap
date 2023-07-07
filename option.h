@@ -45,11 +45,12 @@ option_count(struct carg_option *options);
 
 
 struct carg_option *
-option_findbykey(struct carg_option *options, int key);
+option_findbykey(struct carg_option *options[], int count, int key);
 
 
 struct carg_option *
-option_findbyname(struct carg_option *options, const char *name, int len);
+option_findbyname(struct carg_option *options[], int count,
+        const char *name, int len);
 
 
 #endif  // OPTION_H_

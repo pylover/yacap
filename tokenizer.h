@@ -34,7 +34,8 @@ struct carg_token {
 
 
 struct tokenizer *
-tokenizer_new(struct carg_option *options, int argc, char **argv);
+tokenizer_new(int argc, char **argv, struct carg_option *options[],
+        int count);
 
 
 void

@@ -46,15 +46,20 @@ option_count(struct carg_option *options) {
 
 
 struct carg_option *
-option_findbykey(struct carg_option *options, int key) {
-    struct carg_option *opt = options;
+option_findbykey(struct carg_option *options[], int count, int key) {
+    int i;
+    struct carg_option *opt;
 
-    while (opt->name) {
-        if (opt->key == key) {
-            return opt;
+    for (i = 0; i < count; i++) {
+        opt = options[i];
+
+        while (opt->name) {
+            if (opt->key == key) {
+                return opt;
+            }
+
+            opt++;
         }
-
-        opt++;
     }
 
     return NULL;
@@ -62,14 +67,22 @@ option_findbykey(struct carg_option *options, int key) {
 
 
 struct carg_option *
-option_findbyname(struct carg_option *options, const char *name, int len) {
-    struct carg_option *opt = options;
+option_findbyname(struct carg_option *options[], int count,
+        const char *name, int len) {
+    int i;
+    struct carg_option *opt;
 
-    while (opt->name) {
-        if (CMP(name, opt->name, len)) {
-            return opt;
+    for (i = 0; i < count; i++) {
+        opt = options[i];
+
+        while (opt->name) {
+            if (CMP(name, opt->name, len)) {
+                return opt;
+            }
+
+            opt++;
         }
-        opt++;
     }
+
     return NULL;
 }
