@@ -287,7 +287,7 @@ carg_print_help(struct carg_state *state) {
 
 static void
 _unrecognized_option(struct carg_state *state) {
-    char *prog = state->argv[0];
+    const char *prog = state->argv[0];
     dprintf(_errfile, "%s: unrecognized option '%s'\n", prog,
             state->argv[state->index]);
     TRYHELP(prog);
@@ -296,7 +296,7 @@ _unrecognized_option(struct carg_state *state) {
 
 static void
 _not_eaten(struct carg_state *state, const struct carg_option *opt) {
-    char *prog = state->argv[0];
+    const char *prog = state->argv[0];
     const char *c = state->argv[state->index];
 
     if (opt) {
@@ -316,7 +316,7 @@ _not_eaten(struct carg_state *state, const struct carg_option *opt) {
 
 static void
 _value_required(struct carg_state *state) {
-    char *prog = state->argv[0];
+    const char *prog = state->argv[0];
     dprintf(_errfile, "%s: '%s' option requires an argument\n", prog,
             state->argv[state->index]);
     TRYHELP(prog);
@@ -325,7 +325,7 @@ _value_required(struct carg_state *state) {
 
 static void
 _invalid_value(struct carg_state *state, const char *value) {
-    char *prog = state->argv[0];
+    const char *prog = state->argv[0];
     dprintf(_errfile, "%s: '%s' option, invalid argument: %s\n", prog,
             state->argv[state->index], value);
     TRYHELP(prog);
@@ -334,7 +334,7 @@ _invalid_value(struct carg_state *state, const char *value) {
 
 static void
 _arg_insufficient(struct carg_state *state) {
-    char *prog = state->argv[0];
+    const char *prog = state->argv[0];
     dprintf(_errfile, "%s: insufficient argument(s)\n", prog);
     TRYHELP(prog);
 }
@@ -573,7 +573,8 @@ _notify_finish(struct carg_state *state) {
 
 
 enum carg_status
-carg_parse(const struct carg *c, int argc, char **argv, void *userptr) {
+carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
+        void **handler) {
     int i;
     enum carg_eatstatus eatresult;
     const struct carg_option *opt;

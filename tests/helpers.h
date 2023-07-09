@@ -36,7 +36,8 @@ extern char err[];
 
 
 enum carg_status
-carg_parse_string(struct carg *c, const char *line, void *userptr);
+carg_parse_string(struct carg *c, const char *line, void *userptr,
+        void **handler);
 
 
 #endif  // TESTS_HELPERS_H_

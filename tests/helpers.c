@@ -34,7 +34,8 @@ char err[BUFFSIZE + 1] = "\0";
 
 
 enum carg_status
-carg_parse_string(struct carg *c, const char * line, void *userptr) {
+carg_parse_string(struct carg *c, const char * line, void *userptr,
+        void **handler) {
     char *argv[256];
     int argc = 0;
     char delim[1] = {' '};
@@ -65,7 +66,7 @@ carg_parse_string(struct carg *c, const char * line, void *userptr) {
     carg_outfile_set(outpipe[1]);
     carg_errfile_set(errpipe[1]);
 
-    int ret = carg_parse(c, argc, argv, userptr);
+    int ret = carg_parse(c, argc, (const char **)argv, userptr, handler);
 
     close(outpipe[1]);
     close(errpipe[1]);

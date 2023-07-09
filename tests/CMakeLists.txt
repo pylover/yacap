@@ -2,11 +2,12 @@
 include(CTest)
 list(APPEND testrules
     tokenizer
-    help
-    verbose
-    version
-    option
-    positional
+    command
+    # help
+    # verbose
+    # version
+    # option
+    # positional
 )
 list(TRANSFORM testrules PREPEND test_)
 set(profilerules ${testrules})

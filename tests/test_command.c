@@ -25,32 +25,62 @@
 #include "helpers.h"
 
 
+typedef void (*handler_t) ();
+
+
 void
-test_subcommand() {
-    struct carg_option options[] = {
-        {"foo", 'f', NULL, 0, "Foo flag"},
-        {"bar", 'b', "BAR", 0, "Bar option with value"},
+thud() {
+}
+
+
+void
+test_command() {
+    struct carg_option thud_options[] = {
+        {"baz", 'z', NULL, 0, "Baz flag"},
         {NULL}
     };
 
-    struct carg_command cmd = {
+    const struct carg_command thud_cmd = {
+        .command = "thud",
+        .args = "qux",
+        .options = thud_options,
+        .handler = thud,
+    };
+
+    const struct carg_command *commands[] = {
+        &thud_cmd,
+        NULL
+    };
+
+    struct carg_option root_options[] = {
+        {"foo", 'f', NULL, 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {NULL}
     };
 
     struct carg carg = {
         .args = NULL,
         .header = NULL,
         .eat = NULL,
-        .options = options,
+        .options = root_options,
         .footer = NULL,
         .version = NULL,
         .flags = 0,
-        .commands = {&cmd, NULL};
+        .handler = NULL,
+        .commands = commands
     };
+
+
+    handler_t handler = NULL;
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud", NULL,
+                (void **)&handler));
+
+    isnotnull(handler);
 }
 
 
 int
 main() {
-    test_subcommand();
+    test_command();
     return EXIT_SUCCESS;
 }
