@@ -63,19 +63,24 @@ typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
         struct carg_state *state);
 
 
+struct carg_command {
+};
+
+
 struct carg {
     carg_eater eat;
-    struct carg_option *options;
+    const struct carg_option *options;
     const char *args;
     const char *header;
     const char *footer;
     const char *version;
     enum carg_flags flags;
+    const struct carg_command commands[];
 };
 
 
 struct carg_state {
-    struct carg *carg;
+    const struct carg *carg;
     int fd;
     bool dashdash;
 
@@ -98,7 +103,7 @@ carg_errfile_set(int fd);
 
 
 enum carg_status
-carg_parse(struct carg *c, int argc, char **argv, void *userptr);
+carg_parse(const struct carg *c, int argc, char **argv, void *userptr);
 
 
 #endif  // CARG_H_

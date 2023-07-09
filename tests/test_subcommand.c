@@ -25,8 +25,32 @@
 #include "helpers.h"
 
 
+void
+test_subcommand() {
+    struct carg_option options[] = {
+        {"foo", 'f', NULL, 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {NULL}
+    };
+
+    struct carg_command cmd = {
+    };
+
+    struct carg carg = {
+        .args = NULL,
+        .header = NULL,
+        .eat = NULL,
+        .options = options,
+        .footer = NULL,
+        .version = NULL,
+        .flags = 0,
+        .commands = {&cmd, NULL};
+    };
+}
+
+
 int
 main() {
-    // test_subcommand();
+    test_subcommand();
     return EXIT_SUCCESS;
 }

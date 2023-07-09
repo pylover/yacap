@@ -137,7 +137,7 @@ _print_multiline(int fd, const char *string, int indent, int linemax) {
 
 
 static void
-_print_option(int fd, struct carg_option *opt, int gapsize) {
+_print_option(int fd, const struct carg_option *opt, int gapsize) {
     int rpad = gapsize - OPT_HELPLEN(opt);
 
     if (ISCHAR(opt->key)) {
@@ -167,7 +167,7 @@ _print_option(int fd, struct carg_option *opt, int gapsize) {
 
 
 static int
-_calculate_initial_gapsize(struct carg *c) {
+_calculate_initial_gapsize(const struct carg *c) {
     int gapsize = 8;
 
     if (!HASFLAG(c, CARG_NO_CLOG)) {
@@ -191,10 +191,10 @@ _calculate_initial_gapsize(struct carg *c) {
 
 
 static void
-_print_options(int fd, struct carg *c) {
+_print_options(int fd, const struct carg *c) {
     int gapsize = _calculate_initial_gapsize(c);
     int i = 0;
-    struct carg_option *opt;
+    const struct carg_option *opt;
 
     while (true) {
         opt = &(c->options[i++]);
@@ -295,7 +295,7 @@ _unrecognized_option(struct carg_state *state) {
 
 
 static void
-_not_eaten(struct carg_state *state, struct carg_option *opt) {
+_not_eaten(struct carg_state *state, const struct carg_option *opt) {
     char *prog = state->argv[0];
     const char *c = state->argv[state->index];
 
@@ -340,10 +340,10 @@ _arg_insufficient(struct carg_state *state) {
 }
 
 
-static struct carg_option *
+static const struct carg_option *
 _option_bykey(struct carg_state *state, const char user) {
-    struct carg_option *opt = state->carg->options;
-    struct carg *c = state->carg;
+    const struct carg_option *opt = state->carg->options;
+    const struct carg *c = state->carg;
 
     switch (user) {
         case 'h':
@@ -382,10 +382,10 @@ search:
 }
 
 
-static struct carg_option *
+static const struct carg_option *
 _option_bylongname(struct carg_state *state, const char *user, int len) {
-    struct carg_option *opt = state->carg->options;
-    struct carg *c = state->carg;
+    const struct carg_option *opt = state->carg->options;
+    const struct carg *c = state->carg;
 
     if ((!HASFLAG(c, CARG_NO_HELP)) && CMP(user, opt_help.name, len)) {
         return &opt_help;
@@ -413,13 +413,13 @@ search:
 }
 
 
-static struct carg_option *
+static const struct carg_option *
 _find_opt(struct carg_state *state, const char **value) {
     const char *user = state->argv[state->index];
     char *tmp;
     int len = strlen(user);
     enum carg_argtype argtype;
-    struct carg_option *opt = NULL;
+    const struct carg_option *opt = NULL;
 
     if (len == 0) {
         return NULL;
@@ -477,7 +477,7 @@ _find_opt(struct carg_state *state, const char **value) {
 static enum carg_eatstatus
 _eat(int key, const char *value, struct carg_state *state) {
     int valuelen;
-    struct carg *c = state->carg;
+    const struct carg *c = state->carg;
 
     /* Try to solve it internaly */
     switch (key) {
@@ -573,10 +573,10 @@ _notify_finish(struct carg_state *state) {
 
 
 enum carg_status
-carg_parse(struct carg *c, int argc, char **argv, void *userptr) {
+carg_parse(const struct carg *c, int argc, char **argv, void *userptr) {
     int i;
     enum carg_eatstatus eatresult;
-    struct carg_option *opt;
+    const struct carg_option *opt;
     int key;
     bool next_is_value = false;
     const char *value = NULL;
