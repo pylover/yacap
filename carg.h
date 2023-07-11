@@ -22,8 +22,6 @@
 
 #include <stdbool.h>
 
-#include "option.h"
-
 
 /* carg special keys */
 #define KEY_ARG -1
@@ -63,6 +61,24 @@ typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
         struct carg_state *state);
 
 
+/* option flags */
+enum carg_optionflags {
+    CARG_OPTION = 0,
+    CARG_OPTIONAL_VALUE = 1,
+    CARG_COMMAND = 2,
+};
+
+
+struct carg_option {
+    const char *name;
+    const int key;
+    const char *arg;
+    enum carg_optionflags flags;
+    const char *help;
+};
+
+
+/* Sub Command */
 struct carg_command {
     const char *command;
     carg_eater eat;

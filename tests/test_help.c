@@ -40,7 +40,7 @@ test_usage() {
         "Usage: foo [OPTION...] bar\n"
         "   or: foo [OPTION...] baz\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --usage", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --usage", NULL, NULL));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -77,7 +77,7 @@ test_help_doc() {
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n";  // NOLINT
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL, NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -94,7 +94,7 @@ test_help_nooptions() {
         .flags = CARG_NO_HELP
     };
 
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo --help", NULL, NULL));
     eqstr("", out);
     eqstr("foo: unrecognized option '--help'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -107,7 +107,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL, NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -138,7 +138,7 @@ test_help_default() {
 "\n"
 "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL, NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -184,7 +184,7 @@ test_help_options() {
 "\n"
 "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL, NULL));
     eqstr(help, out);
     eqstr("", err);
 }

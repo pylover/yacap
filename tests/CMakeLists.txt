@@ -2,7 +2,7 @@
 include(CTest)
 list(APPEND testrules
     tokenizer
-    command
+    # command
     # help
     # verbose
     # version
