@@ -157,16 +157,12 @@ struct carg_token {
 
 
 /* Coroutine  stuff*/
-#define START switch (t->line) { case 0:
-#define REJECT goto finally
-
-
 #define YIELD_OPT(o, v) do { \
         t->line = __LINE__; \
         token->value = v; \
         token->option = o; \
         token->occurance = ++(t->occurances[(o)->key]); \
-        return 0; \
+        return 1; \
         case __LINE__:; \
     } while (0)
 
@@ -176,22 +172,33 @@ struct carg_token {
         token->value = v; \
         token->option = NULL; \
         token->occurance = -1; \
-        return 0; \
+        return 1; \
         case __LINE__:; \
     } while (0)
 
 
-#define END } finally: \
+#define END } \
     t->line = 0; \
+    token->value = NULL; \
+    token->option = NULL; \
+    token->occurance = -1; \
+    return 0
+
+
+#define REJECT \
+    t->line = -1; \
     token->value = NULL; \
     token->option = NULL; \
     token->occurance = -1; \
     return -1
 
 
+#define START switch (t->line) { case -1: REJECT; case 0:
+
+
 static struct tokenizer *
-_tokenizer_new(int argc, const char **argv, const struct carg_option *options[],
-        int count) {
+_tokenizer_new(int argc, const char **argv,
+        const struct carg_option *options[], int count) {
     struct tokenizer *t = malloc(sizeof(struct tokenizer));
     if (t == NULL) {
         return NULL;
@@ -291,7 +298,7 @@ positional:
 
 
 static int
-_optionvectors(const struct carg *c, const struct carg_option ***vects) {
+_optionvectors(const struct carg *c, const struct carg_option **vects[]) {
     int count = 0;
     int i = 0;
     const struct carg_command **cmd = c->commands;
@@ -330,7 +337,6 @@ _optionvectors(const struct carg *c, const struct carg_option ***vects) {
 int
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
         void **handler) {
-
     const struct carg_option **optvects;
     int optvects_count = _optionvectors(c, &optvects);
     if (optvects_count < 0) {
@@ -339,4 +345,12 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
 
     struct tokenizer *t = _tokenizer_new(argc, argv, optvects,
             optvects_count);
+
+
+    // while (true) {
+    //     _tokenizer_next(t, &tok));
+    // }
+
+
+    // TODO: free optvects
 }
