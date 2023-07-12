@@ -2,11 +2,11 @@
 include(CTest)
 list(APPEND testrules
     tokenizer
+    option
     # command
     # help
     # verbose
     # version
-    # option
     # positional
 )
 list(TRANSFORM testrules PREPEND test_)

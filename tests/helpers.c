@@ -33,47 +33,47 @@ char out[BUFFSIZE + 1] = "\0";
 char err[BUFFSIZE + 1] = "\0";
 
 
-// enum carg_status
-// carg_parse_string(struct carg *c, const char * line, void *userptr,
-//         void **handler) {
-//     char *argv[256];
-//     int argc = 0;
-//     char delim[1] = {' '};
-//     char *needle;
-//     char *saveptr = NULL;
-//     static char buff[BUFFSIZE + 1];
-//     strcpy(buff, line);
-//
-//     needle = strtok_r(buff, delim, &saveptr);
-//     argv[argc++] = needle;
-//     while (true) {
-//         needle = strtok_r(NULL, delim, &saveptr);
-//         if (needle == NULL) {
-//             break;
-//         }
-//         argv[argc++] = needle;
-//     }
-//
-//     /* Piping */
-//     int outpipe[2];
-//     int errpipe[2];
-//     memset(out, 0, BUFFSIZE + 1);
-//     memset(err, 0, BUFFSIZE + 1);
-//
-//     pipe(outpipe);
-//     pipe(errpipe);
-//
-//     carg_outfile_set(outpipe[1]);
-//     carg_errfile_set(errpipe[1]);
-//
-//     int ret = carg_parse(c, argc, (const char **)argv, userptr, handler);
-//
-//     close(outpipe[1]);
-//     close(errpipe[1]);
-//     read(outpipe[0], out, BUFFSIZE);
-//     read(errpipe[0], err, BUFFSIZE);
-//     close(outpipe[0]);
-//     close(errpipe[0]);
-//
-//     return ret;
-// }
+enum carg_status
+carg_parse_string(struct carg *c, const char * line, void *userptr,
+        void **handler) {
+    char *argv[256];
+    int argc = 0;
+    char delim[1] = {' '};
+    char *needle;
+    char *saveptr = NULL;
+    static char buff[BUFFSIZE + 1];
+    strcpy(buff, line);
+
+    needle = strtok_r(buff, delim, &saveptr);
+    argv[argc++] = needle;
+    while (true) {
+        needle = strtok_r(NULL, delim, &saveptr);
+        if (needle == NULL) {
+            break;
+        }
+        argv[argc++] = needle;
+    }
+
+    /* Piping */
+    int outpipe[2];
+    int errpipe[2];
+    memset(out, 0, BUFFSIZE + 1);
+    memset(err, 0, BUFFSIZE + 1);
+
+    pipe(outpipe);
+    pipe(errpipe);
+
+    carg_outfile_set(outpipe[1]);
+    carg_errfile_set(errpipe[1]);
+
+    int ret = carg_parse(c, argc, (const char **)argv, userptr, handler);
+
+    close(outpipe[1]);
+    close(errpipe[1]);
+    read(outpipe[0], out, BUFFSIZE);
+    read(errpipe[0], err, BUFFSIZE);
+    close(outpipe[0]);
+    close(errpipe[0]);
+
+    return ret;
+}

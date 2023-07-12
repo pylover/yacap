@@ -290,6 +290,162 @@ positional:
 }
 
 
+static int
+_optionvectors_count(const struct carg *c) {
+    int count = 0;
+    const struct carg_command **cmd = c->commands;
+
+    if (c->options) {
+        count++;
+    }
+
+    while (cmd) {
+        count++;
+    }
+
+    return count;
+}
+
+
+int
+carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
+        void **handler) {
+
+    const struct carg_options *optvects[];
+    int optvects_count = _optionvectors(c, &optvects);
+
+    struct carg_option **optionvectors = malloc(optionvectors_count *
+            (sizeof struct carg_option*));
+
+    struct tokenizer *t = _tokenizer_new(argc, argv, optionvectors,
+            optionvectors_count);
+}
+
+
+// enum carg_status
+// carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
+//         void **handler) {
+//     int i;
+//     enum carg_eatstatus eatresult;
+//     const struct carg_option *opt;
+//     int key;
+//     bool next_is_value = false;
+//     const char *value = NULL;
+//
+//     if (argc < 1) {
+//         return CARG_ERR;
+//     }
+//
+//     struct carg_state state = {
+//         .carg = c,
+//         .argc = argc,
+//         .argv = argv,
+//         .fd = _outfile,
+//         .userptr = userptr,
+//         .index = -1,
+//         .next = NULL,
+//         .arg_index = -1,
+//     };
+//
+//     for (i = 1; i < argc; i++) {
+//         /* Preserve current index and next arg */
+//         state.index = i;
+//         if ((i + 1) >= argc) {
+//             state.last = true;
+//             state.next = NULL;
+//         }
+//         else {
+//             state.last = false;
+//             state.next = argv[i + 1];
+//         }
+//         value = NULL;
+//         next_is_value = false;
+//
+//         if (state.dashdash) {
+//             opt = NULL;
+//             goto positional;
+//         }
+//
+//         /* Find option */
+//         opt = _find_opt(&state, &value);
+//         if (opt) {
+//             /* Option found */
+//             if ((opt->arg) && (value == NULL)) {
+//                 /* Option requires argument */
+//                 if ((!HASFLAG(opt, CARG_OPTIONAL_VALUE)) &&
+//                         state.last) {
+//                     _value_required(&state);
+//                     return CARG_ERR;
+//                 }
+//
+//                 if (!state.last) {
+//                     next_is_value = true;
+//                 }
+//             }
+//             else if ((opt->arg == NULL) && value) {
+//                 /* Option not requires any argument */
+//                 _unrecognized_option(&state);
+//                 return CARG_ERR;
+//             }
+//
+//             /* Preserve key and value */
+//             key = opt->key;
+//             if (next_is_value && (!state.last)) {
+//                 value = state.next;
+//             }
+//         }
+//         else if ((strlen(argv[i]) == 2) && CMP("--", argv[i], 2)) {
+//                 state.dashdash = true;
+//                 continue;
+//         }
+//         else {
+// positional:
+//             value = argv[i];
+//             /* It's not an option, it doesn't startswith: '-' or '--' */
+//             key = KEY_ARG;
+//             state.arg_index++;
+//         }
+//
+//         /* Try to eat argument */
+//         eatresult = _eat(key, value, &state);
+//         switch (eatresult) {
+//             case CARG_EAT_OK:
+//                 if (next_is_value) {
+//                     /* Next argument is eaten as option's value. */
+//                     i++;
+//                 }
+//                 continue;
+//
+//             case CARG_EAT_FLAG:
+//                 /* Next argument is not eaten by user. just continue */
+//                 continue;
+//
+//             case CARG_EAT_OK_EXIT:
+//                 return CARG_OK_EXIT;
+//
+//             case CARG_EAT_UNRECOGNIZED:
+//                 _not_eaten(&state, opt);
+//                 return CARG_ERR;
+//
+//             case CARG_EAT_VALUE_REQUIRED:
+//                 _value_required(&state);
+//                 return CARG_ERR;
+//
+//             case CARG_EAT_BAD_VALUE:
+//                 _invalid_value(&state, value);
+//                 return CARG_ERR;
+//
+//             case CARG_EAT_ARG_REQUIRED:
+//                 _arg_insufficient(&state);
+//                 return CARG_ERR;
+//         }
+//     }
+//
+//     /* Notify the termination to user */
+//     return _notify_finish(&state);
+// }
+
+
 // /* Help */
 // static void
 // _print_options(int fd, const struct carg *c) {
@@ -792,128 +948,4 @@ positional:
 //             return CARG_ERR;
 //     }
 //     return CARG_OK;
-// }
-//
-//
-// enum carg_status
-// carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
-//         void **handler) {
-//     int i;
-//     enum carg_eatstatus eatresult;
-//     const struct carg_option *opt;
-//     int key;
-//     bool next_is_value = false;
-//     const char *value = NULL;
-//
-//     if (argc < 1) {
-//         return CARG_ERR;
-//     }
-//
-//     struct carg_state state = {
-//         .carg = c,
-//         .argc = argc,
-//         .argv = argv,
-//         .fd = _outfile,
-//         .userptr = userptr,
-//         .index = -1,
-//         .next = NULL,
-//         .arg_index = -1,
-//     };
-//
-//     for (i = 1; i < argc; i++) {
-//         /* Preserve current index and next arg */
-//         state.index = i;
-//         if ((i + 1) >= argc) {
-//             state.last = true;
-//             state.next = NULL;
-//         }
-//         else {
-//             state.last = false;
-//             state.next = argv[i + 1];
-//         }
-//         value = NULL;
-//         next_is_value = false;
-//
-//         if (state.dashdash) {
-//             opt = NULL;
-//             goto positional;
-//         }
-//
-//         /* Find option */
-//         opt = _find_opt(&state, &value);
-//         if (opt) {
-//             /* Option found */
-//             if ((opt->arg) && (value == NULL)) {
-//                 /* Option requires argument */
-//                 if ((!HASFLAG(opt, CARG_OPTIONAL_VALUE)) &&
-//                         state.last) {
-//                     _value_required(&state);
-//                     return CARG_ERR;
-//                 }
-//
-//                 if (!state.last) {
-//                     next_is_value = true;
-//                 }
-//             }
-//             else if ((opt->arg == NULL) && value) {
-//                 /* Option not requires any argument */
-//                 _unrecognized_option(&state);
-//                 return CARG_ERR;
-//             }
-//
-//             /* Preserve key and value */
-//             key = opt->key;
-//             if (next_is_value && (!state.last)) {
-//                 value = state.next;
-//             }
-//         }
-//         else if ((strlen(argv[i]) == 2) && CMP("--", argv[i], 2)) {
-//                 state.dashdash = true;
-//                 continue;
-//         }
-//         else {
-// positional:
-//             value = argv[i];
-//             /* It's not an option, it doesn't startswith: '-' or '--' */
-//             key = KEY_ARG;
-//             state.arg_index++;
-//         }
-//
-//         /* Try to eat argument */
-//         eatresult = _eat(key, value, &state);
-//         switch (eatresult) {
-//             case CARG_EAT_OK:
-//                 if (next_is_value) {
-//                     /* Next argument is eaten as option's value. */
-//                     i++;
-//                 }
-//                 continue;
-//
-//             case CARG_EAT_FLAG:
-//                 /* Next argument is not eaten by user. just continue */
-//                 continue;
-//
-//             case CARG_EAT_OK_EXIT:
-//                 return CARG_OK_EXIT;
-//
-//             case CARG_EAT_UNRECOGNIZED:
-//                 _not_eaten(&state, opt);
-//                 return CARG_ERR;
-//
-//             case CARG_EAT_VALUE_REQUIRED:
-//                 _value_required(&state);
-//                 return CARG_ERR;
-//
-//             case CARG_EAT_BAD_VALUE:
-//                 _invalid_value(&state, value);
-//                 return CARG_ERR;
-//
-//             case CARG_EAT_ARG_REQUIRED:
-//                 _arg_insufficient(&state);
-//                 return CARG_ERR;
-//         }
-//     }
-//
-//     /* Notify the termination to user */
-//     return _notify_finish(&state);
 // }
