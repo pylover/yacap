@@ -42,9 +42,9 @@ test_tokenizer() {
         {NULL}
     };
 
-    struct carg_option *options[2] = {options1, options2};
+    const struct carg_option *options[2] = {options1, options2};
 
-    char *argv[TOTAL] = {
+    const char *argv[TOTAL] = {
         "foo",
         "-fthud",
         "-fbbar",
