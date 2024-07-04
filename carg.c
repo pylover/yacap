@@ -29,11 +29,12 @@
 #include "tokenizer.h"
 
 
+#define TRYHELP(p) ERRORH( \
+        "Try `%s --help' or `%s --usage' for more information.", p, p);
+/*
 #define VERBOSITY_DEFAULT  CLOG_WARNING
 #define HELP_LINESIZE 79
 #define USAGE_BUFFSIZE 1024
-#define TRYHELP(p) dprintf(_errfile, \
-        "Try `%s --help' or `%s --usage' for more information.\n", p, p);
 #define MAX(x, y) ((x) > (y)? (x): (y))
 #define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
 #define ISSIGN(c) (\
@@ -50,10 +51,9 @@
     strlen((o)->name) + \
     ((o)->arg? strlen((o)->arg) + 1: 0) + \
     (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
+*/
 
-
-static int _outfile = STDOUT_FILENO;
-static int _errfile = STDERR_FILENO;
+/*
 static struct carg_option opt_verbosity = {
     .name = "verbose",
     .key = 'v',
@@ -70,22 +70,11 @@ static struct carg_option opt_help = {"help", 'h', NULL, 0,
     "Give this help list"};
 static struct carg_option opt_usage = {"usage", '?', NULL, 0,
     "Give a short usage message"};
-
-
-void
-carg_outfile_set(int fd) {
-    _outfile = fd;
-}
-
-
-void
-carg_errfile_set(int fd) {
-    _errfile = fd;
-}
+*/
 
 
 static int
-_optionvectors(const struct carg *c, const struct carg_option **vects[]) {
+_optionvectors(const struct carg *c, const struct carg_option **opts[]) {
     int count = 0;
     int i = 0;
     const struct carg_command **cmd = c->commands;
@@ -95,50 +84,68 @@ _optionvectors(const struct carg *c, const struct carg_option **vects[]) {
         count++;
     }
 
-    while (cmd++) {
-        if (cmd[0]->options) {
+    while (cmd) {
+        if ((*cmd)->options) {
             count++;
         }
+
+        cmd++;
     }
 
     v = malloc(count * (sizeof (struct carg_option*)));
     if (v == NULL) {
         return -1;
     }
-    *vects = v;
+    *opts = v;
 
     if (c->options) {
         v[i++] = c->options;
     }
 
-    while (cmd++) {
-        if (cmd[0]->options) {
+    while (cmd) {
+        if ((*cmd)->options) {
             v[i++] = cmd[0]->options;
         }
+
+        cmd++;
     }
 
     return count;
 }
 
 
-int
+enum carg_status
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
         void **handler) {
-    const struct carg_option **optvects;
-    int optvects_count = _optionvectors(c, &optvects);
+    int status;
+    const struct carg_option **options;
+    int optvects_count;
+    struct tokenizer *t;
+    struct carg_token tok;
+
+    optvects_count = _optionvectors(c, &options);
     if (optvects_count < 0) {
         return -1;
     }
 
-    struct tokenizer *t = tokenizer_new(argc, argv, optvects,
-            optvects_count);
+    t = tokenizer_new(argc, argv, options, optvects_count);
+    if (t == NULL) {
+        status = -1;
+        goto dispose;
+    }
 
+    while ((status = tokenizer_next(t, &tok)) == 1) {
+    }
 
-    // while (true) {
-    //     tokenizer_next(t, &tok));
-    // }
+    if (status < 0) {
+        TRYHELP(argv[0]);
+    }
 
-
-    // TODO: free optvects
-    // TODO: free tokenizer
+dispose:
+    tokenizer_dispose(t);
+    free(options);
+    if (status < 0) {
+        return CARG_ERR;
+    }
+    return CARG_OK;
 }

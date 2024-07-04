@@ -16,8 +16,8 @@
  *  
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef MANIFEST_H_IN_
-#define MANIFEST_H_IN_
+#ifndef CONFIG_H_IN_
+#define CONFIG_H_IN_
 
 
 #define CARG_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
@@ -25,4 +25,7 @@
 #define CARG_VERSION "@PROJECT_VERSION@"
 
 
-#endif  // MANIFEST_H_IN_
+#cmakedefine CARG_MAXOPTIONS @CARG_MAXOPTIONS@
+
+
+#endif  // CONFIG_H_IN_

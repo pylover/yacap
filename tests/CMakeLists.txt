@@ -1,7 +1,7 @@
 # Testing
 include(CTest)
 list(APPEND testrules
-    tokenizer
+	tokenizer
     option
     # command
     # help
@@ -16,6 +16,17 @@ add_custom_target(profile DEPENDS ${profilerules})
 add_library(helpers OBJECT helpers.c helpers.h)
 
 
+# Valgrind, Profiling
+set(VALGRIND_FLAGS
+    -s
+    --tool=memcheck 
+    --leak-check=yes 
+    --show-reachable=yes 
+    --num-callers=20 
+    --track-fds=yes 
+)
+
+
 foreach (t IN LISTS testrules) 
     # Test help
     add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
@@ -24,6 +35,10 @@ foreach (t IN LISTS testrules)
     add_test(NAME ${t} COMMAND ${t})
     add_custom_target(${t}_exec 
         COMMAND ctest --verbose -R ${t}
+    )
+    add_custom_target(${t}_debug COMMAND gdb 
+      --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb
+      ./${t}
     )
     add_custom_target(profile_${t}
         COMMAND "valgrind" ${VALGRIND_FLAGS} ctest -R ${t}

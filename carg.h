@@ -116,14 +116,6 @@ struct carg_state {
 };
 
 
-void
-carg_outfile_set(int fd);
-
-
-void
-carg_errfile_set(int fd);
-
-
 enum carg_status
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
         void **handler);

@@ -4,20 +4,30 @@ project(carg
     LANGUAGES C
 )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fms-extensions -D_GNU_SOURCE=1")
+
+# GCC and it's flags
+set(CMAKE_C_COMPILER gcc)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fms-extensions")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE=1")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 
 
-# Valgrind, Profiling
-set(VALGRIND_FLAGS
-    -s
-    --tool=memcheck 
-    --leak-check=yes 
-    --show-reachable=yes 
-    --num-callers=20 
-    --track-fds=yes 
-)
+# Build type and debug symbols
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Include debug symbols" FORCE)
+endif()
+if(CMAKE_BUILD_TYPE!=Release)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+endif()
 
-configure_file(manifest.h.in manifest.h)
+
+set(CARG_MAXOPTIONS 256 CACHE STRING "Maximum allowed options")
+set_property(CACHE CARG_MAXOPTIONS PROPERTY STRINGS 64 128 256 512 1024)
+
+
+configure_file(config.h.in config.h)
 include_directories(
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}
@@ -37,6 +47,11 @@ target_link_libraries(carg PUBLIC clog)
 # Install
 install(TARGETS carg DESTINATION "lib")
 install(FILES carg.h DESTINATION "include")
+
+
+# Menu config
+add_custom_target(menu COMMAND ccmake ${PROJECT_BINARY_DIR} )
+add_custom_target(fresh COMMAND cmake ${PROJECT_SOURCE_DIR} --fresh)
 
 
 # Lint
