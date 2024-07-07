@@ -61,7 +61,7 @@ eatarg(int key, const char *value, struct carg_state *state) {
 static void
 test_program_error() {
     struct carg_option options[] = {
-        {"foo", 'f', NULL, 0, "Foo flag"},
+        {"foo", 'f', "FOO", 0, "Foo option"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {NULL}
     };
@@ -73,12 +73,11 @@ test_program_error() {
         .footer = NULL,
         .version = NULL,
         .flags = 0,
-        .handler = NULL,
         .commands = NULL,
     };
 
     clog_verbosity = CLOG_INFO;
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo -F", NULL, NULL));
+    eqint(CARG_ERR, carg_parse_string(&carg, "foo -F", NULL));
     eqstr("", out);
     eqstr("[error] foo: -F: (PARSE ERROR) Option should have been "
           "recognized!?\nTry `foo --help' or `foo --usage' for more "

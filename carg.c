@@ -119,8 +119,7 @@ _optionvectors(const struct carg *c, const struct carg_option **opts[]) {
 
 
 enum carg_status
-carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
-        void **handler) {
+carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     int status;
     const struct carg_option **options;
     int optvects_count;

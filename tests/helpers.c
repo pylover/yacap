@@ -111,8 +111,7 @@ failed:
 
 
 enum carg_status
-carg_parse_string(struct carg *c, const char * line, void *userptr,
-        void **handler) {
+carg_parse_string(struct carg *c, const char * line, void *userptr) {
     char *argv[256];
     int argc = 0;
     char delim[1] = {' '};
@@ -151,7 +150,7 @@ carg_parse_string(struct carg *c, const char * line, void *userptr,
     }
 
     bool failed = false;
-    int ret = carg_parse(c, argc, (const char **)argv, userptr, handler);
+    int ret = carg_parse(c, argc, (const char **)argv, userptr);
     memset(out, 0, BUFFSIZE + 1);
     memset(err, 0, BUFFSIZE + 1);
 

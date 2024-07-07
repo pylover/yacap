@@ -96,7 +96,6 @@ struct carg {
     const char *footer;
     const char *version;
     enum carg_flags flags;
-    void *handler;
     const struct carg_command **commands;
 };
 
@@ -117,8 +116,7 @@ struct carg_state {
 
 
 enum carg_status
-carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
-        void **handler);
+carg_parse(const struct carg *c, int argc, const char **argv, void *userptr);
 
 
 #endif  // CARG_H_
