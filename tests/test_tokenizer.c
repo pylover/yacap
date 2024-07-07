@@ -38,7 +38,7 @@ test_tokenizer() {
         {NULL}
     };
     struct carg_option options2[] = {
-        {"baz", 'z', "BAZ", CARG_OPTIONAL_VALUE, "baz option"},
+        {"baz", 'z', "[BAZ]", 0, "baz option"},
         {NULL}
     };
 
@@ -192,7 +192,7 @@ test_tokenizer_error() {
         {NULL}
     };
     struct carg_option options2[] = {
-        {"baz", 'z', "BAZ", CARG_OPTIONAL_VALUE, "baz option"},
+        {"baz", 'z', "[BAZ]", 0, "baz option"},
         {NULL}
     };
 

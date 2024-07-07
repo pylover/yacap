@@ -77,7 +77,7 @@ test_program_error() {
     };
 
     clog_verbosity = CLOG_INFO;
-    eqint(CARG_ERR, carg_parse_string(&carg, "foo -F", NULL));
+    eqint(CARG_ERROR, carg_parse_string(&carg, "foo -F", NULL));
     eqstr("", out);
     eqstr("[error] foo: -F: (PARSE ERROR) Option should have been "
           "recognized!?\nTry `foo --help' or `foo --usage' for more "

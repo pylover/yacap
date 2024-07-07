@@ -1,3 +1,4 @@
+- test carg_parce with argc == 1
 - Handle sub-command
 - Argument grouping
 - Automatic shortcuts / aliases

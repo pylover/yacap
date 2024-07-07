@@ -118,13 +118,21 @@ _optionvectors(const struct carg *c, const struct carg_option **opts[]) {
 }
 
 
+#define CARG_VALUENEEDED(opt) ((opt)->arg != NULL)
+
+
 enum carg_status
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     int status;
+    const char *prog;
     const struct carg_option **options;
     int optvects_count;
     struct tokenizer *t;
     struct carg_token tok;
+
+    if (argc <= 1) {
+        return CARG_ERROR;
+    }
 
     optvects_count = _optionvectors(c, &options);
     if (optvects_count < 0) {
@@ -134,21 +142,40 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     t = tokenizer_new(argc, argv, options, optvects_count);
     if (t == NULL) {
         status = -1;
-        goto dispose;
+        goto terminate;
     }
 
-    while ((status = tokenizer_next(t, &tok)) == 1) {
+    /* excecutable name */
+    if ((status = tokenizer_next(t, &tok)) == 1) {
+        prog = tok.text;
+    }
+
+    while (status == 1) {
+        /* fetch the next token */
+        if ((status = tokenizer_next(t, &tok)) <= 0) {
+            break;
+        }
+
+        if (tok.option == NULL) {
+
+        }
+
+        /* Ensure option's value */
+        if (tok.option && CARG_VALUENEEDED(tok.option)) {
+
+        }
+
     }
 
     if (status < 0) {
         TRYHELP(argv[0]);
     }
 
-dispose:
+terminate:
     tokenizer_dispose(t);
     free(options);
     if (status < 0) {
-        return CARG_ERR;
+        return CARG_ERROR;
     }
     return CARG_OK;
 }

@@ -30,7 +30,7 @@
 
 /* carg_parse() result */
 enum carg_status {
-    CARG_ERR = -1,
+    CARG_ERROR = -1,
     CARG_OK = 0,
     CARG_OK_EXIT = 1,
 };
@@ -56,16 +56,14 @@ enum carg_flags{
 };
 
 
-struct carg_state;
-typedef enum carg_eatstatus (*carg_eater) (int key, const char *value,
-        struct carg_state *state);
+struct carg_option;
+typedef enum carg_eatstatus (*carg_eater) (const struct carg_option *option,
+        const char *value, void *userptr);
 
 
 /* option flags */
 enum carg_optionflags {
-    CARG_OPTION = 0,
-    CARG_OPTIONAL_VALUE = 1,
-    CARG_COMMAND = 2,
+    CARG_OPTION_NONE = 0,
 };
 
 
@@ -97,21 +95,6 @@ struct carg {
     const char *version;
     enum carg_flags flags;
     const struct carg_command **commands;
-};
-
-
-struct carg_state {
-    const struct carg *carg;
-    int fd;
-    bool dashdash;
-
-    int argc;
-    const char **argv;
-    void *userptr;
-    int index;
-    const char *next;
-    int arg_index;
-    bool last;
 };
 
 

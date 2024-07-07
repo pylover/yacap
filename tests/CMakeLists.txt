@@ -40,7 +40,7 @@ foreach (t IN LISTS testrules)
       --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb
       ./${t}
     )
-    add_custom_target(profile_${t}
+    add_custom_target(${t}_profile
         COMMAND "valgrind" ${VALGRIND_FLAGS} ctest -R ${t}
     )
 endforeach()

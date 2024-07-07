@@ -77,11 +77,6 @@ tokenizer_new(int argc, const char **argv,
         return NULL;
     }
 
-    if (argc <= 1) {
-        errno = EINVAL;
-        return NULL;
-    }
-
     t->line = 0;
     t->options = options;
     t->options_count = count;

@@ -139,14 +139,14 @@ carg_parse_string(struct carg *c, const char * line, void *userptr) {
     fflush(stdout);
     if (_replace_fd(STDOUT_FILENO, outpipe, &outfd_backup) == -1) {
         ERROR("_replace_fd");
-        return CARG_ERR;
+        return CARG_ERROR;
     }
 
     fflush(stderr);
     if (_replace_fd(STDERR_FILENO, errpipe, &errfd_backup) == -1) {
         ERROR("_replace_fd");
         _restore_fd(STDOUT_FILENO, outpipe[0], outfd_backup);
-        return CARG_ERR;
+        return CARG_ERROR;
     }
 
     bool failed = false;
