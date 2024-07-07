@@ -1,6 +1,7 @@
 # Testing
 include(CTest)
 list(APPEND testrules
+	optiondb
 	tokenizer
     option
     # command

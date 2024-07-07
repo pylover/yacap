@@ -48,6 +48,10 @@ int
 optiondb_insert(struct carg_optiondb *db, const struct carg_option *options);
 
 
+int
+optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt);
+
+
 const struct carg_optioninfo *
 optiondb_findbyname(const struct carg_optiondb *db, const char *name,
         int len);

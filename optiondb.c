@@ -4,8 +4,10 @@
 #include "optiondb.h"
 
 
-#define CMP(x, y, l) (strncmp(x, y, l) == 0)
+#define CMP(x, y) (strcmp(x, y) == 0)
+#define CMPN(x, y, l) (strncmp(x, y, l) == 0)
 #define EXTENDSIZE 8
+
 
 static int
 _parse_argflags(const struct carg_option *opt) {
@@ -16,7 +18,8 @@ _parse_argflags(const struct carg_option *opt) {
 int
 optiondb_extend(struct carg_optiondb *db) {
     struct carg_optioninfo *new;
-    new = realloc(db->repo, db->size + EXTENDSIZE);
+    new = realloc(db->repo,
+            (db->size + EXTENDSIZE) * sizeof(struct carg_optioninfo));
 
     if (new == NULL) {
         return -1;
@@ -29,10 +32,32 @@ optiondb_extend(struct carg_optiondb *db) {
 
 
 int
+optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt) {
+    int i;
+    const struct carg_option *o;
+
+    for (i = 0; i < db->count; i++) {
+        o = db->repo[i].option;
+        if ((o->key == opt->key) || (
+                    o->name && opt->name && CMP(o->name, opt->name))
+                ) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+int
 optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
     struct carg_optioninfo *info;
 
     while (opt && opt->name) {
+        /* check existance */
+        if (optiondb_exists(db, opt)) {
+            return -1;
+        }
 
         /* extend db if there is no space for new item */
         if ((db->count == db->size) && optiondb_extend(db)) {
@@ -82,7 +107,7 @@ optiondb_findbyname(const struct carg_optiondb *db, const char *name,
     for (i = 0; i < db->count; i++) {
         optinfo = &db->repo[i];
 
-        if (CMP(name, optinfo->option->name, len)) {
+        if (CMPN(name, optinfo->option->name, len)) {
             return optinfo;
         }
     }
