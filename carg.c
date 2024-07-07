@@ -86,7 +86,7 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
     int count = 0;
     const struct carg_command **cmd = c->commands;
 
-    if (optiondb_init(db, count)) {
+    if (optiondb_init(db)) {
         return -1;
     }
 

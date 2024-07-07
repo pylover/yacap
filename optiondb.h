@@ -37,14 +37,14 @@ struct carg_optioninfo {
 
 
 int
-optiondb_init(struct carg_optiondb *db, size_t count);
+optiondb_init(struct carg_optiondb *db);
 
 
 void
 optiondb_dispose(struct carg_optiondb *db);
 
 
-void
+int
 optiondb_insert(struct carg_optiondb *db, const struct carg_option *options);
 
 

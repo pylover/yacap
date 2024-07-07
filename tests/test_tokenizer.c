@@ -61,7 +61,7 @@ test_tokenizer() {
         "--foo",
     };
 
-    optiondb_init(&optdb, 10);
+    optiondb_init(&optdb);
     optiondb_insert(&optdb, options1);
     optiondb_insert(&optdb, options2);
     struct tokenizer *t = tokenizer_new(TOTAL, argv, &optdb);
@@ -206,7 +206,7 @@ test_tokenizer_error() {
         "foo",
     };
 
-    optiondb_init(&optdb, 10);
+    optiondb_init(&optdb);
     optiondb_insert(&optdb, options1);
     optiondb_insert(&optdb, options2);
     struct tokenizer *t = tokenizer_new(3, argv, &optdb);
