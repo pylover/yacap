@@ -7,12 +7,10 @@
 
 #include "config.h"
 #include "tokenizer.h"
-#include "option.h"
 
 
 struct tokenizer {
-    const struct carg_option **options;
-    int options_count;
+    const struct carg_optiondb *optiondb;
     int argc;
     const char **argv;
 
@@ -23,8 +21,7 @@ struct tokenizer {
     int toklen;
     const char *tok;
     int occurances[CARG_MAXOPTIONS];
-    const struct carg_option *opt;
-    const struct carg_option *opt2;
+    const struct carg_optioninfo *optinfo;
     bool dashdash;
 };
 
@@ -71,15 +68,14 @@ struct tokenizer {
 
 struct tokenizer *
 tokenizer_new(int argc, const char **argv,
-        const struct carg_option *options[], int count) {
+        const struct carg_optiondb *optdb) {
     struct tokenizer *t = malloc(sizeof(struct tokenizer));
     if (t == NULL) {
         return NULL;
     }
 
     t->line = 0;
-    t->options = options;
-    t->options_count = count;
+    t->optiondb = optdb;
     t->argc = argc;
     t->argv = argv;
     t->dashdash = false;
@@ -105,8 +101,7 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
     START;
     for (t->w = 0; t->w < t->argc; t->w++) {
         t->tok = t->argv[t->w];
-        t->opt = NULL;
-        t->opt2 = NULL;
+        t->optinfo = NULL;
 
         if (t->tok == NULL) {
             REJECT;
@@ -131,32 +126,31 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
 
             /* flag or option? '-foo' or '--foo=bar' */
             eq = strchr(t->tok, '=');
-            t->opt = option_findbyname(t->options, t->options_count,
-                    t->tok + 2, (eq? eq - t->tok: t->toklen) - 2);
+            t->optinfo = optiondb_findbyname(t->optiondb, t->tok + 2,
+                    (eq? eq - t->tok: t->toklen) - 2);
 
-            if (t->opt == NULL) {
+            if (t->optinfo == NULL) {
                 goto positional;
             }
 
-            YIELD_OPT(t->opt, eq? eq+1: NULL);
+            YIELD_OPT(t->optinfo->option, eq? eq+1: NULL);
             continue;
         }
 
         if (t->tok[0] == '-') {
             /* Single dash option: -f */
             for (t->c = 1; t->c < t->toklen; t->c++) {
-                t->opt = option_findbykey(t->options, t->options_count,
-                        t->tok[t->c]);
-                if (t->opt == NULL) {
+                t->optinfo = optiondb_findbykey(t->optiondb, t->tok[t->c]);
+                if (t->optinfo == NULL) {
                     YIELD_POS(t->tok + (t->c == 1? 0: t->c));
                     break;
                 }
-                else if (t->opt->arg && ((t->c + 1) < t->toklen)) {
-                    YIELD_OPT(t->opt, t->tok + t->c + 1);
+                else if (t->optinfo->option->arg && ((t->c + 1) < t->toklen)) {
+                    YIELD_OPT(t->optinfo->option, t->tok + t->c + 1);
                     break;
                 }
                 else {
-                    YIELD_OPT(t->opt, NULL);
+                    YIELD_OPT(t->optinfo->option, NULL);
                 }
             }
 

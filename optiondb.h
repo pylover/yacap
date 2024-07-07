@@ -16,21 +16,45 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef OPTION_H_
-#define OPTION_H_
+#ifndef OPTIONDB_H_
+#define OPTIONDB_H_
 
 
 #include "carg.h"
 
 
-const struct carg_option *
-option_findbyname(const struct carg_option *options[], int count,
-        const char *name, int len);
+struct carg_optiondb {
+    struct carg_optioninfo *repo;
+    size_t size;
+    size_t count;
+};
 
 
-const struct carg_option *
-option_findbykey(const struct carg_option *options[], int count, int key);
+struct carg_optioninfo {
+    const struct carg_option *option;
+    int flags;
+};
 
 
-#endif  // OPTION_H_
+int
+optiondb_init(struct carg_optiondb *db, size_t count);
 
+
+void
+optiondb_dispose(struct carg_optiondb *db);
+
+
+void
+optiondb_insert(struct carg_optiondb *db, const struct carg_option *options);
+
+
+const struct carg_optioninfo *
+optiondb_findbyname(const struct carg_optiondb *db, const char *name,
+        int len);
+
+
+const struct carg_optioninfo *
+optiondb_findbykey(const struct carg_optiondb *db, int key);
+
+
+#endif  // OPTIONDB_H_

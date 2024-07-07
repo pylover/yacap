@@ -32,6 +32,7 @@ void
 test_tokenizer() {
 #define TOTAL   14
     struct carg_token tok;
+    struct carg_optiondb optdb;
     struct carg_option options1[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
@@ -42,7 +43,6 @@ test_tokenizer() {
         {NULL}
     };
 
-    const struct carg_option *options[2] = {options1, options2};
 
     const char *argv[TOTAL] = {
         "foo",
@@ -61,7 +61,10 @@ test_tokenizer() {
         "--foo",
     };
 
-    struct tokenizer *t = tokenizer_new(TOTAL, argv, options, 2);
+    optiondb_init(&optdb, 10);
+    optiondb_insert(&optdb, options1);
+    optiondb_insert(&optdb, options2);
+    struct tokenizer *t = tokenizer_new(TOTAL, argv, &optdb);
     isnotnull(t);
 
     /* foo */
@@ -186,6 +189,7 @@ test_tokenizer() {
 void
 test_tokenizer_error() {
     struct carg_token tok;
+    struct carg_optiondb optdb;
     struct carg_option options1[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
@@ -196,15 +200,16 @@ test_tokenizer_error() {
         {NULL}
     };
 
-    const struct carg_option *options[2] = {options1, options2};
-
     const char *argv[3] = {
         "foo",
         NULL,
         "foo",
     };
 
-    struct tokenizer *t = tokenizer_new(3, argv, options, 2);
+    optiondb_init(&optdb, 10);
+    optiondb_insert(&optdb, options1);
+    optiondb_insert(&optdb, options2);
+    struct tokenizer *t = tokenizer_new(3, argv, &optdb);
     isnotnull(t);
 
     /* foo */

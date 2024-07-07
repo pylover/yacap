@@ -34,8 +34,8 @@ static struct {
 
 
 static enum carg_eatstatus
-eatarg(int key, const char *value, struct carg_state *state) {
-    switch (key) {
+eatarg(struct carg_option *opt, const char *value) {
+    switch (opt->key) {
         case 'f':
             args.foo = atoi(value);
             break;
@@ -97,7 +97,7 @@ test_option_value() {
     struct carg carg = {
         .args = NULL,
         .header = NULL,
-        .eat = eatarg,
+        .eat = (carg_eater)eatarg,
         .options = options,
         .footer = NULL,
         .version = NULL,

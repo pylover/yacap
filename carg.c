@@ -26,6 +26,7 @@
 #include <clog.h>
 
 #include "carg.h"
+#include "optiondb.h"
 #include "tokenizer.h"
 
 
@@ -77,12 +78,17 @@ static struct carg_option opt_usage = {"usage", '?', NULL, 0,
 */
 
 
+#define CARG_VALUENEEDED(opt) ((opt)->arg != NULL)
+
+
 static int
-_optionvectors(const struct carg *c, const struct carg_option **opts[]) {
+_build_optiondb(const struct carg *c, struct carg_optiondb *db) {
     int count = 0;
-    int i = 0;
     const struct carg_command **cmd = c->commands;
-    const struct carg_option **v;
+
+    if (optiondb_init(db, count)) {
+        return -1;
+    }
 
     if (c->options) {
         count++;
@@ -96,37 +102,20 @@ _optionvectors(const struct carg *c, const struct carg_option **opts[]) {
         cmd++;
     }
 
-    v = malloc(count * (sizeof (struct carg_option*)));
-    if (v == NULL) {
-        return -1;
-    }
-    *opts = v;
-
-    if (c->options) {
-        v[i++] = c->options;
-    }
-
+    optiondb_insert(db, c->options);
     while (cmd) {
-        if ((*cmd)->options) {
-            v[i++] = cmd[0]->options;
-        }
-
-        cmd++;
+        optiondb_insert(db, (*(cmd++))->options);
     }
 
-    return count;
+    return 0;
 }
-
-
-#define CARG_VALUENEEDED(opt) ((opt)->arg != NULL)
 
 
 enum carg_status
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     int status;
     const char *prog;
-    const struct carg_option **options;
-    int optvects_count;
+    struct carg_optiondb optiondb;
     struct tokenizer *t;
     struct carg_token tok;
 
@@ -134,15 +123,14 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         return CARG_ERROR;
     }
 
-    optvects_count = _optionvectors(c, &options);
-    if (optvects_count < 0) {
-        return -1;
+    if (_build_optiondb(c, &optiondb)) {
+        return CARG_ERROR;
     }
 
-    t = tokenizer_new(argc, argv, options, optvects_count);
+    t = tokenizer_new(argc, argv, &optiondb);
     if (t == NULL) {
-        status = -1;
-        goto terminate;
+        optiondb_dispose(&optiondb);
+        return CARG_ERROR;
     }
 
     /* excecutable name */
@@ -167,14 +155,11 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
 
     }
 
-    if (status < 0) {
-        TRYHELP(argv[0]);
-    }
-
-terminate:
+// terminate:
     tokenizer_dispose(t);
-    free(options);
+    optiondb_dispose(&optiondb);
     if (status < 0) {
+        TRYHELP(prog);
         return CARG_ERROR;
     }
     return CARG_OK;

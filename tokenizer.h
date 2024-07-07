@@ -20,6 +20,9 @@
 #define TOKENIZER_H_
 
 
+#include "optiondb.h"
+
+
 struct carg_token {
     const char *text;
     const struct carg_option *option;
@@ -29,7 +32,7 @@ struct carg_token {
 
 struct tokenizer *
 tokenizer_new(int argc, const char **argv,
-        const struct carg_option *options[], int count);
+        const struct carg_optiondb *optdb);
 
 
 void
