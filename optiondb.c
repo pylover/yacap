@@ -15,9 +15,9 @@ _parse_argflags(const struct carg_option *opt) {
 
 void
 optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
-    struct carg_optioninfo *info = db->repo;
+    struct carg_optioninfo *info = db->repo + db->count;
 
-    while (opt && opt->name) {
+    while ((db->count < db->size) && opt && opt->name) {
         info->option = opt;
         info->flags = _parse_argflags(opt);
         opt++;

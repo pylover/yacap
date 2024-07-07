@@ -26,7 +26,7 @@
 struct carg_optiondb {
     struct carg_optioninfo *repo;
     size_t size;
-    size_t count;
+    volatile size_t count;
 };
 
 
