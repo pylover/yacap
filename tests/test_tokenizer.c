@@ -68,14 +68,14 @@ test_tokenizer() {
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("foo", tok.value);
+    eqstr("foo", tok.text);
     isnull(tok.option);
 
     /* f */
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(1, tok.occurance);
-    isnull(tok.value);
+    isnull(tok.text);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
 
@@ -83,14 +83,14 @@ test_tokenizer() {
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("thud", tok.value);
+    eqstr("thud", tok.text);
     isnull(tok.option);
 
     /* f */
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(2, tok.occurance);
-    isnull(tok.value);
+    isnull(tok.text);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
 
@@ -99,22 +99,22 @@ test_tokenizer() {
     eqint(1, tokenizer_next(t, &tok));
     eqint(1, tok.occurance);
     isnotnull(tok.option);
-    isnotnull(tok.value);
+    isnotnull(tok.text);
     eqchr('b', tok.option->key);
-    eqstr("bar", tok.value);
+    eqstr("bar", tok.text);
 
     /* bar */
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("bar", tok.value);
+    eqstr("bar", tok.text);
     isnull(tok.option);
 
     /* -qux */
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("-qux", tok.value);
+    eqstr("-qux", tok.text);
     isnull(tok.option);
 
     /* --foo=bar (option) */
@@ -123,7 +123,7 @@ test_tokenizer() {
     eqint(3, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
-    eqstr("bar", tok.value);
+    eqstr("bar", tok.text);
 
     /* --foo=bar baz (option) */
     memset(&tok, 0, sizeof(tok));
@@ -131,7 +131,7 @@ test_tokenizer() {
     eqint(4, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
-    eqstr("bar baz", tok.value);
+    eqstr("bar baz", tok.text);
 
     /* --foo= (option) */
     memset(&tok, 0, sizeof(tok));
@@ -139,14 +139,14 @@ test_tokenizer() {
     eqint(5, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
-    eqstr("", tok.value);
+    eqstr("", tok.text);
 
     /* --foo (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(6, tok.occurance);
     isnotnull(tok.option);
-    isnull(tok.value);
+    isnull(tok.text);
     eqchr('f', tok.option->key);
 
     /* --baz (option) */
@@ -155,7 +155,7 @@ test_tokenizer() {
     eqint(1, tok.occurance);
     isnotnull(tok.option);
     eqchr('z', tok.option->key);
-    eqstr("baz", tok.value);
+    eqstr("baz", tok.text);
 
     /* --baz (option) */
     memset(&tok, 0, sizeof(tok));
@@ -163,20 +163,20 @@ test_tokenizer() {
     eqint(2, tok.occurance);
     isnotnull(tok.option);
     eqchr('z', tok.option->key);
-    eqstr("zoo", tok.value);
+    eqstr("zoo", tok.text);
 
     /* --foo (positional) */
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("--foo", tok.value);
+    eqstr("--foo", tok.text);
     isnull(tok.option);
 
     /* Termination */
     memset(&tok, 0, sizeof(tok));
     eqint(0, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    isnull(tok.value);
+    isnull(tok.text);
     isnull(tok.option);
 
     tokenizer_dispose(t);
@@ -211,21 +211,21 @@ test_tokenizer_error() {
     memset(&tok, 0, sizeof(tok));
     eqint(1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("foo", tok.value);
+    eqstr("foo", tok.text);
     isnull(tok.option);
 
     /* NULL */
     memset(&tok, 0, sizeof(tok));
     eqint(-1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    isnull(tok.value);
+    isnull(tok.text);
     isnull(tok.option);
 
     /* NULL (Again) */
     memset(&tok, 0, sizeof(tok));
     eqint(-1, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    isnull(tok.value);
+    isnull(tok.text);
     isnull(tok.option);
 
     tokenizer_dispose(t);

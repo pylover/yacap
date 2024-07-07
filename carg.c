@@ -32,6 +32,10 @@
 #define TRYHELP(p) ERRORH( \
         "Try `%s --help' or `%s --usage' for more information.", p, p);
 /*
+#define REJECT_UNRECOGNIZED(name, v) \
+    ERROR("%s: %s: (PARSE ERROR) Option should have been recognized!?", \
+            t->prog, name)
+
 #define VERBOSITY_DEFAULT  CLOG_WARNING
 #define HELP_LINESIZE 79
 #define USAGE_BUFFSIZE 1024

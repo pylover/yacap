@@ -17,7 +17,6 @@ struct tokenizer {
     const char **argv;
 
     /* tokenizer state */
-    const char *prog;
     int line;
     int w;
     int c;
@@ -33,17 +32,17 @@ struct tokenizer {
 /* Coroutine  stuff*/
 #define YIELD_OPT(opt, v) do { \
         t->line = __LINE__; \
-        token->value = v; \
+        token->text = v; \
         token->option = opt; \
         token->occurance = ++(t->occurances[(opt)->key]); \
-        return 0; \
+        return 1; \
         case __LINE__:; \
     } while (0)
 
 
 #define YIELD_POS(v) do { \
         t->line = __LINE__; \
-        token->value = v; \
+        token->text = v; \
         token->option = NULL; \
         token->occurance = -1; \
         return 1; \
@@ -53,21 +52,15 @@ struct tokenizer {
 
 #define REJECT \
     t->line = -1; \
-    token->value = NULL; \
+    token->text = NULL; \
     token->option = NULL; \
     token->occurance = -1; \
     return -1
 
 
-#define REJECT_UNRECOGNIZED(name, v) \
-    ERROR("%s: %s: (PARSE ERROR) Option should have been recognized!?", \
-            t->prog, name); \
-    REJECT
-
-
 #define END } \
     t->line = 0; \
-    token->value = NULL; \
+    token->text = NULL; \
     token->option = NULL; \
     token->occurance = -1; \
     return 0
@@ -89,7 +82,6 @@ tokenizer_new(int argc, const char **argv,
         return NULL;
     }
 
-    t->prog = NULL;
     t->line = 0;
     t->options = options;
     t->options_count = count;
@@ -125,11 +117,6 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
             REJECT;
         }
 
-        if (t->w == 0) {
-            t->prog = t->argv[0];
-            continue;
-        }
-
         t->toklen = strlen(t->tok);
         if (t->toklen == 0) {
             continue;
@@ -153,11 +140,7 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
                     t->tok + 2, (eq? eq - t->tok: t->toklen) - 2);
 
             if (t->opt == NULL) {
-                if (t->dashdash) {
-                    goto positional;
-                }
-
-                REJECT_UNRECOGNIZED(t->tok, eq? eq+1: NULL);
+                goto positional;
             }
 
             YIELD_OPT(t->opt, eq? eq+1: NULL);
@@ -170,10 +153,8 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
                 t->opt = option_findbykey(t->options, t->options_count,
                         t->tok[t->c]);
                 if (t->opt == NULL) {
-                    if (t->dashdash) {
-                        YIELD_POS(t->tok + (t->c == 1? 0: t->c));
-                    }
-                    REJECT_UNRECOGNIZED(t->tok, eq? eq+1: NULL);
+                    YIELD_POS(t->tok + (t->c == 1? 0: t->c));
+                    break;
                 }
                 else if (t->opt->arg && ((t->c + 1) < t->toklen)) {
                     YIELD_OPT(t->opt, t->tok + t->c + 1);
