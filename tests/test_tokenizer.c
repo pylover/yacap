@@ -16,7 +16,7 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-
+#include <stdlib.h>
 
 #include <clog.h>
 #include <cutest.h>

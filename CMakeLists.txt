@@ -34,10 +34,12 @@ include_directories(
 )
 
 
+add_library(option OBJECT option.c option.h)
 add_library(optiondb OBJECT optiondb.c optiondb.h)
 add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
 add_library(carg STATIC 
     carg.c carg.h
+    $<TARGET_OBJECTS:option>
     $<TARGET_OBJECTS:optiondb>
     $<TARGET_OBJECTS:tokenizer>
 )

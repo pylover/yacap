@@ -2,17 +2,12 @@
 #include <stdlib.h>
 
 #include "optiondb.h"
+#include "option.h"
 
 
 #define CMP(x, y) (strcmp(x, y) == 0)
 #define CMPN(x, y, l) (strncmp(x, y, l) == 0)
 #define EXTENDSIZE 8
-
-
-static int
-_parse_argflags(const struct carg_option *opt) {
-    return 0;
-}
 
 
 int
@@ -66,7 +61,7 @@ optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
 
         info = db->repo + db->count;
         info->option = opt;
-        info->flags = _parse_argflags(opt);
+        info->flags = option_arg_parse(opt->arg);
         opt++;
         db->count++;
     }

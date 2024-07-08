@@ -3,7 +3,8 @@ include(CTest)
 list(APPEND testrules
 	optiondb
 	tokenizer
-    option
+	optionarg
+	# option
     # command
     # help
     # verbose
@@ -12,7 +13,7 @@ list(APPEND testrules
 )
 list(TRANSFORM testrules PREPEND test_)
 set(profilerules ${testrules})
-list(TRANSFORM profilerules PREPEND profile_)
+list(TRANSFORM profilerules APPEND _profile)
 add_custom_target(profile DEPENDS ${profilerules})
 add_library(helpers OBJECT helpers.c helpers.h)
 
@@ -28,20 +29,24 @@ set(VALGRIND_FLAGS
 )
 
 
+# link_libraries(
+
 foreach (t IN LISTS testrules) 
     # Test help
     add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
     target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
-    target_link_libraries(${t} PUBLIC clog carg)
+	target_link_libraries(${t} PUBLIC clog PRIVATE carg)
     add_test(NAME ${t} COMMAND ${t})
     add_custom_target(${t}_exec 
         COMMAND ctest --verbose -R ${t}
+		DEPENDS ${t}
     )
-    add_custom_target(${t}_debug COMMAND gdb 
-      --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb
-      ./${t}
+    add_custom_target(${t}_debug 
+		COMMAND gdb --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb ./${t}
+		DEPENDS ${t}
     )
     add_custom_target(${t}_profile
         COMMAND "valgrind" ${VALGRIND_FLAGS} ctest -R ${t}
+		DEPENDS ${t}
     )
 endforeach()

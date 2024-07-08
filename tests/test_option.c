@@ -16,8 +16,6 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-
-
 #include <clog.h>
 #include <cutest.h>
 
@@ -157,6 +155,7 @@ test_option_value() {
 
 int
 main() {
+    // test_flag();
     // test_program_error();
     // test_option_value();
     return EXIT_SUCCESS;
