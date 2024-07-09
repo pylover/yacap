@@ -26,6 +26,9 @@ endif()
 set(CARG_MAXOPTIONS 256 CACHE STRING "Maximum allowed options")
 set_property(CACHE CARG_MAXOPTIONS PROPERTY STRINGS 64 128 256 512 1024)
 
+set(CARG_TEMPBUFFSIZE 256 CACHE STRING "Option temp buffer size")
+set_property(CACHE CARG_TEMPBUFFSIZE PROPERTY STRINGS 64 128 256 512 1024)
+
 
 configure_file(config.h.in config.h)
 include_directories(
@@ -34,10 +37,12 @@ include_directories(
 )
 
 
+add_library(option OBJECT option.c option.h)
 add_library(optiondb OBJECT optiondb.c optiondb.h)
 add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
 add_library(carg STATIC 
     carg.c carg.h
+    $<TARGET_OBJECTS:option>
     $<TARGET_OBJECTS:optiondb>
     $<TARGET_OBJECTS:tokenizer>
 )

@@ -20,7 +20,14 @@
 #define OPTION_H_
 
 
-#define CARG_VALUENEEDED(opt) ((opt)->arg != NULL)
+#include "carg.h"
+
+
+#define CARG_OPTION_ARGNEEDED(opt) ((opt)->arg != NULL)
+
+
+const char *
+option_repr(const struct carg_option *opt);
 
 
 #endif  // OPTION_H_

@@ -31,6 +31,7 @@ struct tokenizer {
 #define YIELD_OPT(opt, v) do { \
         t->line = __LINE__; \
         token->text = v; \
+        token->len = 0; \
         token->option = opt; \
         token->occurance = ++(t->occurances[(opt)->key]); \
         return CARG_TOK_OPTION; \
@@ -38,9 +39,10 @@ struct tokenizer {
     } while (0)
 
 
-#define YIELD_OPT_UNKNOWN(v) do { \
+#define YIELD_OPT_UNKNOWN(tok, l) do { \
         t->line = __LINE__; \
-        token->text = v; \
+        token->text = tok; \
+        token->len = l; \
         token->option = NULL; \
         token->occurance = -1; \
         return CARG_TOK_UNKNOWN; \
@@ -51,6 +53,7 @@ struct tokenizer {
 #define YIELD_POS(v) do { \
         t->line = __LINE__; \
         token->text = v; \
+        token->len = 0; \
         token->option = NULL; \
         token->occurance = -1; \
         return CARG_TOK_POSITIONAL; \
@@ -61,6 +64,7 @@ struct tokenizer {
 #define REJECT \
     t->line = -1; \
     token->text = NULL; \
+    token->len = 0; \
     token->option = NULL; \
     token->occurance = -1; \
     return CARG_TOK_ERROR
@@ -69,6 +73,7 @@ struct tokenizer {
 #define END } \
     t->line = 0; \
     token->text = NULL; \
+    token->len = 0; \
     token->option = NULL; \
     token->occurance = -1; \
     return CARG_TOK_END
@@ -153,15 +158,10 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
             for (t->c = 1; t->c < t->toklen; t->c++) {
                 t->option = optiondb_findbykey(t->optiondb, t->tok[t->c]);
                 if (t->option == NULL) {
-                    if (t->c == 1) {
-                        YIELD_OPT_UNKNOWN(t->tok);
-                    }
-                    else {
-                        YIELD_POS(t->tok + t->c);
-                    }
+                    YIELD_OPT_UNKNOWN(t->tok + t->c, 1);
                     break;
                 }
-                else if (CARG_VALUENEEDED(t->option) &&
+                else if (CARG_OPTION_ARGNEEDED(t->option) &&
                         ((t->c + 1) < t->toklen)) {
                     YIELD_OPT(t->option, t->tok + t->c + 1);
                     break;

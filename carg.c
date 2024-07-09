@@ -16,8 +16,6 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,12 +30,17 @@
 
 
 #define TRYHELP(p) ERRORH( \
-        "Try `%s --help' or `%s --usage' for more information.", p, p);
-/*
-#define REJECT_UNRECOGNIZED(name, v) \
-    ERROR("%s: %s: (PARSE ERROR) Option should have been recognized!?", \
-            t->prog, name)
+        "Try `%s --help' or `%s --usage' for more information.", p, p)
 
+#define REJECT_OPTIONMISSINGARGUMENT(p, o) ERROR( \
+        "%s: option requires an argument -- '%s'", p, option_repr(o))
+
+
+#define REJECT_UNRECOGNIZED(p, name) \
+    ERROR("%s: %s: (PARSE ERROR) Option should have been recognized!?", \
+            p, name)
+
+/*
 #define VERBOSITY_DEFAULT  CLOG_WARNING
 #define HELP_LINESIZE 79
 #define USAGE_BUFFSIZE 1024
@@ -111,11 +114,13 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
 
 enum carg_status
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
-    int status;
     const char *prog;
+    enum carg_tokenizer_status status;
+    enum carg_eatstatus eatstatus;
     struct carg_optiondb optiondb;
     struct tokenizer *t;
     struct carg_token tok;
+    struct carg_token nexttok;
 
     if (argc <= 1) {
         return CARG_ERROR;
@@ -131,27 +136,43 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         return CARG_ERROR;
     }
 
+    /* Helper macro */
+    #define NEXT(tok) tokenizer_next(t, tok)
+
     /* excecutable name */
-    if ((status = tokenizer_next(t, &tok)) == 1) {
+    if ((status = NEXT(&tok)) == 1) {
         prog = tok.text;
     }
 
-    while (status == 1) {
+    while (status > CARG_TOK_END) {
         /* fetch the next token */
-        if ((status = tokenizer_next(t, &tok)) <= 0) {
+        if ((status = NEXT(&tok)) <= CARG_TOK_END) {
             break;
         }
 
         /* is this a positional? */
         if (tok.option == NULL) {
-
+            eatstatus = c->eat(NULL, tok.text, userptr);
+            goto dessert;
         }
 
         /* Ensure option's value */
-        if (tok.option && CARG_VALUENEEDED(tok.option)) {
+        if (tok.option && CARG_OPTION_ARGNEEDED(tok.option)) {
+            if (tok.text == NULL) {
+
+                /* try the next token as value */
+                if ((status = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
+                    REJECT_OPTIONMISSINGARGUMENT(prog, tok.option);
+                }
+
+            }
 
         }
 
+dessert:
+        if (eatstatus == CARG_EAT_OK_EXIT) {
+            break;
+        }
     }
 
 // terminate:

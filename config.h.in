@@ -26,6 +26,7 @@
 
 
 #cmakedefine CARG_MAXOPTIONS @CARG_MAXOPTIONS@
+#cmakedefine CARG_TEMPBUFFSIZE @CARG_TEMPBUFFSIZE@
 
 
 #endif  // CONFIG_H_IN_

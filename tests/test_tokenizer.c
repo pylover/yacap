@@ -84,9 +84,10 @@ test_tokenizer() {
 
     /* thud */
     memset(&tok, 0, sizeof(tok));
-    eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
+    eqint(CARG_TOK_UNKNOWN, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     eqstr("thud", tok.text);
+    eqint(1, tok.len);
     isnull(tok.option);
 
     /* f */
@@ -117,7 +118,8 @@ test_tokenizer() {
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_UNKNOWN, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("-qux", tok.text);
+    eqstr("qux", tok.text);
+    eqint(1, tok.len);
     isnull(tok.option);
 
     /* --foo=bar (option) */

@@ -16,41 +16,32 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef TOKENIZER_H_
-#define TOKENIZER_H_
+#include <stdio.h>
+#include <ctype.h>
+
+#include "config.h"
+#include "carg.h"
+#include "option.h"
 
 
-#include "optiondb.h"
+static char _temp[CARG_TEMPBUFFSIZE];
 
 
-struct carg_token {
-    const char *text;
-    unsigned int len;
-    const struct carg_option *option;
-    int occurance;
-};
+const char *
+option_repr(const struct carg_option *opt) {
+    int c = 0;
 
+    if (isalpha(opt->key)) {
+        c += snprintf(_temp, CARG_TEMPBUFFSIZE, "-%c", opt->key);
+    }
 
-enum carg_tokenizer_status {
-    CARG_TOK_ERROR = -1,
-    CARG_TOK_END = 0,
-    CARG_TOK_OPTION = 1,
-    CARG_TOK_UNKNOWN = 2,
-    CARG_TOK_POSITIONAL = 3,
-};
+    if (c && opt->name) {
+        c += snprintf(_temp + c, CARG_TEMPBUFFSIZE - c, "/");
+    }
 
+    if (opt->name) {
+        c += snprintf(_temp + c, CARG_TEMPBUFFSIZE - c, "--%s", opt->name);
+    }
 
-struct tokenizer *
-tokenizer_new(int argc, const char **argv,
-        const struct carg_optiondb *optdb);
-
-
-void
-tokenizer_dispose(struct tokenizer *t);
-
-
-enum carg_tokenizer_status
-tokenizer_next(struct tokenizer *t, struct carg_token *token);
-
-
-#endif  // TOKENIZER_H_
+    return _temp;
+}

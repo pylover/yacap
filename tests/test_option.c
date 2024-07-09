@@ -153,8 +153,8 @@ test_option_value() {
 
 int
 main() {
+    test_program_error();
     // test_flag();
-    // test_program_error();
     // test_option_value();
     return EXIT_SUCCESS;
 }
