@@ -33,7 +33,17 @@ struct tokenizer {
         token->text = v; \
         token->option = opt; \
         token->occurance = ++(t->occurances[(opt)->key]); \
-        return 1; \
+        return CARG_TOK_OPTION; \
+        case __LINE__:; \
+    } while (0)
+
+
+#define YIELD_OPT_UNKNOWN(v) do { \
+        t->line = __LINE__; \
+        token->text = v; \
+        token->option = NULL; \
+        token->occurance = -1; \
+        return CARG_TOK_UNKNOWN; \
         case __LINE__:; \
     } while (0)
 
@@ -43,7 +53,7 @@ struct tokenizer {
         token->text = v; \
         token->option = NULL; \
         token->occurance = -1; \
-        return 1; \
+        return CARG_TOK_POSITIONAL; \
         case __LINE__:; \
     } while (0)
 
@@ -53,7 +63,7 @@ struct tokenizer {
     token->text = NULL; \
     token->option = NULL; \
     token->occurance = -1; \
-    return -1
+    return CARG_TOK_ERROR
 
 
 #define END } \
@@ -61,7 +71,7 @@ struct tokenizer {
     token->text = NULL; \
     token->option = NULL; \
     token->occurance = -1; \
-    return 0
+    return CARG_TOK_END
 
 
 #define START switch (t->line) { case -1: REJECT; case 0:
@@ -95,7 +105,7 @@ tokenizer_dispose(struct tokenizer *t) {
 }
 
 
-int
+enum carg_tokenizer_status
 tokenizer_next(struct tokenizer *t, struct carg_token *token) {
     const char *eq;
 
@@ -143,7 +153,12 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
             for (t->c = 1; t->c < t->toklen; t->c++) {
                 t->option = optiondb_findbykey(t->optiondb, t->tok[t->c]);
                 if (t->option == NULL) {
-                    YIELD_POS(t->tok + (t->c == 1? 0: t->c));
+                    if (t->c == 1) {
+                        YIELD_OPT_UNKNOWN(t->tok);
+                    }
+                    else {
+                        YIELD_POS(t->tok + t->c);
+                    }
                     break;
                 }
                 else if (CARG_VALUENEEDED(t->option) &&

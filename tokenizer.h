@@ -30,6 +30,15 @@ struct carg_token {
 };
 
 
+enum carg_tokenizer_status {
+    CARG_TOK_END,
+    CARG_TOK_OPTION,
+    CARG_TOK_UNKNOWN,
+    CARG_TOK_POSITIONAL,
+    CARG_TOK_ERROR,
+};
+
+
 struct tokenizer *
 tokenizer_new(int argc, const char **argv,
         const struct carg_optiondb *optdb);
@@ -39,7 +48,7 @@ void
 tokenizer_dispose(struct tokenizer *t);
 
 
-int
+enum carg_tokenizer_status
 tokenizer_next(struct tokenizer *t, struct carg_token *token);
 
 
