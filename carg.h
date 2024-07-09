@@ -40,11 +40,11 @@ enum carg_status {
 enum carg_eatstatus {
     CARG_EAT_OK,
     CARG_EAT_OK_EXIT,
-    CARG_EAT_FLAG,
     CARG_EAT_UNRECOGNIZED,
-    CARG_EAT_VALUE_REQUIRED,
-    CARG_EAT_BAD_VALUE,
-    CARG_EAT_ARG_REQUIRED,
+    // CARG_EAT_FLAG,
+    // CARG_EAT_VALUE_REQUIRED,
+    // CARG_EAT_BAD_VALUE,
+    // CARG_EAT_ARG_REQUIRED,
 };
 
 

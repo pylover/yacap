@@ -16,43 +16,11 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef OPTIONDB_H_
-#define OPTIONDB_H_
+#ifndef OPTION_H_
+#define OPTION_H_
 
 
-#include "carg.h"
+#define CARG_VALUENEEDED(opt) ((opt)->arg != NULL)
 
 
-struct carg_optiondb {
-    const struct carg_option **repo;
-    size_t size;
-    volatile size_t count;
-};
-
-
-int
-optiondb_init(struct carg_optiondb *db);
-
-
-void
-optiondb_dispose(struct carg_optiondb *db);
-
-
-int
-optiondb_insert(struct carg_optiondb *db, const struct carg_option *options);
-
-
-int
-optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt);
-
-
-const struct carg_option *
-optiondb_findbyname(const struct carg_optiondb *db, const char *name,
-        int len);
-
-
-const struct carg_option *
-optiondb_findbykey(const struct carg_optiondb *db, int key);
-
-
-#endif  // OPTIONDB_H_
+#endif  // OPTION_H_

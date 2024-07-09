@@ -11,9 +11,10 @@
 
 int
 optiondb_extend(struct carg_optiondb *db) {
-    struct carg_optioninfo *new;
+    const struct carg_option **new;
+
     new = realloc(db->repo,
-            (db->size + EXTENDSIZE) * sizeof(struct carg_optioninfo));
+            (db->size + EXTENDSIZE) * sizeof(struct carg_option*));
 
     if (new == NULL) {
         return -1;
@@ -31,7 +32,7 @@ optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt) {
     const struct carg_option *o;
 
     for (i = 0; i < db->count; i++) {
-        o = db->repo[i].option;
+        o = db->repo[i];
         if ((o->key == opt->key) || (
                     o->name && opt->name && CMP(o->name, opt->name))
                 ) {
@@ -45,8 +46,6 @@ optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt) {
 
 int
 optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
-    struct carg_optioninfo *info;
-
     while (opt && opt->name) {
         /* check existance */
         if (optiondb_exists(db, opt)) {
@@ -58,10 +57,7 @@ optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
             return -1;
         }
 
-        info = db->repo + db->count;
-        info->option = opt;
-        // TODO: remove carg_optioninfo structure
-        info->flags = 0;
+        db->repo[db->count] = opt;
         opt++;
         db->count++;
     }
@@ -72,7 +68,7 @@ optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
 
 int
 optiondb_init(struct carg_optiondb *db) {
-    db->repo = calloc(EXTENDSIZE, sizeof (struct carg_optioninfo));
+    db->repo = calloc(EXTENDSIZE, sizeof (struct carg_option*));
     if (db->repo == NULL) {
         return -1;
     }
@@ -93,17 +89,17 @@ optiondb_dispose(struct carg_optiondb *db) {
 }
 
 
-const struct carg_optioninfo *
+const struct carg_option *
 optiondb_findbyname(const struct carg_optiondb *db, const char *name,
         int len) {
     int i;
-    const struct carg_optioninfo *optinfo;
+    const struct carg_option *opt;
 
     for (i = 0; i < db->count; i++) {
-        optinfo = &db->repo[i];
+        opt = db->repo[i];
 
-        if (CMPN(name, optinfo->option->name, len)) {
-            return optinfo;
+        if (CMPN(name, opt->name, len)) {
+            return opt;
         }
     }
 
@@ -111,16 +107,16 @@ optiondb_findbyname(const struct carg_optiondb *db, const char *name,
 }
 
 
-const struct carg_optioninfo *
+const struct carg_option *
 optiondb_findbykey(const struct carg_optiondb *db, int key) {
     int i;
-    const struct carg_optioninfo *optinfo;
+    const struct carg_option *opt;
 
     for (i = 0; i < db->count; i++) {
-        optinfo = &db->repo[i];
+        opt = db->repo[i];
 
-        if (optinfo->option->key == key) {
-            return optinfo;
+        if (opt->key == key) {
+            return opt;
         }
     }
 

@@ -26,6 +26,7 @@
 #include <clog.h>
 
 #include "carg.h"
+#include "option.h"
 #include "optiondb.h"
 #include "tokenizer.h"
 
@@ -76,9 +77,6 @@ static struct carg_option opt_help = {"help", 'h', NULL, 0,
 static struct carg_option opt_usage = {"usage", '?', NULL, 0,
     "Give a short usage message"};
 */
-
-
-#define CARG_VALUENEEDED(opt) ((opt)->arg != NULL)
 
 
 static int
@@ -144,6 +142,7 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
             break;
         }
 
+        /* is this a positional? */
         if (tok.option == NULL) {
 
         }

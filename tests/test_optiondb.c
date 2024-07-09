@@ -86,13 +86,13 @@ test_optiondb_autoextend() {
 
     eqint(8, optdb.size);
     eqint(5, optdb.count);
-    istrue(sizeof(struct carg_optioninfo) * 8 <=
+    istrue(sizeof(struct carg_option*) * 8 <=
             malloc_usable_size(optdb.repo));
 
     optiondb_insert(&optdb, options2);
     eqint(16, optdb.size);
     eqint(16, optdb.count);
-    istrue(sizeof(struct carg_optioninfo) * 16 <=
+    istrue(sizeof(struct carg_option*) * 16 <=
             malloc_usable_size(optdb.repo));
 }
 

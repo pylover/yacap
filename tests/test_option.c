@@ -41,13 +41,11 @@ eatarg(struct carg_option *opt, const char *value) {
             args.bar = atoi(value);
             break;
         case 'z':
-            args.baz = 1;
+            args.baz += 1;
             break;
-
-        case '1':
-            args.qux = 1;
+        case 'q':
+            args.qux += 1;
             break;
-
         default:
             return CARG_EAT_UNRECOGNIZED;
     }

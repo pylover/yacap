@@ -6,6 +6,7 @@
 #include <clog.h>
 
 #include "config.h"
+#include "option.h"
 #include "tokenizer.h"
 
 
@@ -21,7 +22,7 @@ struct tokenizer {
     int toklen;
     const char *tok;
     int occurances[CARG_MAXOPTIONS];
-    const struct carg_optioninfo *optinfo;
+    const struct carg_option *option;
     bool dashdash;
 };
 
@@ -101,7 +102,7 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
     START;
     for (t->w = 0; t->w < t->argc; t->w++) {
         t->tok = t->argv[t->w];
-        t->optinfo = NULL;
+        t->option = NULL;
 
         if (t->tok == NULL) {
             REJECT;
@@ -126,31 +127,32 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
 
             /* flag or option? '-foo' or '--foo=bar' */
             eq = strchr(t->tok, '=');
-            t->optinfo = optiondb_findbyname(t->optiondb, t->tok + 2,
+            t->option = optiondb_findbyname(t->optiondb, t->tok + 2,
                     (eq? eq - t->tok: t->toklen) - 2);
 
-            if (t->optinfo == NULL) {
+            if (t->option == NULL) {
                 goto positional;
             }
 
-            YIELD_OPT(t->optinfo->option, eq? eq+1: NULL);
+            YIELD_OPT(t->option, eq? eq+1: NULL);
             continue;
         }
 
         if (t->tok[0] == '-') {
             /* Single dash option: -f */
             for (t->c = 1; t->c < t->toklen; t->c++) {
-                t->optinfo = optiondb_findbykey(t->optiondb, t->tok[t->c]);
-                if (t->optinfo == NULL) {
+                t->option = optiondb_findbykey(t->optiondb, t->tok[t->c]);
+                if (t->option == NULL) {
                     YIELD_POS(t->tok + (t->c == 1? 0: t->c));
                     break;
                 }
-                else if (t->optinfo->option->arg && ((t->c + 1) < t->toklen)) {
-                    YIELD_OPT(t->optinfo->option, t->tok + t->c + 1);
+                else if (CARG_VALUENEEDED(t->option) &&
+                        ((t->c + 1) < t->toklen)) {
+                    YIELD_OPT(t->option, t->tok + t->c + 1);
                     break;
                 }
                 else {
-                    YIELD_OPT(t->optinfo->option, NULL);
+                    YIELD_OPT(t->option, NULL);
                 }
             }
 
