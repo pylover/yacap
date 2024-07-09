@@ -159,14 +159,11 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         /* Ensure option's value */
         if (tok.option && CARG_OPTION_ARGNEEDED(tok.option)) {
             if (tok.text == NULL) {
-
                 /* try the next token as value */
                 if ((status = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
                     REJECT_OPTIONMISSINGARGUMENT(prog, tok.option);
                 }
-
             }
-
         }
 
 dessert:
