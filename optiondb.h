@@ -30,6 +30,7 @@ struct carg_optiondb {
 };
 
 
+// TODO: remove carg_optioninfo structure
 struct carg_optioninfo {
     const struct carg_option *option;
     int flags;

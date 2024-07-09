@@ -3,7 +3,6 @@ include(CTest)
 list(APPEND testrules
 	optiondb
 	tokenizer
-	optionarg
 	# option
     # command
     # help

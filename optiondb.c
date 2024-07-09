@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "optiondb.h"
-#include "option.h"
 
 
 #define CMP(x, y) (strcmp(x, y) == 0)
@@ -61,7 +60,8 @@ optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
 
         info = db->repo + db->count;
         info->option = opt;
-        info->flags = option_arg_parse(opt->arg);
+        // TODO: remove carg_optioninfo structure
+        info->flags = 0;
         opt++;
         db->count++;
     }
