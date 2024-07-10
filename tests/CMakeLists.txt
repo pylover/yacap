@@ -38,14 +38,14 @@ foreach (t IN LISTS testrules)
     add_test(NAME ${t} COMMAND ${t})
     add_custom_target(${t}_exec 
         COMMAND ctest --verbose -R ${t}
-		# DEPENDS ${t}
+		DEPENDS ${t}
     )
     add_custom_target(${t}_debug 
 		COMMAND gdb --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb ./${t}
-		# DEPENDS ${t}
+		DEPENDS ${t}
     )
     add_custom_target(${t}_profile
         COMMAND "valgrind" ${VALGRIND_FLAGS} ctest -R ${t}
-		# DEPENDS ${t}
+		DEPENDS ${t}
     )
 endforeach()

@@ -32,12 +32,12 @@
 #define TRYHELP(p) ERRORH( \
         "Try `%s --help' or `%s --usage' for more information.", p, p)
 
-#define REJECT_OPTIONMISSINGARGUMENT(p, o) ERROR( \
-        "%s: option requires an argument -- '%s'", p, option_repr(o))
+#define REJECT_OPTIONMISSINGARGUMENT(p, o) dprintf(STDERR_FILENO, \
+        "%s: option requires an argument -- '%s'\n", p, option_repr(o))
 
 
-#define REJECT_UNRECOGNIZED(p, name, len) \
-    ERROR("%s: invalid option -- '%.*s'", p, len, name)
+#define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
+        "%s: invalid option -- '%.*s'\n", p, len, name)
 
 /*
 #define VERBOSITY_DEFAULT  CLOG_WARNING
@@ -114,7 +114,8 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
 enum carg_status
 carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     const char *prog;
-    enum carg_tokenizer_status status;
+    int status = CARG_OK;
+    enum carg_tokenizer_status tokstatus;
     enum carg_eatstatus eatstatus;
     struct carg_optiondb optiondb;
     struct tokenizer *t;
@@ -139,17 +140,21 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     #define NEXT(tok) tokenizer_next(t, tok)
 
     /* excecutable name */
-    if ((status = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
+    if ((tokstatus = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
         prog = tok.text;
     }
     else {
         goto terminate;
     }
 
-    while (status > CARG_TOK_END) {
+    while (tokstatus > CARG_TOK_END) {
         /* fetch the next token */
-        if ((status = NEXT(&tok)) <= CARG_TOK_END) {
-            break;
+        if ((tokstatus = NEXT(&tok)) <= CARG_TOK_END) {
+            if (tokstatus == CARG_TOK_UNKNOWN) {
+                REJECT_UNRECOGNIZED(prog, tok.text, tok.len);
+            }
+            status = CARG_ERROR;
+            goto terminate;
         }
 
         /* is this a positional? */
@@ -162,8 +167,10 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         if (tok.option && CARG_OPTION_ARGNEEDED(tok.option)) {
             if (tok.text == NULL) {
                 /* try the next token as value */
-                if ((status = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
+                if ((tokstatus = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
                     REJECT_OPTIONMISSINGARGUMENT(prog, tok.option);
+                    status = CARG_ERROR;
+                    goto terminate;
                 }
             }
         }
@@ -173,18 +180,13 @@ dessert:
             case CARG_EAT_OK:
                 continue;
             case CARG_EAT_UNRECOGNIZED:
-                status = CARG_TOK_UNKNOWN;
+                status = CARG_ERROR;
             case CARG_EAT_OK_EXIT:
                 goto terminate;
         }
     }
 
 terminate:
-    switch (status) {
-        case CARG_TOK_UNKNOWN:
-            REJECT_UNRECOGNIZED(prog, tok.text, tok.len);
-            break;
-    }
     tokenizer_dispose(t);
     optiondb_dispose(&optiondb);
     if (status < 0) {

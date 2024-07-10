@@ -78,11 +78,16 @@ test_program_error() {
     };
 
     clog_verbosity = CLOG_INFO;
+
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo -f", NULL));
+    eqstr("", out);
+    eqstr("foo: option requires an argument -- '-f/--foo'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
     eqint(CARG_ERROR, carg_parse_string(&c, "foo -F", NULL));
     eqstr("", out);
-    eqstr("[error] foo: invalid option -- 'F'\n"
-          "Try `foo --help' or `foo --usage' for more "
-          "information.\n", err);
+    eqstr("foo: invalid option -- 'F'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
 }
 
 

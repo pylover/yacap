@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 #include <string.h>
 
 #include <clog.h>
@@ -91,6 +92,7 @@ _replace_fd(int fd, int pipe_[2], int *backupfd) {
     }
 
     *backupfd = backup;
+    errno = 0;
     return 0;
 
 failed:
@@ -106,6 +108,7 @@ failed:
         close(pipe_[1]);
     }
 
+    errno = 0;
     return -1;
 }
 
