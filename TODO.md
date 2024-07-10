@@ -1,3 +1,4 @@
+- Don't allow --f (single char with -- options)
 - test carg_parce with argc == 1
 - Handle sub-command
 - Argument grouping

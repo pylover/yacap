@@ -46,10 +46,10 @@ struct tokenizer {
 
 
 /* Coroutine  stuff*/
-#define YIELD_OPT(opt, v) do { \
+#define YIELD_OPT(opt, v, l) do { \
         t->line = __LINE__; \
         token->text = v; \
-        token->len = 0; \
+        token->len = l; \
         token->option = opt; \
         token->occurance = ++(t->occurances[(opt)->key]); \
         return CARG_TOK_OPTION; \
@@ -68,10 +68,10 @@ struct tokenizer {
     } while (0)
 
 
-#define YIELD_POS(v) do { \
+#define YIELD_POS(v, l) do { \
         t->line = __LINE__; \
         token->text = v; \
-        token->len = 0; \
+        token->len = l; \
         token->option = NULL; \
         token->occurance = -1; \
         return CARG_TOK_POSITIONAL; \
@@ -161,14 +161,28 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
 
             /* flag or option? '-foo' or '--foo=bar' */
             eq = strchr(t->tok, '=');
+
+            /* Left side length */
+            if ((eq - t->tok) == 3) {
+                YIELD_OPT_UNKNOWN(t->tok, t->toklen);
+                continue;
+            }
+
+            // TODO: check the rightside len
             t->option = optiondb_findbyname(t->optiondb, t->tok + 2,
                     (eq? eq - t->tok: t->toklen) - 2);
 
             if (t->option == NULL) {
-                goto positional;
+                YIELD_OPT_UNKNOWN(t->tok, t->toklen);
+                continue;
             }
 
-            YIELD_OPT(t->option, eq? eq+1: NULL);
+            if (!eq) {
+                YIELD_OPT(t->option, NULL, 0);
+                continue;
+            }
+
+            YIELD_OPT(t->option, eq+1, strlen(eq+1));
             continue;
         }
 
@@ -182,11 +196,12 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
                 }
                 else if (CARG_OPTION_ARGNEEDED(t->option) &&
                         ((t->c + 1) < t->toklen)) {
-                    YIELD_OPT(t->option, t->tok + t->c + 1);
+                    YIELD_OPT(t->option, t->tok + t->c + 1,
+                            strlen(t->tok + t->c + 1));
                     break;
                 }
                 else {
-                    YIELD_OPT(t->option, NULL);
+                    YIELD_OPT(t->option, NULL, 0);
                 }
             }
 
@@ -195,7 +210,7 @@ tokenizer_next(struct tokenizer *t, struct carg_token *token) {
 
         /* Positional argument */
 positional:
-        YIELD_POS(t->tok);
+        YIELD_POS(t->tok, t->toklen);
     }
 
     END;

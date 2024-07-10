@@ -25,12 +25,12 @@
 #include "carg.c"
 
 
+#define ARGVSIZE(a) (sizeof(a) / sizeof(char*))
 // TODO: quotes "", ''
 
 
 void
 test_tokenizer() {
-#define TOTAL   14
     struct carg_token tok;
     struct carg_optiondb optdb;
     struct carg_option options1[] = {
@@ -44,7 +44,7 @@ test_tokenizer() {
     };
 
 
-    const char *argv[TOTAL] = {
+    const char *argv[] = {
         "foo",
         "-fthud",
         "-fbbar",
@@ -55,7 +55,7 @@ test_tokenizer() {
         "--foo=bar baz",
         "--foo=",
         "--foo",
-        "--baz=baz",
+        "--baz=_baz_",
         "-zzoo",
         "--",
         "--foo",
@@ -64,7 +64,7 @@ test_tokenizer() {
     optiondb_init(&optdb);
     optiondb_insert(&optdb, options1);
     optiondb_insert(&optdb, options2);
-    struct tokenizer *t = tokenizer_new(TOTAL, argv, &optdb);
+    struct tokenizer *t = tokenizer_new(ARGVSIZE(argv), argv, &optdb);
     isnotnull(t);
 
     /* foo */
@@ -72,6 +72,7 @@ test_tokenizer() {
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     eqstr("foo", tok.text);
+    eqint(3, tok.len);
     isnull(tok.option);
 
     /* f */
@@ -79,6 +80,7 @@ test_tokenizer() {
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
     eqint(1, tok.occurance);
     isnull(tok.text);
+    eqint(0, tok.len);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
 
@@ -95,6 +97,7 @@ test_tokenizer() {
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
     eqint(2, tok.occurance);
     isnull(tok.text);
+    eqint(0, tok.len);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
 
@@ -106,19 +109,21 @@ test_tokenizer() {
     isnotnull(tok.text);
     eqchr('b', tok.option->key);
     eqstr("bar", tok.text);
+    eqint(3, tok.len);
 
     /* bar */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("bar", tok.text);
     isnull(tok.option);
+    eqstr("bar", tok.text);
+    eqint(3, tok.len);
 
     /* -qux */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_UNKNOWN, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("qux", tok.text);
+    eqnstr("q", tok.text, tok.len);
     eqint(1, tok.len);
     isnull(tok.option);
 
@@ -128,7 +133,7 @@ test_tokenizer() {
     eqint(3, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
-    eqstr("bar", tok.text);
+    eqnstr("bar", tok.text, tok.len);
 
     /* --foo=bar baz (option) */
     memset(&tok, 0, sizeof(tok));
@@ -136,7 +141,8 @@ test_tokenizer() {
     eqint(4, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
-    eqstr("bar baz", tok.text);
+    eqnstr("bar baz", tok.text, tok.len);
+    eqint(7, tok.len);
 
     /* --foo= (option) */
     memset(&tok, 0, sizeof(tok));
@@ -145,6 +151,7 @@ test_tokenizer() {
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("", tok.text);
+    eqint(0, tok.len);
 
     /* --foo (option) */
     memset(&tok, 0, sizeof(tok));
@@ -152,29 +159,33 @@ test_tokenizer() {
     eqint(6, tok.occurance);
     isnotnull(tok.option);
     isnull(tok.text);
+    eqint(0, tok.len);
     eqchr('f', tok.option->key);
 
-    /* --baz (option) */
+    /* --baz=baz (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
     eqint(1, tok.occurance);
     isnotnull(tok.option);
     eqchr('z', tok.option->key);
-    eqstr("baz", tok.text);
+    eqnstr("_baz_", tok.text, tok.len);
+    eqint(5, tok.len);
 
-    /* --baz (option) */
+    /* -zzoo (baz option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
     eqint(2, tok.occurance);
     isnotnull(tok.option);
     eqchr('z', tok.option->key);
     eqstr("zoo", tok.text);
+    eqint(3, tok.len);
 
     /* --foo (positional) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
-    eqstr("--foo", tok.text);
+    eqnstr("--foo", tok.text, tok.len);
+    eqint(5, tok.len);
     isnull(tok.option);
 
     /* Termination */
@@ -182,6 +193,7 @@ test_tokenizer() {
     eqint(CARG_TOK_END, tokenizer_next(t, &tok));
     eqint(-1, tok.occurance);
     isnull(tok.text);
+    eqint(0, tok.len);
     isnull(tok.option);
 
     tokenizer_dispose(t);
