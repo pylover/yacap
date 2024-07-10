@@ -84,87 +84,96 @@ test_program_error() {
     eqstr("foo: option requires an argument -- '-f/--foo'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo --foo", NULL));
+    eqstr("", out);
+    eqstr("foo: option requires an argument -- '-f/--foo'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
     eqint(CARG_ERROR, carg_parse_string(&c, "foo -F", NULL));
     eqstr("", out);
-    eqstr("foo: invalid option -- 'F'\n"
+    eqstr("foo: invalid option -- '-F'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo --qux", NULL));
+    eqstr("", out);
+    eqstr("foo: invalid option -- '--qux'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo --qux=", NULL));
+    eqstr("", out);
+    eqstr("foo: invalid option -- '--qux='\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo -qthud", NULL));
+    eqstr("", out);
+    eqstr("foo: invalid option -- '-q'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo --qux=thud", NULL));
+    eqstr("", out);
+    eqstr("foo: invalid option -- '--qux=thud'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 }
 
 
-// static void
-// test_option_value() {
-//     struct carg_option options[] = {
-//         {"foo", 'f', "FOO", 0, "Foo flag"},
-//         {"bar", 'b', "BAR", 0, "Bar option with value"},
-//         {"baz", 'z', NULL, 0, NULL},
-//         {"qux", 'q', NULL, 0, NULL},
-//         {NULL}
-//     };
-//     struct carg carg = {
-//         .args = NULL,
-//         .header = NULL,
-//         .eat = (carg_eater)eatarg,
-//         .options = options,
-//         .footer = NULL,
-//         .version = NULL,
-//         .flags = 0,
-//     };
-//
-//     // eqint(CARG_ERR, carg_parse_string(&carg, "foo -f", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("foo: '-f' option requires an argument\n"
-//     //     "Try `foo --help' or `foo --usage' for more information.\n", err);
-//
-//     // eqint(CARG_ERR, carg_parse_string(&carg, "foo --foo5", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("foo: unrecognized option '--foo5'\n"
-//     //     "Try `foo --help' or `foo --usage' for more information.\n", err);
-//
-//     // memset(&args, 0, sizeof(args));
-//     // eqint(CARG_OK, carg_parse_string(&carg, "foo -f3", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("", err);
-//     // eqint(3, args.foo);
-//
-//     // memset(&args, 0, sizeof(args));
-//     // eqint(CARG_OK, carg_parse_string(&carg, "foo --foo 4", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("", err);
-//     // eqint(4, args.foo);
-//
-//     // memset(&args, 0, sizeof(args));
-//     // eqint(CARG_OK, carg_parse_string(&carg, "foo --foo=5", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("", err);
-//     // eqint(5, args.foo);
-//
-//     // eqint(CARG_ERR, carg_parse_string(&carg, "foo -z2", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("foo: unrecognized option '-z2'\n"
-//     //     "Try `foo --help' or `foo --usage' for more information.\n", err);
-//
-//     // memset(&args, 0, sizeof(args));
-//     // eqint(CARG_OK, carg_parse_string(&carg, "foo -qzf2", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("", err);
-//     // eqint(2, args.foo);
-//     // eqint(1, args.qux);
-//     // eqint(1, args.baz);
-//
-//     // memset(&args, 0, sizeof(args));
-//     // eqint(CARG_OK, carg_parse_string(&carg, "foo -qf 9", NULL, NULL));
-//     // eqstr("", out);
-//     // eqstr("", err);
-//     // eqint(9, args.foo);
-//     // eqint(1, args.qux);
-//     // eqint(0, args.baz);
-// }
+static void
+test_option_value() {
+    struct carg_option options[] = {
+        {"foo", 'f', "FOO", 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {"baz", 'z', NULL, 0, NULL},
+        {"qux", 'q', NULL, 0, NULL},
+        {NULL}
+    };
+    struct carg carg = {
+        .args = NULL,
+        .header = NULL,
+        .eat = (carg_eater)eatarg,
+        .options = options,
+        .footer = NULL,
+        .version = NULL,
+        .flags = 0,
+    };
+
+    memset(&args, 0, sizeof(args));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -f3", NULL));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(3, args.foo);
+
+    memset(&args, 0, sizeof(args));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo 4", NULL));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(4, args.foo);
+
+    memset(&args, 0, sizeof(args));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo=5", NULL));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(5, args.foo);
+
+    memset(&args, 0, sizeof(args));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -qzf2", NULL));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(2, args.foo);
+    eqint(1, args.qux);
+    eqint(1, args.baz);
+
+    memset(&args, 0, sizeof(args));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -qf 9", NULL));
+    eqstr("", out);
+    eqstr("", err);
+    eqint(9, args.foo);
+    eqint(1, args.qux);
+    eqint(0, args.baz);
+}
 
 
 int
 main() {
     test_program_error();
-    // test_flag();
-    // test_option_value();
+    test_option_value();
     return EXIT_SUCCESS;
 }

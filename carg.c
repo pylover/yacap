@@ -36,7 +36,7 @@
         "%s: option requires an argument -- '%s'\n", p, option_repr(o))
 
 #define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
-        "%s: invalid option -- '%.*s'\n", p, len, name)
+        "%s: invalid option -- '%s%.*s'\n", p, len == 1? "-": "", len, name)
 
 /*
 #define VERBOSITY_DEFAULT  CLOG_WARNING
@@ -151,8 +151,8 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         if ((tokstatus = NEXT(&tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
                 REJECT_UNRECOGNIZED(prog, tok.text, tok.len);
+                status = CARG_ERROR;
             }
-            status = CARG_ERROR;
             goto terminate;
         }
 
@@ -163,7 +163,7 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         }
 
         /* Ensure option's value */
-        if (tok.option && CARG_OPTION_ARGNEEDED(tok.option)) {
+        if (CARG_OPTION_ARGNEEDED(tok.option)) {
             if (tok.text == NULL) {
                 /* try the next token as value */
                 if ((tokstatus = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
@@ -171,7 +171,14 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
                     status = CARG_ERROR;
                     goto terminate;
                 }
+
+                tok.text = nexttok.text;
+                tok.len = nexttok.len;
             }
+            eatstatus = c->eat(tok.option, tok.text, userptr);
+        }
+        else {
+            eatstatus = c->eat(tok.option, NULL, userptr);
         }
 
 dessert:

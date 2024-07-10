@@ -37,7 +37,7 @@ foreach (t IN LISTS testrules)
 	target_link_libraries(${t} PUBLIC clog PRIVATE carg)
     add_test(NAME ${t} COMMAND ${t})
     add_custom_target(${t}_exec 
-        COMMAND ctest --verbose -R ${t}
+        COMMAND ctest --verbose -R "^${t}$"
 		DEPENDS ${t}
     )
     add_custom_target(${t}_debug 
