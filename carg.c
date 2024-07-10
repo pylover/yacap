@@ -35,7 +35,6 @@
 #define REJECT_OPTIONMISSINGARGUMENT(p, o) dprintf(STDERR_FILENO, \
         "%s: option requires an argument -- '%s'\n", p, option_repr(o))
 
-
 #define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
         "%s: invalid option -- '%.*s'\n", p, len, name)
 
