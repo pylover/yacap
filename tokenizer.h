@@ -32,11 +32,11 @@ struct carg_token {
 
 
 enum carg_tokenizer_status {
+    CARG_TOK_UNKNOWN = -2,
     CARG_TOK_ERROR = -1,
     CARG_TOK_END = 0,
     CARG_TOK_OPTION = 1,
-    CARG_TOK_UNKNOWN = 2,
-    CARG_TOK_POSITIONAL = 3,
+    CARG_TOK_POSITIONAL = 2,
 };
 
 

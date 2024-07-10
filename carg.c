@@ -36,9 +36,8 @@
         "%s: option requires an argument -- '%s'", p, option_repr(o))
 
 
-#define REJECT_UNRECOGNIZED(p, name) \
-    ERROR("%s: %s: (PARSE ERROR) Option should have been recognized!?", \
-            p, name)
+#define REJECT_UNRECOGNIZED(p, name, len) \
+    ERROR("%s: invalid option -- '%.*s'", p, len, name)
 
 /*
 #define VERBOSITY_DEFAULT  CLOG_WARNING
@@ -140,8 +139,11 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
     #define NEXT(tok) tokenizer_next(t, tok)
 
     /* excecutable name */
-    if ((status = NEXT(&tok)) == 1) {
+    if ((status = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
         prog = tok.text;
+    }
+    else {
+        goto terminate;
     }
 
     while (status > CARG_TOK_END) {
@@ -167,12 +169,22 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         }
 
 dessert:
-        if (eatstatus == CARG_EAT_OK_EXIT) {
-            break;
+        switch (eatstatus) {
+            case CARG_EAT_OK:
+                continue;
+            case CARG_EAT_UNRECOGNIZED:
+                status = CARG_TOK_UNKNOWN;
+            case CARG_EAT_OK_EXIT:
+                goto terminate;
         }
     }
 
-// terminate:
+terminate:
+    switch (status) {
+        case CARG_TOK_UNKNOWN:
+            REJECT_UNRECOGNIZED(prog, tok.text, tok.len);
+            break;
+    }
     tokenizer_dispose(t);
     optiondb_dispose(&optiondb);
     if (status < 0) {
