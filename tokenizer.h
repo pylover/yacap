@@ -27,7 +27,6 @@ struct carg_token {
     const char *text;
     unsigned int len;
     const struct carg_option *option;
-    int occurance;
 };
 
 

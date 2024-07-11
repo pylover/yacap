@@ -39,7 +39,6 @@ struct tokenizer {
     int c;
     int toklen;
     const char *tok;
-    int occurances[CARG_MAXOPTIONS];
     const struct carg_option *option;
     bool dashdash;
 };
@@ -51,7 +50,6 @@ struct tokenizer {
         token->text = v; \
         token->len = l; \
         token->option = opt; \
-        token->occurance = ++(t->occurances[(opt)->key]); \
         return CARG_TOK_OPTION; \
         case __LINE__:; \
     } while (0)
@@ -62,7 +60,6 @@ struct tokenizer {
         token->text = tok; \
         token->len = l; \
         token->option = NULL; \
-        token->occurance = -1; \
         return CARG_TOK_UNKNOWN; \
         case __LINE__:; \
     } while (0)
@@ -73,7 +70,6 @@ struct tokenizer {
         token->text = v; \
         token->len = l; \
         token->option = NULL; \
-        token->occurance = -1; \
         return CARG_TOK_POSITIONAL; \
         case __LINE__:; \
     } while (0)
@@ -84,7 +80,6 @@ struct tokenizer {
     token->text = NULL; \
     token->len = 0; \
     token->option = NULL; \
-    token->occurance = -1; \
     return CARG_TOK_ERROR
 
 
@@ -93,7 +88,6 @@ struct tokenizer {
     token->text = NULL; \
     token->len = 0; \
     token->option = NULL; \
-    token->occurance = -1; \
     return CARG_TOK_END
 
 
@@ -114,7 +108,6 @@ tokenizer_new(int argc, const char **argv,
     t->argc = argc;
     t->argv = argv;
     t->dashdash = false;
-    memset(t->occurances, 0, sizeof(t->occurances));
     return t;
 }
 

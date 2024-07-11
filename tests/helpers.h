@@ -30,7 +30,6 @@
     "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
 
 
-extern struct carg_option nooption[];
 extern char out[];
 extern char err[];
 

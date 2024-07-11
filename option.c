@@ -31,7 +31,7 @@ const char *
 option_repr(const struct carg_option *opt) {
     int c = 0;
 
-    if (isalpha(opt->key)) {
+    if ((opt->key > 0) && isalpha(opt->key)) {
         c += snprintf(_temp, CARG_TEMPBUFFSIZE, "-%c", opt->key);
     }
 

@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include <clog.h>
 
@@ -34,6 +35,10 @@
 
 #define REJECT_OPTIONMISSINGARGUMENT(p, o) dprintf(STDERR_FILENO, \
         "%s: option requires an argument -- '%s'\n", p, option_repr(o))
+
+#define REJECT_OPTIONHASARGUMENT(p, o) dprintf(STDERR_FILENO, \
+        "%s: option not requires any argument(s) -- '%s'\n", p, \
+        option_repr(o))
 
 #define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
         "%s: invalid option -- '%s%.*s'\n", p, len == 1? "-": "", len, name)
@@ -75,8 +80,16 @@ static struct carg_option opt_verbosity = {
 
 
 /* builtin options */
-static struct carg_option opt_version = {"version", 'V', NULL, 0,
-    "Print program version and exit"};
+#define CARG_OPTKEY_VERSION (INT_MIN + 1)
+
+
+static struct carg_option opt_version = {
+    .name = "version",
+    .key = CARG_OPTKEY_VERSION,
+    .arg = NULL,
+    .flags = 0,
+    .help = "Print program version and exit"
+};
 static struct carg_option opt_help = {"help", 'h', NULL, 0,
     "Give this help list and exit"};
 static struct carg_option opt_usage = {"usage", '?', NULL, 0,
@@ -119,6 +132,23 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
     }
 
     return 0;
+}
+
+
+static enum carg_eatstatus
+_eat(const struct carg *c, const struct carg_option *opt,
+        const char *value, void *userptr) {
+    /* Try to solve it internaly */
+    if (c->version && (opt == &opt_version)) {
+        dprintf(STDOUT_FILENO, "%s\n", c->version);
+        return CARG_EAT_OK_EXIT;
+    }
+
+    if (c->eat) {
+        return c->eat(opt, value, userptr);
+    }
+
+    return CARG_EAT_NOTEATEN;
 }
 
 
@@ -170,7 +200,7 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
 
         /* is this a positional? */
         if (tok.option == NULL) {
-            eatstatus = c->eat(NULL, tok.text, userptr);
+            eatstatus = _eat(c, NULL, tok.text, userptr);
             goto dessert;
         }
 
@@ -187,19 +217,26 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
                 tok.text = nexttok.text;
                 tok.len = nexttok.len;
             }
-            eatstatus = c->eat(tok.option, tok.text, userptr);
+            eatstatus = _eat(c, tok.option, tok.text, userptr);
         }
         else {
-            eatstatus = c->eat(tok.option, NULL, userptr);
+            if (tok.text) {
+                REJECT_OPTIONHASARGUMENT(prog, tok.option);
+                status = CARG_ERROR;
+                goto terminate;
+            }
+            eatstatus = _eat(c, tok.option, NULL, userptr);
         }
 
 dessert:
         switch (eatstatus) {
             case CARG_EAT_OK:
                 continue;
-            case CARG_EAT_UNRECOGNIZED:
-                status = CARG_ERROR;
             case CARG_EAT_OK_EXIT:
+                status = CARG_OK_EXIT;
+                goto terminate;
+            default:
+                status = CARG_ERROR;
                 goto terminate;
         }
     }
@@ -209,7 +246,6 @@ terminate:
     optiondb_dispose(&optiondb);
     if (status < 0) {
         TRYHELP(prog);
-        return CARG_ERROR;
     }
-    return CARG_OK;
+    return status;
 }

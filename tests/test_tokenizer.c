@@ -70,7 +70,6 @@ test_tokenizer() {
     /* foo */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     eqstr("foo", tok.text);
     eqint(3, tok.len);
     isnull(tok.option);
@@ -78,7 +77,6 @@ test_tokenizer() {
     /* f */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(1, tok.occurance);
     isnull(tok.text);
     eqint(0, tok.len);
     isnotnull(tok.option);
@@ -87,7 +85,6 @@ test_tokenizer() {
     /* thud */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_UNKNOWN, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     eqstr("thud", tok.text);
     eqint(1, tok.len);
     isnull(tok.option);
@@ -95,7 +92,6 @@ test_tokenizer() {
     /* f */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(2, tok.occurance);
     isnull(tok.text);
     eqint(0, tok.len);
     isnotnull(tok.option);
@@ -104,7 +100,6 @@ test_tokenizer() {
     /* b */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(1, tok.occurance);
     isnotnull(tok.option);
     isnotnull(tok.text);
     eqchr('b', tok.option->key);
@@ -114,7 +109,6 @@ test_tokenizer() {
     /* bar */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     isnull(tok.option);
     eqstr("bar", tok.text);
     eqint(3, tok.len);
@@ -122,7 +116,6 @@ test_tokenizer() {
     /* -qux */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_UNKNOWN, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     eqnstr("q", tok.text, tok.len);
     eqint(1, tok.len);
     isnull(tok.option);
@@ -130,7 +123,6 @@ test_tokenizer() {
     /* --foo=bar (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(3, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqnstr("bar", tok.text, tok.len);
@@ -138,7 +130,6 @@ test_tokenizer() {
     /* --foo=bar baz (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(4, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqnstr("bar baz", tok.text, tok.len);
@@ -147,7 +138,6 @@ test_tokenizer() {
     /* --foo= (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(5, tok.occurance);
     isnotnull(tok.option);
     eqchr('f', tok.option->key);
     eqstr("", tok.text);
@@ -156,7 +146,6 @@ test_tokenizer() {
     /* --foo (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(6, tok.occurance);
     isnotnull(tok.option);
     isnull(tok.text);
     eqint(0, tok.len);
@@ -165,7 +154,6 @@ test_tokenizer() {
     /* --baz=baz (option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(1, tok.occurance);
     isnotnull(tok.option);
     eqchr('z', tok.option->key);
     eqnstr("_baz_", tok.text, tok.len);
@@ -174,7 +162,6 @@ test_tokenizer() {
     /* -zzoo (baz option) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_OPTION, tokenizer_next(t, &tok));
-    eqint(2, tok.occurance);
     isnotnull(tok.option);
     eqchr('z', tok.option->key);
     eqstr("zoo", tok.text);
@@ -183,7 +170,6 @@ test_tokenizer() {
     /* --foo (positional) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     eqnstr("--foo", tok.text, tok.len);
     eqint(5, tok.len);
     isnull(tok.option);
@@ -191,7 +177,6 @@ test_tokenizer() {
     /* Termination */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_END, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     isnull(tok.text);
     eqint(0, tok.len);
     isnull(tok.option);
@@ -229,21 +214,18 @@ test_tokenizer_error() {
     /* foo */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_POSITIONAL, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     eqstr("foo", tok.text);
     isnull(tok.option);
 
     /* NULL */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_ERROR, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     isnull(tok.text);
     isnull(tok.option);
 
     /* NULL (Again) */
     memset(&tok, 0, sizeof(tok));
     eqint(CARG_TOK_ERROR, tokenizer_next(t, &tok));
-    eqint(-1, tok.occurance);
     isnull(tok.text);
     isnull(tok.option);
 

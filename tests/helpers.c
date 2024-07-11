@@ -29,7 +29,6 @@
 #include "helpers.h"
 
 
-struct carg_option nooption[] = {{ NULL }};
 char out[BUFFSIZE + 1] = "\0";
 char err[BUFFSIZE + 1] = "\0";
 
