@@ -18,7 +18,10 @@
  */
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
+#include "option.h"
 #include "optiondb.h"
 
 
@@ -64,20 +67,31 @@ optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt) {
 
 int
 optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
+    /* check existance */
+    if (optiondb_exists(db, opt)) {
+        dprintf(STDERR_FILENO, "[carg] option duplicated -- '%s'\n",
+                option_repr(opt));
+        return -1;
+    }
+
+    /* extend db if there is no space for new item */
+    if ((db->count == db->size) && optiondb_extend(db)) {
+        return -1;
+    }
+
+    db->repo[db->count] = opt;
+    db->count++;
+    return 0;
+}
+
+
+int
+optiondb_insertvector(struct carg_optiondb *db,
+        const struct carg_option *opt) {
     while (opt && opt->name) {
-        /* check existance */
-        if (optiondb_exists(db, opt)) {
+        if (optiondb_insert(db, opt++)) {
             return -1;
         }
-
-        /* extend db if there is no space for new item */
-        if ((db->count == db->size) && optiondb_extend(db)) {
-            return -1;
-        }
-
-        db->repo[db->count] = opt;
-        opt++;
-        db->count++;
     }
 
     return 0;

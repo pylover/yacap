@@ -39,7 +39,12 @@ optiondb_dispose(struct carg_optiondb *db);
 
 
 int
-optiondb_insert(struct carg_optiondb *db, const struct carg_option *options);
+optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt);
+
+
+int
+optiondb_insertvector(struct carg_optiondb *db,
+        const struct carg_option *options);
 
 
 int

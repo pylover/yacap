@@ -60,6 +60,32 @@ eatarg(struct carg_option *opt, const char *value) {
 
 
 static void
+test_duplicate_options() {
+    struct carg_option options[] = {
+        {"foo", 'f', "FOO", 0, "Foo option"},
+        {"foo", 'f', "FOO", 0, "Foo option"},
+        {NULL}
+    };
+    struct carg c = {
+        .eat = NULL,
+        .options = options,
+        .args = NULL,
+        .header = NULL,
+        .footer = NULL,
+        .version = NULL,
+        .flags = 0,
+        .commands = NULL,
+    };
+
+    clog_verbosity = CLOG_INFO;
+
+    eqint(CARG_ERROR, carg_parse_string(&c, "foo -f", NULL));
+    eqstr("", out);
+    eqstr("[carg] option duplicated -- '-f/--foo'\n", err);
+}
+
+
+static void
 test_program_error() {
     struct carg_option options[] = {
         {"foo", 'f', "FOO", 0, "Foo option"},
@@ -173,6 +199,7 @@ test_option_value() {
 
 int
 main() {
+    test_duplicate_options();
     test_program_error();
     test_option_value();
     return EXIT_SUCCESS;

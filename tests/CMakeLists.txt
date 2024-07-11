@@ -4,10 +4,10 @@ list(APPEND testrules
 	option
 	optiondb
 	tokenizer
+	version
     # command
     # help
     # verbose
-    # version
     # positional
 )
 list(TRANSFORM testrules PREPEND test_)

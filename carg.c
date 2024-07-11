@@ -71,13 +71,16 @@ static struct carg_option opt_verbosity = {
         "given, the verbosity level will be '3|w|warn', but If option is "
         "given without value, then the verbosity level will be '4|i|info'."
 };
-static struct carg_option opt_version = {"version", 'V', NULL, 0,
-    "Print program version"};
-static struct carg_option opt_help = {"help", 'h', NULL, 0,
-    "Give this help list"};
-static struct carg_option opt_usage = {"usage", '?', NULL, 0,
-    "Give a short usage message"};
 */
+
+
+/* builtin options */
+static struct carg_option opt_version = {"version", 'V', NULL, 0,
+    "Print program version and exit"};
+static struct carg_option opt_help = {"help", 'h', NULL, 0,
+    "Give this help list and exit"};
+static struct carg_option opt_usage = {"usage", '?', NULL, 0,
+    "Give a short usage message and exit"};
 
 
 static int
@@ -101,9 +104,18 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
         cmd++;
     }
 
-    optiondb_insert(db, c->options);
+    if (optiondb_insertvector(db, c->options) == -1) {
+        return -1;
+    }
+
     while (cmd) {
-        optiondb_insert(db, (*(cmd++))->options);
+        if (optiondb_insertvector(db, (*(cmd++))->options) == -1) {
+            return -1;
+        }
+    }
+
+    if (c->version && optiondb_insert(db, &opt_version)) {
+        return -1;
     }
 
     return 0;
