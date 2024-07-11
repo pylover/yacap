@@ -20,22 +20,6 @@
 
 /*
 #define VERBOSITY_DEFAULT  CLOG_WARNING
-#define HELP_LINESIZE 79
-#define MAX(x, y) ((x) > (y)? (x): (y))
-#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
-#define ISSIGN(c) (\
-        BETWEEN(c, 32, 47) || \
-        BETWEEN(c, 58, 64) || \
-        BETWEEN(c, 123, 126))
-#define ISDIGIT(c) BETWEEN(c, 48, 57)
-#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
-        BETWEEN(c, 65, 90) || \
-        BETWEEN(c, 97, 122))
-#define OPT_MINGAP   4
-#define OPT_HELPLEN(o) ( \
-    strlen((o)->name) + \
-    ((o)->arg? strlen((o)->arg) + 1: 0) + \
-    (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
 */
 
 
@@ -163,53 +147,6 @@
 // }
 
 
-// /* Help */
-// static void
-// _print_options(int fd, const struct carg *c) {
-//     int gapsize = _calculate_initial_gapsize(c);
-//     int i = 0;
-//     const struct carg_option *opt;
-//
-//     while (true) {
-//         opt = &(c->options[i++]);
-//         if (opt->name == NULL) {
-//             break;
-//         }
-//
-//         gapsize = MAX(gapsize, OPT_HELPLEN(opt) + OPT_MINGAP);
-//     }
-//
-//     dprintf(fd, "\n");
-//     i = 0;
-//     while (true) {
-//         opt = &(c->options[i++]);
-//         if (opt->name == NULL) {
-//             break;
-//         }
-//
-//         _print_option(fd, opt, gapsize);
-//     }
-//
-//     if (!(c->flags & CARG_NO_HELP)) {
-//         _print_option(fd, &opt_help, gapsize);
-//     }
-//
-//     if (!(c->flags & CARG_NO_USAGE)) {
-//         _print_option(fd, &opt_usage, gapsize);
-//     }
-//
-//     if (!(c->flags & CARG_NO_CLOG)) {
-//         _print_option(fd, &opt_verbosity, gapsize);
-//     }
-//
-//     if (c->version) {
-//         _print_option(fd, &opt_version, gapsize);
-//     }
-//
-//     dprintf(fd, "\n");
-// }
-//
-//
 //
 //
 //
@@ -236,103 +173,6 @@
 //     }
 //
 //     return count;
-// }
-//
-//
-// static void
-// _print_multiline(int fd, const char *string, int indent, int linemax) {
-//     int remain;
-//     int linesize = linemax - indent;
-//     int ls;
-//     bool dash = false;
-//
-//     if (string == NULL) {
-//         return;
-//     }
-//
-//     remain = strlen(string);
-//     while (remain) {
-//         dash = false;
-//         while (remain && isspace(string[0])) {
-//             string++;
-//             remain--;
-//         }
-//
-//         if (remain <= linesize) {
-//             dprintf(fd, "%s\n", string);
-//             remain = 0;
-//             break;
-//         }
-//
-//         ls = linesize;
-//         if (string[ls - 2] == ' ') {
-//             ls--;
-//         }
-//         else if ((string[ls - 1] != ' ') && (string[ls] != ' ') &&
-//                 (!ISSIGN(string[ls - 1])) && (!ISSIGN(string[ls]))) {
-//             ls--;
-//             dash = true;
-//         }
-//
-//         dprintf(fd, "%.*s%s\n", ls, string, dash? "-": "");
-//         remain -= ls;
-//         string += ls;
-//         dprintf(fd, "%*s", indent, "");
-//     }
-// }
-//
-//
-// static void
-// _print_option(int fd, const struct carg_option *opt, int gapsize) {
-//     int rpad = gapsize - OPT_HELPLEN(opt);
-//
-//     if (ISCHAR(opt->key)) {
-//         dprintf(fd, "  -%c, ", opt->key);
-//     }
-//     else {
-//         dprintf(fd, "      ");
-//     }
-//
-//     if (opt->arg == NULL) {
-//         dprintf(fd, "--%s%*s", opt->name, rpad, "");
-//     }
-//     else if (HASFLAG(opt, CARG_OPTIONAL_VALUE)) {
-//         dprintf(fd, "--%s[=%s]%*s", opt->name, opt->arg, rpad, "");
-//     }
-//     else {
-//         dprintf(fd, "--%s=%s%*s", opt->name, opt->arg, rpad, "");
-//     }
-//
-//     if (opt->help) {
-//         _print_multiline(fd, opt->help, gapsize + 8, HELP_LINESIZE);
-//     }
-//     else {
-//         dprintf(fd, "\n");
-//     }
-// }
-//
-//
-// static int
-// _calculate_initial_gapsize(const struct carg *c) {
-//     int gapsize = 8;
-//
-//     if (!HASFLAG(c, CARG_NO_CLOG)) {
-//         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
-//     }
-//
-//     if (!HASFLAG(c, CARG_NO_HELP)) {
-//         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_help) + OPT_MINGAP);
-//     }
-//
-//     if (!HASFLAG(c, CARG_NO_USAGE)) {
-//         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_usage) + OPT_MINGAP);
-//     }
-//
-//     if (c->version) {
-//         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_version) + OPT_MINGAP);
-//     }
-//
-//     return gapsize;
 // }
 //
 //

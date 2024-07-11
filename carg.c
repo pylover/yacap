@@ -20,11 +20,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <limits.h>
 
 #include <clog.h>
 
 #include "carg.h"
+#include "common.h"
 #include "option.h"
 #include "help.h"
 #include "optiondb.h"
@@ -32,7 +32,6 @@
 #include "state.h"
 
 
-#define HASFLAG(o, f) ((o)->flags & (f))
 #define TRYHELP(p) ERRORH( \
         "Try `%s --help' or `%s --usage' for more information.", p, p)
 
@@ -45,46 +44,6 @@
 
 #define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
         "%s: invalid option -- '%s%.*s'\n", p, len == 1? "-": "", len, name)
-
-/*
-static struct carg_option opt_verbosity = {
-    .name = "verbose",
-    .key = 'v',
-    .arg = "LEVEL",
-    .flags = CARG_OPTIONAL_VALUE,
-    .help = "Verbosity level. one of: '0|s|silent', '1|f|fatal', '2|e|error'"
-        ", '3|w|warn', '4|i|info' and '5|d|debug'. if this option is not "
-        "given, the verbosity level will be '3|w|warn', but If option is "
-        "given without value, then the verbosity level will be '4|i|info'."
-};
-*/
-
-
-/* builtin options */
-#define CARG_OPTKEY_VERSION (INT_MIN + 1)
-
-
-static struct carg_option opt_version = {
-    .name = "version",
-    .key = CARG_OPTKEY_VERSION,
-    .arg = NULL,
-    .flags = 0,
-    .help = "Print program version and exit"
-};
-static struct carg_option opt_help = {
-    .name = "help",
-    .key = 'h',
-    .arg = NULL,
-    .flags = 0,
-    .help = "Give this help list and exit"
-};
-static struct carg_option opt_usage = {
-    .name = "usage",
-    .key = '?',
-    .arg = NULL,
-    .flags = 0,
-    .help = "Give a short usage message and exit"
-};
 
 
 static int

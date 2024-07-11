@@ -16,32 +16,31 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <stdio.h>
+#ifndef COMMON_H_
+#define COMMON_H_
 
-#include "config.h"
-#include "common.h"
+#include <limits.h>
+
 #include "carg.h"
-#include "option.h"
 
 
-static char _temp[CARG_TEMPBUFFSIZE];
+#define MAX(x, y) ((x) > (y)? (x): (y))
+#define HASFLAG(o, f) ((o)->flags & (f))
+#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
+#define ISSIGN(c) (\
+        BETWEEN(c, 32, 47) || \
+        BETWEEN(c, 58, 64) || \
+        BETWEEN(c, 123, 126))
+#define ISDIGIT(c) BETWEEN(c, 48, 57)
+#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
+        BETWEEN(c, 65, 90) || \
+        BETWEEN(c, 97, 122))
 
 
-const char *
-option_repr(const struct carg_option *opt) {
-    int c = 0;
+extern const struct carg_option opt_verbosity;
+extern const struct carg_option opt_version;
+extern const struct carg_option opt_help;
+extern const struct carg_option opt_usage;
 
-    if ((opt->key > 0) && ISCHAR(opt->key)) {
-        c += snprintf(_temp, CARG_TEMPBUFFSIZE, "-%c", opt->key);
-    }
 
-    if (c && opt->name) {
-        c += snprintf(_temp + c, CARG_TEMPBUFFSIZE - c, "/");
-    }
-
-    if (opt->name) {
-        c += snprintf(_temp + c, CARG_TEMPBUFFSIZE - c, "--%s", opt->name);
-    }
-
-    return _temp;
-}
+#endif  // COMMON_H_
