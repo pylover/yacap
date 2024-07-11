@@ -5,8 +5,8 @@ list(APPEND testrules
 	optiondb
 	tokenizer
 	version
+	help
     # command
-    # help
     # verbose
     # positional
 )

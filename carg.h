@@ -23,11 +23,6 @@
 #include <stdbool.h>
 
 
-/* carg special keys */
-#define KEY_ARG -1
-#define KEY_END -2
-
-
 /* carg_parse() result */
 enum carg_status {
     CARG_ERROR = -1,
@@ -52,9 +47,9 @@ enum carg_eatstatus {
 
 /* carg flags */
 enum carg_flags{
-    CARG_NO_HELP = 2,
-    CARG_NO_USAGE = 4,
-    CARG_NO_CLOG = 8,
+    CARG_NO_HELP = 1,
+    CARG_NO_USAGE = 2,
+    CARG_NO_CLOG = 4,
 };
 
 
@@ -88,6 +83,7 @@ struct carg_command {
 };
 
 
+typedef struct carg_state *carg_state_t;
 struct carg {
     carg_eater eat;
     const struct carg_option *options;
@@ -97,11 +93,14 @@ struct carg {
     const char *version;
     enum carg_flags flags;
     const struct carg_command **commands;
+
+    /* Internal CArg state */
+    carg_state_t state;
 };
 
 
 enum carg_status
-carg_parse(const struct carg *c, int argc, const char **argv, void *userptr);
+carg_parse(struct carg *c, int argc, const char **argv, void *userptr);
 
 
 #endif  // CARG_H_

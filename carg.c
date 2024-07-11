@@ -26,10 +26,13 @@
 
 #include "carg.h"
 #include "option.h"
+#include "help.h"
 #include "optiondb.h"
 #include "tokenizer.h"
+#include "state.h"
 
 
+#define HASFLAG(o, f) ((o)->flags & (f))
 #define TRYHELP(p) ERRORH( \
         "Try `%s --help' or `%s --usage' for more information.", p, p)
 
@@ -42,28 +45,6 @@
 
 #define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
         "%s: invalid option -- '%s%.*s'\n", p, len == 1? "-": "", len, name)
-
-/*
-#define VERBOSITY_DEFAULT  CLOG_WARNING
-#define HELP_LINESIZE 79
-#define USAGE_BUFFSIZE 1024
-#define MAX(x, y) ((x) > (y)? (x): (y))
-#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
-#define ISSIGN(c) (\
-        BETWEEN(c, 32, 47) || \
-        BETWEEN(c, 58, 64) || \
-        BETWEEN(c, 123, 126))
-#define ISDIGIT(c) BETWEEN(c, 48, 57)
-#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
-        BETWEEN(c, 65, 90) || \
-        BETWEEN(c, 97, 122))
-#define HASFLAG(o, f) ((o)->flags & f)  // NOLINT
-#define OPT_MINGAP   4
-#define OPT_HELPLEN(o) ( \
-    strlen((o)->name) + \
-    ((o)->arg? strlen((o)->arg) + 1: 0) + \
-    (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
-*/
 
 /*
 static struct carg_option opt_verbosity = {
@@ -90,10 +71,20 @@ static struct carg_option opt_version = {
     .flags = 0,
     .help = "Print program version and exit"
 };
-static struct carg_option opt_help = {"help", 'h', NULL, 0,
-    "Give this help list and exit"};
-static struct carg_option opt_usage = {"usage", '?', NULL, 0,
-    "Give a short usage message and exit"};
+static struct carg_option opt_help = {
+    .name = "help",
+    .key = 'h',
+    .arg = NULL,
+    .flags = 0,
+    .help = "Give this help list and exit"
+};
+static struct carg_option opt_usage = {
+    .name = "usage",
+    .key = '?',
+    .arg = NULL,
+    .flags = 0,
+    .help = "Give a short usage message and exit"
+};
 
 
 static int
@@ -131,6 +122,14 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
         return -1;
     }
 
+    if ((!HASFLAG(c, CARG_NO_HELP)) && optiondb_insert(db, &opt_help)) {
+        return -1;
+    }
+
+    if ((!HASFLAG(c, CARG_NO_USAGE)) && optiondb_insert(db, &opt_usage)) {
+        return -1;
+    }
+
     return 0;
 }
 
@@ -144,6 +143,16 @@ _eat(const struct carg *c, const struct carg_option *opt,
         return CARG_EAT_OK_EXIT;
     }
 
+    if ((!HASFLAG(c, CARG_NO_HELP)) && (opt == &opt_help)) {
+        carg_help_print(c);
+        return CARG_OK_EXIT;
+    }
+
+    if ((!HASFLAG(c, CARG_NO_USAGE)) && (opt == &opt_usage)) {
+        carg_usage_print(c);
+        return CARG_OK_EXIT;
+    }
+
     if (c->eat) {
         return c->eat(opt, value, userptr);
     }
@@ -153,8 +162,8 @@ _eat(const struct carg *c, const struct carg_option *opt,
 
 
 enum carg_status
-carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
-    const char *prog;
+carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
+    struct carg_state state;
     int status = CARG_OK;
     enum carg_tokenizer_status tokstatus;
     enum carg_eatstatus eatstatus;
@@ -182,17 +191,19 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
 
     /* excecutable name */
     if ((tokstatus = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
-        prog = tok.text;
+        state.prog = tok.text;
     }
     else {
         goto terminate;
     }
 
+    c->state = &state;
+
     while (tokstatus > CARG_TOK_END) {
         /* fetch the next token */
         if ((tokstatus = NEXT(&tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
-                REJECT_UNRECOGNIZED(prog, tok.text, tok.len);
+                REJECT_UNRECOGNIZED(state.prog, tok.text, tok.len);
                 status = CARG_ERROR;
             }
             goto terminate;
@@ -209,7 +220,7 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
             if (tok.text == NULL) {
                 /* try the next token as value */
                 if ((tokstatus = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
-                    REJECT_OPTIONMISSINGARGUMENT(prog, tok.option);
+                    REJECT_OPTIONMISSINGARGUMENT(state.prog, tok.option);
                     status = CARG_ERROR;
                     goto terminate;
                 }
@@ -221,7 +232,7 @@ carg_parse(const struct carg *c, int argc, const char **argv, void *userptr) {
         }
         else {
             if (tok.text) {
-                REJECT_OPTIONHASARGUMENT(prog, tok.option);
+                REJECT_OPTIONHASARGUMENT(state.prog, tok.option);
                 status = CARG_ERROR;
                 goto terminate;
             }
@@ -245,7 +256,7 @@ terminate:
     tokenizer_dispose(t);
     optiondb_dispose(&optiondb);
     if (status < 0) {
-        TRYHELP(prog);
+        TRYHELP(state.prog);
     }
     return status;
 }

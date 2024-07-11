@@ -18,6 +18,26 @@
  */
 
 
+/*
+#define VERBOSITY_DEFAULT  CLOG_WARNING
+#define HELP_LINESIZE 79
+#define MAX(x, y) ((x) > (y)? (x): (y))
+#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
+#define ISSIGN(c) (\
+        BETWEEN(c, 32, 47) || \
+        BETWEEN(c, 58, 64) || \
+        BETWEEN(c, 123, 126))
+#define ISDIGIT(c) BETWEEN(c, 48, 57)
+#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
+        BETWEEN(c, 65, 90) || \
+        BETWEEN(c, 97, 122))
+#define OPT_MINGAP   4
+#define OPT_HELPLEN(o) ( \
+    strlen((o)->name) + \
+    ((o)->arg? strlen((o)->arg) + 1: 0) + \
+    (HASFLAG(o, CARG_OPTIONAL_VALUE)? 2: 0))
+*/
+
 
 // enum carg_status
 // carg_parse(const struct carg *c, int argc, const char **argv, void *userptr,
@@ -190,53 +210,8 @@
 // }
 //
 //
-// void
-// carg_print_usage(struct carg_state *state) {
-//     char delim[1] = {'\n'};
-//     char *needle;
-//     char *saveptr = NULL;
-//
-//     dprintf(state->fd, "Usage: %s [OPTION...]", state->argv[0]);
-//     if (state->carg->args == NULL) {
-//         goto done;
-//     }
-//
-//     static char buff[USAGE_BUFFSIZE];
-//     strcpy(buff, state->carg->args);
-//
-//     needle = strtok_r(buff, delim, &saveptr);
-//     dprintf(state->fd, " %s", needle);
-//     while (true) {
-//         needle = strtok_r(NULL, delim, &saveptr);
-//         if (needle == NULL) {
-//             break;
-//         }
-//         dprintf(state->fd, "\n   or: %s [OPTION...] %s", state->argv[0],
-//                 needle);
-//     }
-//
-// done:
-//     dprintf(state->fd, "\n");
-// }
 //
 //
-// void
-// help_print(struct carg_state *state) {
-//     /* Usage */
-//     carg_print_usage(state);
-//
-//     /* Header */
-//     if (state->carg->header) {
-//         dprintf(state->fd, "\n");
-//         _print_multiline(state->fd, state->carg->header, 0, HELP_LINESIZE);
-//     }
-//
-//     /* Options */
-//     _print_options(state->fd, state->carg);
-//
-//     /* Footer */
-//     _print_multiline(state->fd, state->carg->footer, 0, HELP_LINESIZE);
-// }
 //
 //
 // enum carg_argtype {
