@@ -34,7 +34,7 @@ test_optiondb_duplication() {
         {"aoo", 'a', NULL, 0, NULL},
         {NULL}
     };
-    eqint(-1, optiondb_insertvector(&optdb, options1));
+    eqint(-1, optiondb_insertvector(&optdb, options1, OPT_UNIQUE));
     optiondb_dispose(&optdb);
 
     optiondb_init(&optdb);
@@ -47,8 +47,34 @@ test_optiondb_duplication() {
         {"aoo", 'a', NULL, 0, NULL},
         {NULL}
     };
-    eqint(0, optiondb_insertvector(&optdb, options2));
-    eqint(-1, optiondb_insertvector(&optdb, options3));
+    eqint(0, optiondb_insertvector(&optdb, options2, OPT_NONE));
+    eqint(-1, optiondb_insertvector(&optdb, options3, OPT_UNIQUE));
+    eqint(2, optdb.count);
+    eqint(0, optiondb_insertvector(&optdb, options3, OPT_NONE));
+    eqint(3, optdb.count);
+
+    /* insert duplicate options */
+    const struct carg_option y = {"yoo", 'y', NULL, 0, NULL};
+    eqint(0, optiondb_insert(&optdb, &y, OPT_NONE));
+    eqint(4, optdb.count);
+
+    eqint(-1, optiondb_insert(&optdb, &y, OPT_UNIQUE));
+    eqint(4, optdb.count);
+
+    eqint(0, optiondb_insert(&optdb, &y, OPT_NONE));
+    eqint(5, optdb.count);
+
+    /* insert unique option */
+    const struct carg_option z = {"zoo", 'z', NULL, 0, NULL};
+    eqint(0, optiondb_insert(&optdb, &z, OPT_UNIQUE));
+    eqint(6, optdb.count);
+
+    eqint(-1, optiondb_insert(&optdb, &z, OPT_UNIQUE));
+    eqint(6, optdb.count);
+
+    eqint(-1, optiondb_insert(&optdb, &z, OPT_NONE));
+    eqint(6, optdb.count);
+
     optiondb_dispose(&optdb);
 }
 
@@ -82,28 +108,20 @@ test_optiondb_autoextend() {
 
 
     optiondb_init(&optdb);
-    optiondb_insertvector(&optdb, options1);
+    optiondb_insertvector(&optdb, options1, OPT_UNIQUE);
 
     eqint(8, optdb.size);
     eqint(5, optdb.count);
     istrue(sizeof(struct carg_option*) * 8 <=
             malloc_usable_size(optdb.repo));
 
-    optiondb_insertvector(&optdb, options2);
+    optiondb_insertvector(&optdb, options2, OPT_UNIQUE);
     eqint(16, optdb.size);
     eqint(16, optdb.count);
     istrue(sizeof(struct carg_option*) * 16 <=
             malloc_usable_size(optdb.repo));
 
-    /* insert single option */
-    const struct carg_option o = {"zoo", 'z', NULL, 0, NULL};
-    eqint(0, optiondb_insert(&optdb, &o));
-    eqint(24, optdb.size);
-    eqint(17, optdb.count);
-
-    eqint(-1, optiondb_insert(&optdb, &o));
-    eqint(24, optdb.size);
-    eqint(17, optdb.count);
+    optiondb_dispose(&optdb);
 }
 
 

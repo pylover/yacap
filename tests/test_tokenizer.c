@@ -62,8 +62,8 @@ test_tokenizer() {
     };
 
     optiondb_init(&optdb);
-    optiondb_insertvector(&optdb, options1);
-    optiondb_insertvector(&optdb, options2);
+    optiondb_insertvector(&optdb, options1, OPT_UNIQUE);
+    optiondb_insertvector(&optdb, options2, OPT_UNIQUE);
     struct tokenizer *t = tokenizer_new(ARGVSIZE(argv), argv, &optdb);
     isnotnull(t);
 
@@ -206,8 +206,8 @@ test_tokenizer_error() {
     };
 
     optiondb_init(&optdb);
-    optiondb_insertvector(&optdb, options1);
-    optiondb_insertvector(&optdb, options2);
+    optiondb_insertvector(&optdb, options1, OPT_UNIQUE);
+    optiondb_insertvector(&optdb, options2, OPT_UNIQUE);
     struct tokenizer *t = tokenizer_new(3, argv, &optdb);
     isnotnull(t);
 

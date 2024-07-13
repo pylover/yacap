@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "internal.h"
 #include "option.h"
 #include "optiondb.h"
 
@@ -33,7 +34,7 @@
 
 int
 optiondb_extend(struct optiondb *db) {
-    const struct carg_option **new;
+    struct optioninfo *new;
     size_t newsize = db->size + EXTENDSIZE;
 
     if (newsize > CARG_OPTIONS_MAX) {
@@ -46,7 +47,7 @@ optiondb_extend(struct optiondb *db) {
         return -1;
     }
 
-    new = realloc(db->repo, newsize * sizeof(struct carg_option*));
+    new = realloc(db->repo, newsize * sizeof(struct optioninfo));
 
     if (new == NULL) {
         return -1;
@@ -59,15 +60,17 @@ optiondb_extend(struct optiondb *db) {
 
 
 int
-optiondb_exists(struct optiondb *db, const struct carg_option *opt) {
+optiondb_exists(struct optiondb *db, const struct carg_option *opt,
+        int flags) {
     int i;
-    const struct carg_option *o;
+    const struct optioninfo *info;
 
     for (i = 0; i < db->count; i++) {
-        o = db->repo[i];
-        if ((o->key == opt->key) || (
-                    o->name && opt->name && CMP(o->name, opt->name))
-                ) {
+        info = db->repo + i;
+        if ((HASFLAG(info, OPT_UNIQUE) || (flags & OPT_UNIQUE)) &&
+                ((info->option->key == opt->key) ||
+                 (info->option->name && opt->name &&
+                  CMP(info->option->name, opt->name)))) {
             return 1;
         }
     }
@@ -77,9 +80,12 @@ optiondb_exists(struct optiondb *db, const struct carg_option *opt) {
 
 
 int
-optiondb_insert(struct optiondb *db, const struct carg_option *opt) {
+optiondb_insert(struct optiondb *db, const struct carg_option *opt,
+        int flags) {
+    struct optioninfo *info;
+
     /* check existance */
-    if (optiondb_exists(db, opt)) {
+    if (optiondb_exists(db, opt, flags)) {
         dprintf(STDERR_FILENO, "option duplicated -- '");
         option_print(STDERR_FILENO, opt);
         dprintf(STDERR_FILENO, "'\n");
@@ -91,17 +97,18 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt) {
         return -1;
     }
 
-    db->repo[db->count] = opt;
-    db->count++;
+    info = db->repo + (db->count++);
+    info->option = opt;
+    info->flags = flags;
     return 0;
 }
 
 
 int
-optiondb_insertvector(struct optiondb *db,
-        const struct carg_option *opt) {
+optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
+        int flags) {
     while (opt && opt->name) {
-        if (optiondb_insert(db, opt++)) {
+        if (optiondb_insert(db, opt++, flags)) {
             return -1;
         }
     }
@@ -112,7 +119,7 @@ optiondb_insertvector(struct optiondb *db,
 
 int
 optiondb_init(struct optiondb *db) {
-    db->repo = calloc(EXTENDSIZE, sizeof (struct carg_option*));
+    db->repo = calloc(EXTENDSIZE, sizeof(struct optioninfo));
     if (db->repo == NULL) {
         return -1;
     }
@@ -137,21 +144,21 @@ const struct carg_option *
 optiondb_findbyname(const struct optiondb *db, const char *name,
         int len) {
     int i;
-    const struct carg_option *opt;
+    const struct optioninfo *info;
 
     if (name == NULL) {
         return NULL;
     }
 
     for (i = 0; i < db->count; i++) {
-        opt = db->repo[i];
+        info = db->repo + i;
 
-        if (opt->name == NULL) {
+        if (info->option->name == NULL) {
             continue;
         }
 
-        if (CMPN(name, opt->name, len)) {
-            return opt;
+        if (CMPN(name, info->option->name, len)) {
+            return info->option;
         }
     }
 
@@ -162,13 +169,13 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
 const struct carg_option *
 optiondb_findbykey(const struct optiondb *db, int key) {
     int i;
-    const struct carg_option *opt;
+    const struct optioninfo *info;
 
     for (i = 0; i < db->count; i++) {
-        opt = db->repo[i];
+        info = db->repo + i;
 
-        if (opt->key == key) {
-            return opt;
+        if (info->option->key == key) {
+            return info->option;
         }
     }
 

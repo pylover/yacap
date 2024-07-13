@@ -76,34 +76,36 @@ _build_optiondb(const struct carg *c, struct optiondb *db) {
         cmd++;
     }
 
-    if (optiondb_insertvector(db, c->options) == -1) {
+    if (optiondb_insertvector(db, c->options, OPT_UNIQUE) == -1) {
         return -1;
     }
 
     while (cmd) {
-        if (optiondb_insertvector(db, (*(cmd++))->options) == -1) {
+        if (optiondb_insertvector(db, (*(cmd++))->options, OPT_NONE) == -1) {
             return -1;
         }
     }
 
-    if (c->version && optiondb_insert(db, &opt_version)) {
+    if (c->version && optiondb_insert(db, &opt_version, OPT_UNIQUE)) {
         return -1;
     }
 
-    if ((!HASFLAG(c, CARG_NO_HELP)) && optiondb_insert(db, &opt_help)) {
+    if ((!HASFLAG(c, CARG_NO_HELP)) && optiondb_insert(db, &opt_help,
+                OPT_UNIQUE)) {
         return -1;
     }
 
-    if ((!HASFLAG(c, CARG_NO_USAGE)) && optiondb_insert(db, &opt_usage)) {
+    if ((!HASFLAG(c, CARG_NO_USAGE)) && optiondb_insert(db, &opt_usage,
+                OPT_UNIQUE)) {
         return -1;
     }
 
 #ifdef CARG_USE_CLOG
     if (!HASFLAG(c, CARG_NO_CLOG)) {
-        if (optiondb_insert(db, &opt_verbosity)) {
+        if (optiondb_insert(db, &opt_verbosity, OPT_UNIQUE)) {
             return -1;
         }
-        if (optiondb_insert(db, &opt_verboseflag)) {
+        if (optiondb_insert(db, &opt_verboseflag, OPT_UNIQUE)) {
             return -1;
         }
     }

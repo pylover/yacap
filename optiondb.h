@@ -23,8 +23,20 @@
 #include "carg.h"
 
 
+enum optioninfoflag {
+    OPT_NONE = 0,
+    OPT_UNIQUE = 1,
+};
+
+
+struct optioninfo {
+    const struct carg_option *option;
+    enum optioninfoflag flags;
+};
+
+
 struct optiondb {
-    const struct carg_option **repo;
+    struct optioninfo *repo;
     size_t size;
     volatile size_t count;
 };
@@ -39,16 +51,18 @@ optiondb_dispose(struct optiondb *db);
 
 
 int
-optiondb_insert(struct optiondb *db, const struct carg_option *opt);
+optiondb_insert(struct optiondb *db, const struct carg_option *opt,
+        int flags);
 
 
 int
-optiondb_insertvector(struct optiondb *db,
-        const struct carg_option *options);
+optiondb_insertvector(struct optiondb *db, const struct carg_option *options,
+        int flags);
 
 
 int
-optiondb_exists(struct optiondb *db, const struct carg_option *opt);
+optiondb_exists(struct optiondb *db, const struct carg_option *opt,
+        int flags);
 
 
 const struct carg_option *
