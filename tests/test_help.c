@@ -238,10 +238,10 @@ test_help_options() {
 "\n"
 "  -f, --foo        Foo flag\n"
 "  -b, --bar=BAR    Bar option with value\n"
-"  -z, --baz=BAZ    Lorem merol ipsum dolor sit amet, consectetur adipiscing el-\n"
-"                   it, sed do eiusmod tempor incididunt ut labore et dolore ma-\n"
-"                   gna aliqua. Ut enim ad minim veniam, quis nostrud exercitat-\n"
-"                   ion ullamco laboris nisi ut aliquip ex ea commodo consequat.\n"
+"  -z, --baz=BAZ    Lorem merol ipsum dolor sit amet, consectetur adipiscing el-\n"  // NOLINT
+"                   it, sed do eiusmod tempor incididunt ut labore et dolore ma-\n"  // NOLINT
+"                   gna aliqua. Ut enim ad minim veniam, quis nostrud exercitat-\n"  // NOLINT
+"                   ion ullamco laboris nisi ut aliquip ex ea commodo consequat.\n"  // NOLINT
 "                   Duis aute irure dolor.\n"
 "      --qux=QUX    \n"
 "  -h, --help       Give this help list and exit\n"
