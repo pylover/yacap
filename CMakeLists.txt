@@ -31,6 +31,8 @@ set_property(CACHE CARG_TEMPBUFFSIZE PROPERTY STRINGS 64 128 256 512 1024)
 
 set(CARG_HELP_LINESIZE 79 CACHE STRING "Option temp buffer size")
 
+option(CARG_USE_CLOG "Enable -v/--verbose option to set clog's verbosity" ON)
+
 
 configure_file(config.h.in config.h)
 include_directories(
@@ -52,7 +54,9 @@ add_library(carg STATIC
     $<TARGET_OBJECTS:tokenizer>
     $<TARGET_OBJECTS:help_>
 )
-target_link_libraries(carg PUBLIC clog)
+if (CARG_USE_CLOG)
+	target_link_libraries(carg PUBLIC clog)
+endif()
 
 
 # Install

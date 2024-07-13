@@ -127,8 +127,16 @@ optiondb_findbyname(const struct carg_optiondb *db, const char *name,
     int i;
     const struct carg_option *opt;
 
+    if (name == NULL) {
+        return NULL;
+    }
+
     for (i = 0; i < db->count; i++) {
         opt = db->repo[i];
+
+        if (opt->name == NULL) {
+            continue;
+        }
 
         if (CMPN(name, opt->name, len)) {
             return opt;

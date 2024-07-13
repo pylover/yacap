@@ -22,11 +22,13 @@
 
 
 /* builtin options */
+#define CARG_OPTKEY_VERSION (INT_MIN + 1)
+#define CARG_OPTKEY_VERBOSITY (INT_MIN + 2)
 
 
 const struct carg_option opt_verbosity = {
-    .name = "verbose",
-    .key = 'v',
+    .name = "verbosity",
+    .key = CARG_OPTKEY_VERBOSITY,
     .arg = "LEVEL",
     .flags = 0,
     .help = "Verbosity level. one of: '0|s|silent', '1|f|fatal', '2|e|error'"
@@ -35,7 +37,15 @@ const struct carg_option opt_verbosity = {
 };
 
 
-#define CARG_OPTKEY_VERSION (INT_MIN + 1)
+const struct carg_option opt_verboseflag = {
+    .name = NULL,
+    .key = 'v',
+    .arg = NULL,
+    .flags = 0,
+    .help = "Increase the clog_verbosity on each occurance, e.g. -vvv"
+};
+
+
 const struct carg_option opt_version = {
     .name = "version",
     .key = CARG_OPTKEY_VERSION,

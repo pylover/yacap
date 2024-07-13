@@ -38,6 +38,7 @@
 
 
 extern const struct carg_option opt_verbosity;
+extern const struct carg_option opt_verboseflag;
 extern const struct carg_option opt_version;
 extern const struct carg_option opt_help;
 extern const struct carg_option opt_usage;

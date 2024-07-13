@@ -21,8 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <clog.h>
-
+#include "config.h"
 #include "carg.h"
 #include "common.h"
 #include "option.h"
@@ -32,8 +31,8 @@
 #include "state.h"
 
 
-#define TRYHELP(p) ERRORH( \
-        "Try `%s --help' or `%s --usage' for more information.", p, p)
+#define TRYHELP(p) dprintf(STDERR_FILENO, \
+        "Try `%s --help' or `%s --usage' for more information.\n", p, p)
 
 #define REJECT_OPTIONMISSINGARGUMENT(p, o) dprintf(STDERR_FILENO, \
         "%s: option requires an argument -- '%s'\n", p, option_repr(o))
@@ -89,8 +88,67 @@ _build_optiondb(const struct carg *c, struct carg_optiondb *db) {
         return -1;
     }
 
+#ifdef CARG_USE_CLOG
+    if (!HASFLAG(c, CARG_NO_CLOG)) {
+        if (optiondb_insert(db, &opt_verbosity)) {
+            return -1;
+        }
+        if (optiondb_insert(db, &opt_verboseflag)) {
+            return -1;
+        }
+    }
+#endif
+
     return 0;
 }
+
+
+#ifdef CARG_USE_CLOG
+
+#include <clog.h>
+
+
+void
+_clogverboser() {
+    if (clog_verbosity < CLOG_DEBUG) {
+        clog_verbosity++;
+    }
+}
+
+void
+_clogverbosity(const char *value) {
+    int valuelen = value? strlen(value): 0;
+
+    if (valuelen == 0) {
+        clog_verbosity = CLOG_INFO;
+        return;
+    }
+
+    if (valuelen == 1) {
+        if (value[0] == 'v') {
+            /* -vv */
+            clog_verbosity = CLOG_DEBUG;
+            return;
+        }
+
+        if (ISDIGIT(value[0])) {
+            /* -v0 ... -v5 */
+            clog_verbosity = atoi(value);
+            if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG)) {
+                clog_verbosity = CLOG_INFO;
+                return;
+            }
+            return;
+        }
+    }
+
+    clog_verbosity = clog_verbosity_from_string(value);
+    if (clog_verbosity == CLOG_UNKNOWN) {
+        clog_verbosity = CLOG_INFO;
+        return;
+    }
+}
+#endif
 
 
 static enum carg_eatstatus
@@ -104,13 +162,27 @@ _eat(const struct carg *c, const struct carg_option *opt,
 
     if ((!HASFLAG(c, CARG_NO_HELP)) && (opt == &opt_help)) {
         carg_help_print(c);
-        return CARG_OK_EXIT;
+        return CARG_EAT_OK_EXIT;
     }
 
     if ((!HASFLAG(c, CARG_NO_USAGE)) && (opt == &opt_usage)) {
         carg_usage_print(c);
-        return CARG_OK_EXIT;
+        return CARG_EAT_OK_EXIT;
     }
+
+#ifdef CARG_USE_CLOG
+    if (!HASFLAG(c, CARG_NO_CLOG)) {
+        if (opt == &opt_verbosity) {
+            _clogverbosity(value);
+            return CARG_EAT_OK;
+        }
+
+        if (opt == &opt_verboseflag) {
+            _clogverboser();
+            return CARG_EAT_OK;
+        }
+    }
+#endif
 
     if (c->eat) {
         return c->eat(opt, value, userptr);
@@ -131,9 +203,13 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     struct carg_token tok;
     struct carg_token nexttok;
 
-    if (argc <= 1) {
+    if (argc < 1) {
         return CARG_ERROR;
     }
+
+#ifdef CARG_USE_CLOG
+    clog_verbosity = CLOG_WARNING;
+#endif
 
     if (_build_optiondb(c, &optiondb)) {
         return CARG_ERROR;

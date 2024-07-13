@@ -7,9 +7,13 @@ list(APPEND testrules
 	version
 	help
     # command
-    # verbose
     # positional
 )
+if (CARG_USE_CLOG)
+	list(APPEND testrules clog)
+endif()
+
+
 list(TRANSFORM testrules PREPEND test_)
 set(profilerules ${testrules})
 list(TRANSFORM profilerules APPEND _profile)

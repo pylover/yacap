@@ -29,9 +29,8 @@
 
 
 #define OPT_MINGAP 4
-#define OPT_HELPLEN(o) ( \
-    strlen((o)->name) + \
-    ((o)->arg? strlen((o)->arg) + 1: 0))
+#define OPT_HELPLEN(o) ((o)->name? \
+    (strlen((o)->name) + ((o)->arg? strlen((o)->arg) + 1: 0)): 0)
 
 
 static int
@@ -40,6 +39,7 @@ _calculate_initial_gapsize(const struct carg *c) {
 
     if (!HASFLAG(c, CARG_NO_CLOG)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
+        gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verboseflag) + OPT_MINGAP);
     }
 
     if (!HASFLAG(c, CARG_NO_HELP)) {
@@ -110,17 +110,22 @@ _print_option(int fd, const struct carg_option *opt, int gapsize) {
     int rpad = gapsize - OPT_HELPLEN(opt);
 
     if (ISCHAR(opt->key)) {
-        dprintf(fd, "  -%c, ", opt->key);
+        dprintf(fd, "  -%c%c ", opt->key, opt->name? ',': ' ');
     }
     else {
         dprintf(fd, "      ");
     }
 
-    if (opt->arg == NULL) {
-        dprintf(fd, "--%s%*s", opt->name, rpad, "");
+    if (opt->name) {
+        if (opt->arg == NULL) {
+            dprintf(fd, "--%s%*s", opt->name, rpad, "");
+        }
+        else {
+            dprintf(fd, "--%s=%s%*s", opt->name, opt->arg, rpad, "");
+        }
     }
     else {
-        dprintf(fd, "--%s=%s%*s", opt->name, opt->arg, rpad, "");
+        dprintf(fd, "  %*s", rpad, "");
     }
 
     if (opt->help) {
@@ -170,6 +175,7 @@ _print_options(int fd, const struct carg *c) {
     }
 
     if (!HASFLAG(c, CARG_NO_CLOG)) {
+        _print_option(fd, &opt_verboseflag, gapsize);
         _print_option(fd, &opt_verbosity, gapsize);
     }
 
