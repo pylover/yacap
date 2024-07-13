@@ -37,15 +37,19 @@ static struct carg carg = {
 static void
 test_verbose_short() {
     /* default logging level */
+    clog_verbosity = CLOG_UNKNOWN;
     eqint(CARG_OK, carg_parse_string(&carg, "foo", NULL));
     eqint(CLOG_WARNING, clog_verbosity);
 
+    clog_verbosity = CLOG_UNKNOWN;
     eqint(CARG_OK, carg_parse_string(&carg, "foo -v", NULL));
     eqint(CLOG_INFO, clog_verbosity);
 
+    clog_verbosity = CLOG_UNKNOWN;
     eqint(CARG_OK, carg_parse_string(&carg, "foo -vv", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 
+    clog_verbosity = CLOG_UNKNOWN;
     eqint(CARG_OK, carg_parse_string(&carg, "foo -vvv", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 }

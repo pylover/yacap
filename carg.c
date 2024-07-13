@@ -231,12 +231,15 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         return CARG_ERROR;
     }
 
+    /* initialize command stack */
+    cmdstack_init(&state.cmdstack);
+
     /* Helper macro */
     #define NEXT(tok) tokenizer_next(t, tok)
 
     /* excecutable name */
     if ((tokstatus = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
-        if (cmdstack_push(&state.cmdstack, tok.text)) {
+        if (cmdstack_push(&state.cmdstack, tok.text) == -1) {
             goto terminate;
         }
     }

@@ -22,6 +22,12 @@
 #include "cmdstack.h"
 
 
+void
+cmdstack_init(struct cmdstack *s) {
+    s->len = 0;
+}
+
+
 int
 cmdstack_push(struct cmdstack *s, const char *name) {
     if (s->len >= CARG_CMDSTACK_MAX) {

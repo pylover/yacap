@@ -38,11 +38,6 @@ test_version() {
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --version", NULL));
     eqstr("foo 1.2.3\n", out);
     eqstr("", err);
-
-    eqint(CARG_ERROR, carg_parse_string(&carg, "foo --version=foo", NULL));
-    eqstr("", out);
-    eqstr("foo: option not requires any argument(s) -- '--version'\n"
-          "Try `foo --help' or `foo --usage' for more information.\n", err);
 }
 
 

@@ -201,7 +201,7 @@ carg_usage_print(const struct carg *c) {
 
     dprintf(STDOUT_FILENO, "Usage: ");
     cmdstack_print(STDOUT_FILENO, &state->cmdstack);
-    dprintf(STDOUT_FILENO, "[OPTION...]");
+    dprintf(STDOUT_FILENO, " [OPTION...]");
 
     if (c->args == NULL) {
         goto done;

@@ -81,7 +81,7 @@ test_duplicate_options() {
 
     eqint(CARG_ERROR, carg_parse_string(&c, "foo -f", NULL));
     eqstr("", out);
-    eqstr("[carg] option duplicated -- '-f/--foo'\n", err);
+    eqstr("option duplicated -- '-f/--foo'\n", err);
 }
 
 

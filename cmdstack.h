@@ -29,6 +29,10 @@ struct cmdstack {
 };
 
 
+void
+cmdstack_init(struct cmdstack *s);
+
+
 int
 cmdstack_push(struct cmdstack *s, const char *name);
 
