@@ -61,23 +61,23 @@ test_help_doc() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
-"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"
-"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"
-"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"
+"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"  // NOLINT
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
+"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n"
 "\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
-"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"
+"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
 "                           -vvv\n"
-"      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"
-"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"
-"                           if this option is not given, the verbosity level wi-\n"
+"      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
+"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
+"                           if this option is not given, the verbosity level wi-\n"  // NOLINT
 "                           ll be '3|w|warn'\n"
 "\n"
-"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"
-"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"
-"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"
+"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"  // NOLINT
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
+"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n";
 
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
@@ -146,11 +146,11 @@ test_help_default() {
 "\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
-"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"
+"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
 "                           -vvv\n"
-"      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"
-"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"
-"                           if this option is not given, the verbosity level wi-\n"
+"      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
+"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
+"                           if this option is not given, the verbosity level wi-\n"  // NOLINT
 "                           ll be '3|w|warn'\n";
 
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
@@ -182,20 +182,20 @@ test_help_options() {
 "\n"
 "  -f, --foo                Foo flag\n"
 "  -b, --bar=BAR            Bar option with value\n"
-"  -z, --baz=BAZ            Lorem merol ipsum dolor sit amet, consectetur adipi-\n"
-"                           scing elit, sed do eiusmod tempor incididunt ut lab-\n"
-"                           ore et dolore magna aliqua. Ut enim ad minim veniam,\n"
-"                           quis nostrud exercitation ullamco laboris nisi ut a-\n"
-"                           liquip ex ea commodo consequat. Duis aute irure dol-\n"
+"  -z, --baz=BAZ            Lorem merol ipsum dolor sit amet, consectetur adipi-\n"  // NOLINT
+"                           scing elit, sed do eiusmod tempor incididunt ut lab-\n"  // NOLINT
+"                           ore et dolore magna aliqua. Ut enim ad minim veniam,\n"  // NOLINT
+"                           quis nostrud exercitation ullamco laboris nisi ut a-\n"  // NOLINT
+"                           liquip ex ea commodo consequat. Duis aute irure dol-\n"  // NOLINT
 "                           or.\n"
 "      --qux=QUX            \n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
-"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"
+"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
 "                           -vvv\n"
-"      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"
-"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"
-"                           if this option is not given, the verbosity level wi-\n"
+"      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
+"                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
+"                           if this option is not given, the verbosity level wi-\n"  // NOLINT
 "                           ll be '3|w|warn'\n"
 "\n"
 "Lorem ipsum footer\n";
