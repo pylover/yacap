@@ -27,7 +27,7 @@
 
 
 struct tokenizer {
-    const struct carg_optiondb *optiondb;
+    const struct optiondb *optiondb;
     int argc;
     const char **argv;
 
@@ -95,7 +95,7 @@ struct tokenizer {
 
 struct tokenizer *
 tokenizer_new(int argc, const char **argv,
-        const struct carg_optiondb *optdb) {
+        const struct optiondb *optdb) {
     struct tokenizer *t = malloc(sizeof(struct tokenizer));
     if (t == NULL) {
         return NULL;
@@ -120,8 +120,8 @@ tokenizer_dispose(struct tokenizer *t) {
 }
 
 
-enum carg_tokenizer_status
-tokenizer_next(struct tokenizer *t, struct carg_token *token) {
+enum tokenizer_status
+tokenizer_next(struct tokenizer *t, struct token *token) {
     const char *eq;
 
     START;

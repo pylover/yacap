@@ -19,7 +19,7 @@
 #include <stddef.h>
 
 #include "config.h"
-#include "common.h"
+#include "internal.h"
 
 
 /* builtin options */
@@ -73,5 +73,3 @@ const struct carg_option opt_usage = {
     .flags = 0,
     .help = "Give a short usage message and exit"
 };
-
-

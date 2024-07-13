@@ -23,11 +23,12 @@ if(CMAKE_BUILD_TYPE!=Release)
 endif()
 
 
-set(CARG_MAXOPTIONS 256 CACHE STRING "Maximum allowed options")
-set_property(CACHE CARG_MAXOPTIONS PROPERTY STRINGS 64 128 256 512 1024)
+set(CARG_OPTIONS_MAX 256 CACHE STRING "Maximum allowed options")
+set_property(CACHE CARG_OPTIONS_MAX PROPERTY STRINGS 64 128 256 512 1024)
 
-set(CARG_TEMPBUFFSIZE 256 CACHE STRING "Help line size")
-set_property(CACHE CARG_TEMPBUFFSIZE PROPERTY STRINGS 64 128 256 512 1024)
+set(CARG_CMDSTACK_MAX 8 CACHE STRING "Maximum allowed command chain length")
+set_property(CACHE CARG_CMDSTACK_MAX PROPERTY 
+	STRINGS 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
 
 set(CARG_HELP_LINESIZE 79 CACHE STRING "Option temp buffer size")
 
@@ -41,14 +42,16 @@ include_directories(
 )
 
 
-add_library(common OBJECT common.c common.h)
+add_library(internal OBJECT internal.c internal.h)
+add_library(cmdstack OBJECT cmdstack.c cmdstack.h)
 add_library(option OBJECT option.c option.h)
 add_library(optiondb OBJECT optiondb.c optiondb.h)
 add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
 add_library(help_ OBJECT help.c help.h)
 add_library(carg STATIC 
     carg.c carg.h
-    $<TARGET_OBJECTS:common>
+    $<TARGET_OBJECTS:internal>
+    $<TARGET_OBJECTS:cmdstack>
     $<TARGET_OBJECTS:option>
     $<TARGET_OBJECTS:optiondb>
     $<TARGET_OBJECTS:tokenizer>

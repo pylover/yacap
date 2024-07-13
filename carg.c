@@ -23,30 +23,40 @@
 
 #include "config.h"
 #include "carg.h"
-#include "common.h"
+#include "internal.h"
 #include "option.h"
 #include "help.h"
 #include "optiondb.h"
 #include "tokenizer.h"
-#include "state.h"
 
 
-#define TRYHELP(p) dprintf(STDERR_FILENO, \
-        "Try `%s --help' or `%s --usage' for more information.\n", p, p)
+#define TRYHELP(s) \
+    dprintf(STDERR_FILENO, "Try `"); \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    dprintf(STDERR_FILENO, " --help' or `"); \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    dprintf(STDERR_FILENO, " --usage' for more information.\n")
 
-#define REJECT_OPTIONMISSINGARGUMENT(p, o) dprintf(STDERR_FILENO, \
-        "%s: option requires an argument -- '%s'\n", p, option_repr(o))
+#define REJECT_OPTIONMISSINGARGUMENT(s, o) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    dprintf(STDERR_FILENO, ": option requires an argument -- '"); \
+    option_print(STDERR_FILENO, o); \
+    dprintf(STDERR_FILENO, "'\n")
 
-#define REJECT_OPTIONHASARGUMENT(p, o) dprintf(STDERR_FILENO, \
-        "%s: option not requires any argument(s) -- '%s'\n", p, \
-        option_repr(o))
+#define REJECT_OPTIONHASARGUMENT(s, o) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    dprintf(STDERR_FILENO, ": no argument allowed for option -- '"); \
+    option_print(STDERR_FILENO, o); \
+    dprintf(STDERR_FILENO, "'\n")
 
-#define REJECT_UNRECOGNIZED(p, name, len) dprintf(STDERR_FILENO, \
-        "%s: invalid option -- '%s%.*s'\n", p, len == 1? "-": "", len, name)
+#define REJECT_UNRECOGNIZED(s, name, len) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    dprintf(STDERR_FILENO, ": invalid option -- '%s%.*s'\n", \
+        len == 1? "-": "", len, name)
 
 
 static int
-_build_optiondb(const struct carg *c, struct carg_optiondb *db) {
+_build_optiondb(const struct carg *c, struct optiondb *db) {
     int count = 0;
     const struct carg_command **cmd = c->commands;
 
@@ -196,12 +206,12 @@ enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     struct carg_state state;
     int status = CARG_OK;
-    enum carg_tokenizer_status tokstatus;
+    enum tokenizer_status tokstatus;
     enum carg_eatstatus eatstatus;
-    struct carg_optiondb optiondb;
+    struct optiondb optiondb;
     struct tokenizer *t;
-    struct carg_token tok;
-    struct carg_token nexttok;
+    struct token tok;
+    struct token nexttok;
 
     if (argc < 1) {
         return CARG_ERROR;
@@ -226,19 +236,20 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
 
     /* excecutable name */
     if ((tokstatus = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
-        state.prog = tok.text;
+        if (cmdstack_push(&state.cmdstack, tok.text)) {
+            goto terminate;
+        }
     }
     else {
         goto terminate;
     }
-
     c->state = &state;
 
     while (tokstatus > CARG_TOK_END) {
         /* fetch the next token */
         if ((tokstatus = NEXT(&tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
-                REJECT_UNRECOGNIZED(state.prog, tok.text, tok.len);
+                REJECT_UNRECOGNIZED(&state, tok.text, tok.len);
                 status = CARG_ERROR;
             }
             goto terminate;
@@ -255,7 +266,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
             if (tok.text == NULL) {
                 /* try the next token as value */
                 if ((tokstatus = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
-                    REJECT_OPTIONMISSINGARGUMENT(state.prog, tok.option);
+                    REJECT_OPTIONMISSINGARGUMENT(&state, tok.option);
                     status = CARG_ERROR;
                     goto terminate;
                 }
@@ -267,7 +278,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         }
         else {
             if (tok.text) {
-                REJECT_OPTIONHASARGUMENT(state.prog, tok.option);
+                REJECT_OPTIONHASARGUMENT(&state, tok.option);
                 status = CARG_ERROR;
                 goto terminate;
             }
@@ -291,7 +302,7 @@ terminate:
     tokenizer_dispose(t);
     optiondb_dispose(&optiondb);
     if (status < 0) {
-        TRYHELP(state.prog);
+        TRYHELP(&state);
     }
     return status;
 }

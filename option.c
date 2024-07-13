@@ -19,29 +19,33 @@
 #include <stdio.h>
 
 #include "config.h"
-#include "common.h"
+#include "internal.h"
 #include "carg.h"
 #include "option.h"
 
 
-static char _temp[CARG_TEMPBUFFSIZE];
+int
+option_print(int fd, const struct carg_option *opt) {
+    int bytes = 0;
+    int status;
 
+    if ((opt->key != 0) && ISCHAR(opt->key)) {
+        status = dprintf(fd, "-%c%s", opt->key, opt->name? "/": "");
+        if (status == -1) {
+            return -1;
+        }
 
-const char *
-option_repr(const struct carg_option *opt) {
-    int c = 0;
-
-    if ((opt->key > 0) && ISCHAR(opt->key)) {
-        c += snprintf(_temp, CARG_TEMPBUFFSIZE, "-%c", opt->key);
-    }
-
-    if (c && opt->name) {
-        c += snprintf(_temp + c, CARG_TEMPBUFFSIZE - c, "/");
+        bytes += status;
     }
 
     if (opt->name) {
-        c += snprintf(_temp + c, CARG_TEMPBUFFSIZE - c, "--%s", opt->name);
+        status = dprintf(fd, "--%s", opt->name);
+        if (status == -1) {
+            return -1;
+        }
+
+        bytes += status;
     }
 
-    return _temp;
+    return bytes;
 }

@@ -23,14 +23,16 @@
 #include <ctype.h>
 
 #include "config.h"
-#include "common.h"
+#include "internal.h"
 #include "help.h"
-#include "state.h"
 
 
 #define OPT_MINGAP 4
 #define OPT_HELPLEN(o) ((o)->name? \
     (strlen((o)->name) + ((o)->arg? strlen((o)->arg) + 1: 0)): 0)
+
+
+// TODO: use option_repr
 
 
 static int
@@ -197,7 +199,10 @@ carg_usage_print(const struct carg *c) {
     char *buff = NULL;
     struct carg_state *state = c->state;
 
-    dprintf(STDOUT_FILENO, "Usage: %s [OPTION...]", state->prog);
+    dprintf(STDOUT_FILENO, "Usage: ");
+    cmdstack_print(STDOUT_FILENO, &state->cmdstack);
+    dprintf(STDOUT_FILENO, "[OPTION...]");
+
     if (c->args == NULL) {
         goto done;
     }
@@ -212,8 +217,9 @@ carg_usage_print(const struct carg *c) {
         if (needle == NULL) {
             break;
         }
-        dprintf(STDOUT_FILENO, "\n   or: %s [OPTION...] %s", state->prog,
-                needle);
+        dprintf(STDOUT_FILENO, "\n   or: ");
+        cmdstack_print(STDOUT_FILENO, &state->cmdstack);
+        dprintf(STDOUT_FILENO, " [OPTION...] %s", needle);
     }
 
 done:

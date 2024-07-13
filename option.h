@@ -26,8 +26,8 @@
 #define CARG_OPTION_ARGNEEDED(opt) ((opt)->arg != NULL)
 
 
-const char *
-option_repr(const struct carg_option *opt);
+int
+option_print(int fd, const struct carg_option *opt);
 
 
 #endif  // OPTION_H_

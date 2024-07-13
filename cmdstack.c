@@ -16,40 +16,41 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef TOKENIZER_H_
-#define TOKENIZER_H_
+#include <stdio.h>
+
+#include "config.h"
+#include "cmdstack.h"
 
 
-#include "optiondb.h"
+int
+cmdstack_push(struct cmdstack *s, const char *name) {
+    if (s->len >= CARG_CMDSTACK_MAX) {
+        return -1;
+    }
+
+    s->names[s->len++] = name;
+
+    return (int)s->len;
+}
 
 
-struct token {
-    const char *text;
-    unsigned int len;
-    const struct carg_option *option;
-};
+int
+cmdstack_print(int fd, struct cmdstack *s) {
+    int i;
+    int bytes = 0;
+    int status;
 
+    if (!s->len) {
+        return -1;
+    }
 
-enum tokenizer_status {
-    CARG_TOK_UNKNOWN = -2,
-    CARG_TOK_ERROR = -1,
-    CARG_TOK_END = 0,
-    CARG_TOK_OPTION = 1,
-    CARG_TOK_POSITIONAL = 2,
-};
+    for (i = 0; i < s->len; i++) {
+        status = dprintf(fd, "%s%s", i? " ": "", s->names[i]);
+        if (status == -1) {
+            return -1;
+        }
+        bytes += status;
+    }
 
-
-struct tokenizer *
-tokenizer_new(int argc, const char **argv,
-        const struct optiondb *optdb);
-
-
-void
-tokenizer_dispose(struct tokenizer *t);
-
-
-enum tokenizer_status
-tokenizer_next(struct tokenizer *t, struct token *token);
-
-
-#endif  // TOKENIZER_H_
+    return bytes;
+}

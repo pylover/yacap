@@ -16,12 +16,14 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef COMMON_H_
-#define COMMON_H_
+#ifndef INTERNAL_H_
+#define INTERNAL_H_
 
 #include <limits.h>
 
+#include "config.h"
 #include "carg.h"
+#include "cmdstack.h"
 
 
 #define MAX(x, y) ((x) > (y)? (x): (y))
@@ -44,4 +46,9 @@ extern const struct carg_option opt_help;
 extern const struct carg_option opt_usage;
 
 
-#endif  // COMMON_H_
+struct carg_state {
+    struct cmdstack cmdstack;
+};
+
+
+#endif  // INTERNAL_H_

@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "option.h"
 #include "optiondb.h"
 
@@ -31,24 +32,34 @@
 
 
 int
-optiondb_extend(struct carg_optiondb *db) {
+optiondb_extend(struct optiondb *db) {
     const struct carg_option **new;
+    size_t newsize = db->size + EXTENDSIZE;
 
-    new = realloc(db->repo,
-            (db->size + EXTENDSIZE) * sizeof(struct carg_option*));
+    if (newsize > CARG_OPTIONS_MAX) {
+        newsize = CARG_OPTIONS_MAX;
+    }
+
+    if (newsize <= db->size) {
+        dprintf(STDERR_FILENO, "maximum allowed options are exceeded: %d\n",
+                CARG_OPTIONS_MAX);
+        return -1;
+    }
+
+    new = realloc(db->repo, newsize * sizeof(struct carg_option*));
 
     if (new == NULL) {
         return -1;
     }
 
     db->repo = new;
-    db->size += EXTENDSIZE;
+    db->size = newsize;
     return 0;
 }
 
 
 int
-optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt) {
+optiondb_exists(struct optiondb *db, const struct carg_option *opt) {
     int i;
     const struct carg_option *o;
 
@@ -66,11 +77,12 @@ optiondb_exists(struct carg_optiondb *db, const struct carg_option *opt) {
 
 
 int
-optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
+optiondb_insert(struct optiondb *db, const struct carg_option *opt) {
     /* check existance */
     if (optiondb_exists(db, opt)) {
-        dprintf(STDERR_FILENO, "[carg] option duplicated -- '%s'\n",
-                option_repr(opt));
+        dprintf(STDERR_FILENO, "option duplicated -- '");
+        option_print(STDERR_FILENO, opt);
+        dprintf(STDERR_FILENO, "'\n");
         return -1;
     }
 
@@ -86,7 +98,7 @@ optiondb_insert(struct carg_optiondb *db, const struct carg_option *opt) {
 
 
 int
-optiondb_insertvector(struct carg_optiondb *db,
+optiondb_insertvector(struct optiondb *db,
         const struct carg_option *opt) {
     while (opt && opt->name) {
         if (optiondb_insert(db, opt++)) {
@@ -99,7 +111,7 @@ optiondb_insertvector(struct carg_optiondb *db,
 
 
 int
-optiondb_init(struct carg_optiondb *db) {
+optiondb_init(struct optiondb *db) {
     db->repo = calloc(EXTENDSIZE, sizeof (struct carg_option*));
     if (db->repo == NULL) {
         return -1;
@@ -112,7 +124,7 @@ optiondb_init(struct carg_optiondb *db) {
 
 
 void
-optiondb_dispose(struct carg_optiondb *db) {
+optiondb_dispose(struct optiondb *db) {
     if (db->repo) {
         free(db->repo);
     }
@@ -122,7 +134,7 @@ optiondb_dispose(struct carg_optiondb *db) {
 
 
 const struct carg_option *
-optiondb_findbyname(const struct carg_optiondb *db, const char *name,
+optiondb_findbyname(const struct optiondb *db, const char *name,
         int len) {
     int i;
     const struct carg_option *opt;
@@ -148,7 +160,7 @@ optiondb_findbyname(const struct carg_optiondb *db, const char *name,
 
 
 const struct carg_option *
-optiondb_findbykey(const struct carg_optiondb *db, int key) {
+optiondb_findbykey(const struct optiondb *db, int key) {
     int i;
     const struct carg_option *opt;
 

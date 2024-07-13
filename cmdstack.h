@@ -16,13 +16,25 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef STATE_H_
-#define STATE_H_
+#ifndef CMDSTACK_H_
+#define CMDSTACK_H_
 
 
-struct carg_state {
-    const char *prog;
+#include "config.h"
+
+
+struct cmdstack {
+    const char *names[CARG_CMDSTACK_MAX];
+    unsigned char len;
 };
 
 
-#endif  // STATE_H_
+int
+cmdstack_push(struct cmdstack *s, const char *name);
+
+
+int
+cmdstack_print(int fd, struct cmdstack *s);
+
+
+#endif  // CMDSTACK_H_

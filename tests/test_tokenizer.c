@@ -31,8 +31,8 @@
 
 void
 test_tokenizer() {
-    struct carg_token tok;
-    struct carg_optiondb optdb;
+    struct token tok;
+    struct optiondb optdb;
     struct carg_option options1[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
@@ -187,8 +187,8 @@ test_tokenizer() {
 
 void
 test_tokenizer_error() {
-    struct carg_token tok;
-    struct carg_optiondb optdb;
+    struct token tok;
+    struct optiondb optdb;
     struct carg_option options1[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},

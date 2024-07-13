@@ -26,7 +26,7 @@
 
 void
 test_optiondb_duplication() {
-    struct carg_optiondb optdb;
+    struct optiondb optdb;
     optiondb_init(&optdb);
 
     struct carg_option options1[] = {
@@ -55,7 +55,7 @@ test_optiondb_duplication() {
 
 void
 test_optiondb_autoextend() {
-    struct carg_optiondb optdb;
+    struct optiondb optdb;
     struct carg_option options1[] = {
         {"aoo", 'a', NULL, 0, NULL},
         {"boo", 'b', NULL, 0, NULL},

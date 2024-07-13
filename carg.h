@@ -38,10 +38,6 @@ enum carg_eatstatus {
     CARG_EAT_UNRECOGNIZED,
     CARG_EAT_INVALID,
     CARG_EAT_NOTEATEN,
-    // CARG_EAT_FLAG,
-    // CARG_EAT_VALUE_REQUIRED,
-    // CARG_EAT_BAD_VALUE,
-    // CARG_EAT_ARG_REQUIRED,
 };
 
 
@@ -73,26 +69,30 @@ struct carg_option {
 };
 
 
+/* Abstract base class! */
+struct carg_abc {
+    const struct carg_option *options;
+    const struct carg_command **commands;
+    const char *args;
+    const char *header;
+    const char *footer;
+    carg_eater eat;
+};
+
+
 /* Sub Command */
 struct carg_command {
-    const char *command;
-    carg_eater eat;
-    const char *args;
-    const struct carg_option *options;
+    struct carg_abc;
     void *handler;
 };
 
 
 typedef struct carg_state *carg_state_t;
 struct carg {
-    carg_eater eat;
-    const struct carg_option *options;
-    const char *args;
-    const char *header;
-    const char *footer;
+    struct carg_abc;
+
     const char *version;
     enum carg_flags flags;
-    const struct carg_command **commands;
 
     /* Internal CArg state */
     carg_state_t state;
