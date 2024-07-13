@@ -19,6 +19,7 @@
 #include <clog.h>
 #include <cutest.h>
 
+#include "config.h"
 #include "carg.h"
 #include "helpers.h"
 
@@ -58,6 +59,8 @@ test_help_doc() {
         .version = NULL,
     };
 
+#ifdef CARG_USE_CLOG
+
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
@@ -79,6 +82,26 @@ test_help_doc() {
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n";
+
+#else
+
+    char *help =
+"Usage: foo [OPTION...]\n"
+"\n"
+"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"  // NOLINT
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
+"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
+"at. Duis aute irure dolor.\n"
+"\n"
+"  -h, --help     Give this help list and exit\n"
+"  -?, --usage    Give a short usage message and exit\n"
+"\n"
+"Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"  // NOLINT
+"tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
+"uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
+"at. Duis aute irure dolor.\n";
+
+#endif
 
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
@@ -141,6 +164,7 @@ test_help_default() {
         .flags = 0,
     };
 
+#ifdef CARG_USE_CLOG
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
@@ -152,6 +176,14 @@ test_help_default() {
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
 "                           ll be '3|w|warn'\n";
+#else
+    char *help =
+"Usage: foo [OPTION...]\n"
+"\n"
+"  -h, --help     Give this help list and exit\n"
+"  -?, --usage    Give a short usage message and exit\n";
+
+#endif
 
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
@@ -177,6 +209,7 @@ test_help_options() {
         .version = NULL,
     };
 
+#ifdef CARG_USE_CLOG
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
@@ -199,6 +232,23 @@ test_help_options() {
 "                           ll be '3|w|warn'\n"
 "\n"
 "Lorem ipsum footer\n";
+#else
+    char *help =
+"Usage: foo [OPTION...]\n"
+"\n"
+"  -f, --foo        Foo flag\n"
+"  -b, --bar=BAR    Bar option with value\n"
+"  -z, --baz=BAZ    Lorem merol ipsum dolor sit amet, consectetur adipiscing el-\n"
+"                   it, sed do eiusmod tempor incididunt ut labore et dolore ma-\n"
+"                   gna aliqua. Ut enim ad minim veniam, quis nostrud exercitat-\n"
+"                   ion ullamco laboris nisi ut aliquip ex ea commodo consequat.\n"
+"                   Duis aute irure dolor.\n"
+"      --qux=QUX    \n"
+"  -h, --help       Give this help list and exit\n"
+"  -?, --usage      Give a short usage message and exit\n"
+"\n"
+"Lorem ipsum footer\n";
+#endif
 
     eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);

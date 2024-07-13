@@ -18,14 +18,16 @@
  */
 #include <stddef.h>
 
+#include "config.h"
 #include "common.h"
 
 
 /* builtin options */
 #define CARG_OPTKEY_VERSION (INT_MIN + 1)
+
+
+#ifdef CARG_USE_CLOG
 #define CARG_OPTKEY_VERBOSITY (INT_MIN + 2)
-
-
 const struct carg_option opt_verbosity = {
     .name = "verbosity",
     .key = CARG_OPTKEY_VERBOSITY,
@@ -44,7 +46,7 @@ const struct carg_option opt_verboseflag = {
     .flags = 0,
     .help = "Increase the clog_verbosity on each occurance, e.g. -vvv"
 };
-
+#endif
 
 const struct carg_option opt_version = {
     .name = "version",

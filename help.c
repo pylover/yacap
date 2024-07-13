@@ -37,10 +37,12 @@ static int
 _calculate_initial_gapsize(const struct carg *c) {
     int gapsize = 8;
 
+#ifdef CARG_USE_CLOG
     if (!HASFLAG(c, CARG_NO_CLOG)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verboseflag) + OPT_MINGAP);
     }
+#endif
 
     if (!HASFLAG(c, CARG_NO_HELP)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_help) + OPT_MINGAP);
@@ -174,10 +176,12 @@ _print_options(int fd, const struct carg *c) {
         _print_option(fd, &opt_usage, gapsize);
     }
 
+#ifdef CARG_USE_CLOG
     if (!HASFLAG(c, CARG_NO_CLOG)) {
         _print_option(fd, &opt_verboseflag, gapsize);
         _print_option(fd, &opt_verbosity, gapsize);
     }
+#endif
 
     if (c->version) {
         _print_option(fd, &opt_version, gapsize);
