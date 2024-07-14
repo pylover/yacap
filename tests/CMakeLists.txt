@@ -6,7 +6,7 @@ list(APPEND testrules
 	tokenizer
 	version
 	help
-    # command
+	# command
     # positional
 )
 if (CARG_USE_CLOG)

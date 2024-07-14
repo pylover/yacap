@@ -60,6 +60,7 @@ enum carg_optionflags {
 };
 
 
+/* option structure */
 struct carg_option {
     const char *name;
     const int key;
@@ -83,6 +84,8 @@ struct carg_abc {
 /* Sub Command */
 struct carg_command {
     struct carg_abc;
+
+    const char *name;
     void *handler;
 };
 

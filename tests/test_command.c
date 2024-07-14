@@ -16,21 +16,10 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-
-
-#include <clog.h>
 #include <cutest.h>
 
 #include "carg.h"
 #include "helpers.h"
-
-
-typedef void (*handler_t) ();
-
-
-void
-thud() {
-}
 
 
 void
