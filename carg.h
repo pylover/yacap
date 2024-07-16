@@ -71,9 +71,9 @@ struct carg_option {
 
 
 /* Abstract base class! */
-struct carg_abc {
+struct carg_command {
     const struct carg_option *options;
-    const struct carg_command **commands;
+    const struct carg_subcommand **commands;
     const char *args;
     const char *header;
     const char *footer;
@@ -82,8 +82,8 @@ struct carg_abc {
 
 
 /* Sub Command */
-struct carg_command {
-    struct carg_abc;
+struct carg_subcommand {
+    struct carg_command;
 
     const char *name;
     void *handler;
@@ -92,7 +92,7 @@ struct carg_command {
 
 typedef struct carg_state *carg_state_t;
 struct carg {
-    struct carg_abc;
+    struct carg_command;
 
     const char *version;
     enum carg_flags flags;

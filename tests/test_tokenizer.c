@@ -29,6 +29,14 @@
 // TODO: quotes "", ''
 
 
+/*
+ * foo: -f -c CAR
+ * bar: -v -g GAR
+ *
+ * foo -fvc bar bar -g GAR
+ * foo
+ */
+
 void
 test_tokenizer() {
     struct token tok;

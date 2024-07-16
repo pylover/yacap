@@ -58,7 +58,7 @@
 static int
 _build_optiondb(const struct carg *c, struct optiondb *db) {
     int count = 0;
-    const struct carg_command **cmd = c->commands;
+    const struct carg_subcommand **cmd = c->commands;
 
     if (optiondb_init(db)) {
         return -1;
@@ -204,6 +204,15 @@ _eat(const struct carg *c, const struct carg_option *opt,
 }
 
 
+/* Helper macro */
+#define NEXT(t, tok) tokenizer_next(t, tok)
+
+// enum carg_status
+// command_parse(struct carg *c, struct carg_command *cmd, int argc,
+//         const char **argv) {
+// }
+
+
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     struct carg_state state;
@@ -211,7 +220,6 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     enum tokenizer_status tokstatus;
     enum carg_eatstatus eatstatus;
     struct optiondb optiondb;
-    struct tokenizer *t;
     struct token tok;
     struct token nexttok;
 
@@ -227,8 +235,8 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         return CARG_ERROR;
     }
 
-    t = tokenizer_new(argc, argv, &optiondb);
-    if (t == NULL) {
+    state.tokenizer = tokenizer_new(argc, argv, &optiondb);
+    if (state.tokenizer == NULL) {
         optiondb_dispose(&optiondb);
         return CARG_ERROR;
     }
@@ -236,11 +244,8 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     /* initialize command stack */
     cmdstack_init(&state.cmdstack);
 
-    /* Helper macro */
-    #define NEXT(tok) tokenizer_next(t, tok)
-
     /* excecutable name */
-    if ((tokstatus = NEXT(&tok)) == CARG_TOK_POSITIONAL) {
+    if ((tokstatus = NEXT(state.tokenizer, &tok)) == CARG_TOK_POSITIONAL) {
         if (cmdstack_push(&state.cmdstack, tok.text) == -1) {
             goto terminate;
         }
@@ -252,7 +257,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
 
     while (tokstatus > CARG_TOK_END) {
         /* fetch the next token */
-        if ((tokstatus = NEXT(&tok)) <= CARG_TOK_END) {
+        if ((tokstatus = NEXT(state.tokenizer, &tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
                 REJECT_UNRECOGNIZED(&state, tok.text, tok.len);
                 status = CARG_ERROR;
@@ -270,7 +275,8 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         if (CARG_OPTION_ARGNEEDED(tok.option)) {
             if (tok.text == NULL) {
                 /* try the next token as value */
-                if ((tokstatus = NEXT(&nexttok)) != CARG_TOK_POSITIONAL) {
+                if ((tokstatus = NEXT(state.tokenizer, &nexttok))
+                        != CARG_TOK_POSITIONAL) {
                     REJECT_OPTIONMISSINGARGUMENT(&state, tok.option);
                     status = CARG_ERROR;
                     goto terminate;
@@ -304,7 +310,7 @@ dessert:
     }
 
 terminate:
-    tokenizer_dispose(t);
+    tokenizer_dispose(state.tokenizer);
     optiondb_dispose(&optiondb);
     if (status < 0) {
         TRYHELP(&state);
