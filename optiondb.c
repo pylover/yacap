@@ -81,7 +81,7 @@ optiondb_exists(struct optiondb *db, const struct carg_option *opt,
 
 int
 optiondb_insert(struct optiondb *db, const struct carg_option *opt,
-        int flags) {
+        const struct carg_command *command, int flags) {
     struct optioninfo *info;
 
     /* check existance */
@@ -100,15 +100,21 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
     info = db->repo + (db->count++);
     info->option = opt;
     info->flags = flags;
+    info->command = command;
     return 0;
 }
 
 
 int
 optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
-        int flags) {
+        const struct carg_command *cmd, int flags) {
+
+    if (opt == NULL) {
+        return 0;
+    }
+
     while (opt && opt->name) {
-        if (optiondb_insert(db, opt++, flags)) {
+        if (optiondb_insert(db, opt++, cmd, flags)) {
             return -1;
         }
     }

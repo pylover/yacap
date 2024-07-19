@@ -57,55 +57,38 @@
 
 static int
 _build_optiondb(const struct carg *c, struct optiondb *db) {
-    int count = 0;
-    const struct carg_subcommand **cmd = c->commands;
-
     if (optiondb_init(db)) {
         return -1;
     }
 
-    if (c->options) {
-        count++;
-    }
-
-    while (cmd) {
-        if ((*cmd)->options) {
-            count++;
-        }
-
-        cmd++;
-    }
-
-    if (optiondb_insertvector(db, c->options, OPT_UNIQUE) == -1) {
+    if (optiondb_insertvector(db, c->options, (struct carg_command *)c,
+                OPT_UNIQUE) == -1) {
         return -1;
     }
 
-    while (cmd) {
-        if (optiondb_insertvector(db, (*(cmd++))->options, OPT_NONE) == -1) {
-            return -1;
-        }
-    }
-
-    if (c->version && optiondb_insert(db, &opt_version, OPT_UNIQUE)) {
+    if (c->version && optiondb_insert(db, &opt_version, (struct carg_command *)c,
+                OPT_UNIQUE)) {
         return -1;
     }
 
     if ((!HASFLAG(c, CARG_NO_HELP)) && optiondb_insert(db, &opt_help,
-                OPT_UNIQUE)) {
+                (struct carg_command *)c, OPT_UNIQUE)) {
         return -1;
     }
 
     if ((!HASFLAG(c, CARG_NO_USAGE)) && optiondb_insert(db, &opt_usage,
-                OPT_UNIQUE)) {
+                (struct carg_command *)c, OPT_UNIQUE)) {
         return -1;
     }
 
 #ifdef CARG_USE_CLOG
     if (!HASFLAG(c, CARG_NO_CLOG)) {
-        if (optiondb_insert(db, &opt_verbosity, OPT_UNIQUE)) {
+        if (optiondb_insert(db, &opt_verbosity, (struct carg_command *)c,
+                    OPT_UNIQUE)) {
             return -1;
         }
-        if (optiondb_insert(db, &opt_verboseflag, OPT_UNIQUE)) {
+        if (optiondb_insert(db, &opt_verboseflag, (struct carg_command *)c,
+                    OPT_UNIQUE)) {
             return -1;
         }
     }

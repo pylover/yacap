@@ -31,6 +31,7 @@ enum optioninfoflag {
 
 struct optioninfo {
     const struct carg_option *option;
+    const struct carg_command *command;
     enum optioninfoflag flags;
 };
 
@@ -52,12 +53,12 @@ optiondb_dispose(struct optiondb *db);
 
 int
 optiondb_insert(struct optiondb *db, const struct carg_option *opt,
-        int flags);
+        const struct carg_command *command, int flags);
 
 
 int
-optiondb_insertvector(struct optiondb *db, const struct carg_option *options,
-        int flags);
+optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
+        const struct carg_command *cmd, int flags);
 
 
 int
