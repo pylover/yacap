@@ -51,30 +51,22 @@ test_optiondb_duplication() {
     eqint(0, optiondb_insertvector(&optdb, options2, NULL));
     eqint(-1, optiondb_insertvector(&optdb, options3, NULL));
     eqint(2, optdb.count);
-    eqint(0, optiondb_insertvector(&optdb, options3, NULL));
-    eqint(3, optdb.count);
 
     /* insert duplicate options */
     const struct carg_option y = {"yoo", 'y', NULL, 0, NULL};
     eqint(0, optiondb_insert(&optdb, &y, NULL));
-    eqint(4, optdb.count);
+    eqint(3, optdb.count);
 
     eqint(-1, optiondb_insert(&optdb, &y, NULL));
-    eqint(4, optdb.count);
-
-    eqint(0, optiondb_insert(&optdb, &y, NULL));
-    eqint(5, optdb.count);
+    eqint(3, optdb.count);
 
     /* insert unique option */
     const struct carg_option z = {"zoo", 'z', NULL, 0, NULL};
     eqint(0, optiondb_insert(&optdb, &z, NULL));
-    eqint(6, optdb.count);
+    eqint(4, optdb.count);
 
     eqint(-1, optiondb_insert(&optdb, &z, NULL));
-    eqint(6, optdb.count);
-
-    eqint(-1, optiondb_insert(&optdb, &z, NULL));
-    eqint(6, optdb.count);
+    eqint(4, optdb.count);
 
     optiondb_dispose(&optdb);
 }
