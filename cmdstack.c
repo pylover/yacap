@@ -28,13 +28,26 @@ cmdstack_init(struct cmdstack *s) {
 }
 
 
+const struct carg_command *
+cmdstack_last(struct cmdstack *s) {
+    if (s->len == 0) {
+        return NULL;
+    }
+
+    return s->commands[s->len - 1];
+}
+
+
 int
-cmdstack_push(struct cmdstack *s, const char *name) {
+cmdstack_push(struct cmdstack *s, const char *name,
+        const struct carg_command *cmd) {
     if (s->len >= CARG_CMDSTACK_MAX) {
         return -1;
     }
 
-    s->names[s->len++] = name;
+    s->commands[s->len] = cmd;
+    s->names[s->len] = name;
+    s->len++;
 
     return (int)s->len;
 }

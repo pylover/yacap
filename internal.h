@@ -24,6 +24,7 @@
 #include "config.h"
 #include "carg.h"
 #include "cmdstack.h"
+#include "optiondb.h"
 
 
 #define MAX(x, y) ((x) > (y)? (x): (y))
@@ -48,7 +49,7 @@ extern const struct carg_option opt_usage;
 
 struct carg_state {
     struct cmdstack cmdstack;
-    struct tokenizer *tokenizer;
+    struct optiondb optiondb;
 };
 
 

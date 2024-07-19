@@ -25,6 +25,7 @@
 
 struct cmdstack {
     const char *names[CARG_CMDSTACK_MAX];
+    const struct carg_command *commands[CARG_CMDSTACK_MAX];
     unsigned char len;
 };
 
@@ -34,7 +35,12 @@ cmdstack_init(struct cmdstack *s);
 
 
 int
-cmdstack_push(struct cmdstack *s, const char *name);
+cmdstack_push(struct cmdstack *s, const char *name,
+        const struct carg_command *cmd);
+
+
+const struct carg_command *
+cmdstack_last(struct cmdstack *s);
 
 
 int

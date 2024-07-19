@@ -61,11 +61,6 @@ _build_optiondb(const struct carg *c, struct optiondb *db) {
         return -1;
     }
 
-    if (optiondb_insertvector(db, c->options, (struct carg_command *)c,
-                OPT_UNIQUE) == -1) {
-        return -1;
-    }
-
     if (c->version && optiondb_insert(db, &opt_version, (struct carg_command *)c,
                 OPT_UNIQUE)) {
         return -1;
@@ -190,10 +185,20 @@ _eat(const struct carg *c, const struct carg_option *opt,
 /* Helper macro */
 #define NEXT(t, tok) tokenizer_next(t, tok)
 
-// enum carg_status
-// command_parse(struct carg *c, struct carg_command *cmd, int argc,
-//         const char **argv) {
-// }
+
+int
+command_parse(struct carg *c, struct tokenizer *t, int argc,
+        const char **argv) {
+    struct carg_state *state = c->state;
+    const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
+
+    if (optiondb_insertvector(&state->optiondb, c->options, cmd,
+                OPT_UNIQUE) == -1) {
+        return -1;
+    }
+
+    return 0;
+}
 
 
 enum carg_status
@@ -202,9 +207,9 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     int status = CARG_OK;
     enum tokenizer_status tokstatus;
     enum carg_eatstatus eatstatus;
-    struct optiondb optiondb;
     struct token tok;
     struct token nexttok;
+    struct tokenizer *t;
 
     if (argc < 1) {
         return CARG_ERROR;
@@ -214,13 +219,13 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     clog_verbosity = CLOG_WARNING;
 #endif
 
-    if (_build_optiondb(c, &optiondb)) {
+    if (_build_optiondb(c, &state.optiondb)) {
         return CARG_ERROR;
     }
 
-    state.tokenizer = tokenizer_new(argc, argv, &optiondb);
-    if (state.tokenizer == NULL) {
-        optiondb_dispose(&optiondb);
+    t = tokenizer_new(argc, argv, &state.optiondb);
+    if (t == NULL) {
+        optiondb_dispose(&state.optiondb);
         return CARG_ERROR;
     }
 
@@ -228,8 +233,9 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     cmdstack_init(&state.cmdstack);
 
     /* excecutable name */
-    if ((tokstatus = NEXT(state.tokenizer, &tok)) == CARG_TOK_POSITIONAL) {
-        if (cmdstack_push(&state.cmdstack, tok.text) == -1) {
+    if ((tokstatus = NEXT(t, &tok)) == CARG_TOK_POSITIONAL) {
+        if (cmdstack_push(&state.cmdstack, tok.text,
+                    (struct carg_command *)c) == -1) {
             goto terminate;
         }
     }
@@ -240,7 +246,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
 
     while (tokstatus > CARG_TOK_END) {
         /* fetch the next token */
-        if ((tokstatus = NEXT(state.tokenizer, &tok)) <= CARG_TOK_END) {
+        if ((tokstatus = NEXT(t, &tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
                 REJECT_UNRECOGNIZED(&state, tok.text, tok.len);
                 status = CARG_ERROR;
@@ -258,7 +264,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         if (CARG_OPTION_ARGNEEDED(tok.option)) {
             if (tok.text == NULL) {
                 /* try the next token as value */
-                if ((tokstatus = NEXT(state.tokenizer, &nexttok))
+                if ((tokstatus = NEXT(t, &nexttok))
                         != CARG_TOK_POSITIONAL) {
                     REJECT_OPTIONMISSINGARGUMENT(&state, tok.option);
                     status = CARG_ERROR;
@@ -293,8 +299,8 @@ dessert:
     }
 
 terminate:
-    tokenizer_dispose(state.tokenizer);
-    optiondb_dispose(&optiondb);
+    tokenizer_dispose(t);
+    optiondb_dispose(&state.optiondb);
     if (status < 0) {
         TRYHELP(&state);
     }
