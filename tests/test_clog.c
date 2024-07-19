@@ -38,19 +38,19 @@ static void
 test_verbose_short() {
     /* default logging level */
     clog_verbosity = CLOG_UNKNOWN;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo"));
     eqint(CLOG_WARNING, clog_verbosity);
 
     clog_verbosity = CLOG_UNKNOWN;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -v", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -v"));
     eqint(CLOG_INFO, clog_verbosity);
 
     clog_verbosity = CLOG_UNKNOWN;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -vv", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -vv"));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = CLOG_UNKNOWN;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -vvv", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -vvv"));
     eqint(CLOG_DEBUG, clog_verbosity);
 }
 
@@ -68,22 +68,22 @@ test_verbose_long() {
     };
 
     clog_verbosity = -1;
-    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --verbosity", NULL));
+    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --verbosity"));
 
     clog_verbosity = -1;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity d", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity d"));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = -1;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity debug", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity debug"));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = -1;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity=debug", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity=debug"));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = -1;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity 2", NULL));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity 2"));
     eqint(CLOG_ERROR, clog_verbosity);
 }
 

@@ -173,7 +173,7 @@ _eat(const struct carg *c, const struct carg_option *opt,
 #endif
 
     if (c->eat) {
-        return c->eat(opt, value, c->state->userptr);
+        return c->eat(opt, value, c->userptr);
     }
 
     return CARG_EAT_NOTEATEN;
@@ -259,7 +259,7 @@ terminate:
 
 
 enum carg_status
-carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
+carg_parse(struct carg *c, int argc, const char **argv) {
     struct carg_state state;
     enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
@@ -298,7 +298,6 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         goto terminate;
     }
     c->state = &state;
-    state.userptr = userptr;
 
     status = _command_parse(c, t);
 

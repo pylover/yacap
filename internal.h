@@ -48,7 +48,6 @@ extern const struct carg_option opt_usage;
 
 
 struct carg_state {
-    void *userptr;
     struct cmdstack cmdstack;
     struct optiondb optiondb;
 };

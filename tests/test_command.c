@@ -22,6 +22,10 @@
 #include "helpers.h"
 
 
+
+// void
+// thud_main
+
 void
 test_command() {
     struct carg_option thud_options[] = {
@@ -29,16 +33,10 @@ test_command() {
         {NULL}
     };
 
-    const struct carg_command thud_cmd = {
-        .command = "thud",
+    const struct carg_subcommand thud_cmd = {
+        .name = "thud",
         .args = "qux",
         .options = thud_options,
-        .handler = thud,
-    };
-
-    const struct carg_command *commands[] = {
-        &thud_cmd,
-        NULL
     };
 
     struct carg_option root_options[] = {
@@ -55,16 +53,14 @@ test_command() {
         .footer = NULL,
         .version = NULL,
         .flags = 0,
-        .handler = NULL,
-        .commands = commands
+        .commands = (const struct carg_subcommand*[]) {
+            &thud_cmd,
+            NULL
+        },
     };
 
 
-    handler_t handler = NULL;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo thud", NULL,
-                (void **)&handler));
-
-    isnotnull(handler);
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud"));
 }
 
 

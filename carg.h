@@ -79,6 +79,7 @@ struct carg_command {
     const char *header;
     const char *footer;
     carg_eater eat;
+    void *userptr;
 };
 
 
@@ -87,7 +88,6 @@ struct carg_subcommand {
     struct carg_command;
 
     const char *name;
-    void *handler;
 };
 
 
@@ -104,7 +104,7 @@ struct carg {
 
 
 enum carg_status
-carg_parse(struct carg *c, int argc, const char **argv, void *userptr);
+carg_parse(struct carg *c, int argc, const char **argv);
 
 
 #endif  // CARG_H_
