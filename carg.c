@@ -61,29 +61,27 @@ _build_optiondb(const struct carg *c, struct optiondb *db) {
         return -1;
     }
 
-    if (c->version && optiondb_insert(db, &opt_version, (struct carg_command *)c,
-                OPT_UNIQUE)) {
+    if (c->version && optiondb_insert(db, &opt_version,
+                (struct carg_command *)c)) {
         return -1;
     }
 
     if ((!HASFLAG(c, CARG_NO_HELP)) && optiondb_insert(db, &opt_help,
-                (struct carg_command *)c, OPT_UNIQUE)) {
+                (struct carg_command *)c)) {
         return -1;
     }
 
     if ((!HASFLAG(c, CARG_NO_USAGE)) && optiondb_insert(db, &opt_usage,
-                (struct carg_command *)c, OPT_UNIQUE)) {
+                (struct carg_command *)c)) {
         return -1;
     }
 
 #ifdef CARG_USE_CLOG
     if (!HASFLAG(c, CARG_NO_CLOG)) {
-        if (optiondb_insert(db, &opt_verbosity, (struct carg_command *)c,
-                    OPT_UNIQUE)) {
+        if (optiondb_insert(db, &opt_verbosity, (struct carg_command *)c)) {
             return -1;
         }
-        if (optiondb_insert(db, &opt_verboseflag, (struct carg_command *)c,
-                    OPT_UNIQUE)) {
+        if (optiondb_insert(db, &opt_verboseflag, (struct carg_command *)c)) {
             return -1;
         }
     }
@@ -143,7 +141,7 @@ _clogverbosity(const char *value) {
 
 static enum carg_eatstatus
 _eat(const struct carg *c, const struct carg_option *opt,
-        const char *value, void *userptr) {
+        const char *value) {
     /* Try to solve it internaly */
     if (c->version && (opt == &opt_version)) {
         dprintf(STDOUT_FILENO, "%s\n", c->version);
@@ -175,7 +173,7 @@ _eat(const struct carg *c, const struct carg_option *opt,
 #endif
 
     if (c->eat) {
-        return c->eat(opt, value, userptr);
+        return c->eat(opt, value, c->state->userptr);
     }
 
     return CARG_EAT_NOTEATEN;
@@ -186,29 +184,85 @@ _eat(const struct carg *c, const struct carg_option *opt,
 #define NEXT(t, tok) tokenizer_next(t, tok)
 
 
-int
-command_parse(struct carg *c, struct tokenizer *t, int argc,
-        const char **argv) {
+static enum carg_status
+_command_parse(struct carg *c, struct tokenizer *t) {
+    enum carg_status status = CARG_OK;
+    enum tokenizer_status tokstatus;
+    enum carg_eatstatus eatstatus;
+    struct token tok;
+    struct token nexttok;
     struct carg_state *state = c->state;
     const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
 
-    if (optiondb_insertvector(&state->optiondb, c->options, cmd,
-                OPT_UNIQUE) == -1) {
+    if (optiondb_insertvector(&state->optiondb, c->options, cmd) == -1) {
         return -1;
     }
 
-    return 0;
+    do {
+        /* fetch the next token */
+        if ((tokstatus = NEXT(t, &tok)) <= CARG_TOK_END) {
+            if (tokstatus == CARG_TOK_UNKNOWN) {
+                REJECT_UNRECOGNIZED(state, tok.text, tok.len);
+                status = CARG_ERROR;
+            }
+            goto terminate;
+        }
+
+        /* is this a positional? */
+        if (tok.option == NULL) {
+            eatstatus = _eat(c, NULL, tok.text);
+            goto dessert;
+        }
+
+        /* Ensure option's value */
+        if (CARG_OPTION_ARGNEEDED(tok.option)) {
+            if (tok.text == NULL) {
+                /* try the next token as value */
+                if ((tokstatus = NEXT(t, &nexttok))
+                        != CARG_TOK_POSITIONAL) {
+                    REJECT_OPTIONMISSINGARGUMENT(state, tok.option);
+                    status = CARG_ERROR;
+                    goto terminate;
+                }
+
+                tok.text = nexttok.text;
+                tok.len = nexttok.len;
+            }
+            eatstatus = _eat(c, tok.option, tok.text);
+        }
+        else {
+            if (tok.text) {
+                REJECT_OPTIONHASARGUMENT(state, tok.option);
+                status = CARG_ERROR;
+                goto terminate;
+            }
+            eatstatus = _eat(c, tok.option, NULL);
+        }
+
+dessert:
+        switch (eatstatus) {
+            case CARG_EAT_OK:
+                continue;
+            case CARG_EAT_OK_EXIT:
+                status = CARG_OK_EXIT;
+                goto terminate;
+            default:
+                status = CARG_ERROR;
+                goto terminate;
+        }
+    } while (tokstatus > CARG_TOK_END);
+
+terminate:
+    return status;
 }
 
 
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     struct carg_state state;
-    int status = CARG_OK;
+    enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
-    enum carg_eatstatus eatstatus;
     struct token tok;
-    struct token nexttok;
     struct tokenizer *t;
 
     if (argc < 1) {
@@ -243,60 +297,9 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
         goto terminate;
     }
     c->state = &state;
+    state.userptr = userptr;
 
-    while (tokstatus > CARG_TOK_END) {
-        /* fetch the next token */
-        if ((tokstatus = NEXT(t, &tok)) <= CARG_TOK_END) {
-            if (tokstatus == CARG_TOK_UNKNOWN) {
-                REJECT_UNRECOGNIZED(&state, tok.text, tok.len);
-                status = CARG_ERROR;
-            }
-            goto terminate;
-        }
-
-        /* is this a positional? */
-        if (tok.option == NULL) {
-            eatstatus = _eat(c, NULL, tok.text, userptr);
-            goto dessert;
-        }
-
-        /* Ensure option's value */
-        if (CARG_OPTION_ARGNEEDED(tok.option)) {
-            if (tok.text == NULL) {
-                /* try the next token as value */
-                if ((tokstatus = NEXT(t, &nexttok))
-                        != CARG_TOK_POSITIONAL) {
-                    REJECT_OPTIONMISSINGARGUMENT(&state, tok.option);
-                    status = CARG_ERROR;
-                    goto terminate;
-                }
-
-                tok.text = nexttok.text;
-                tok.len = nexttok.len;
-            }
-            eatstatus = _eat(c, tok.option, tok.text, userptr);
-        }
-        else {
-            if (tok.text) {
-                REJECT_OPTIONHASARGUMENT(&state, tok.option);
-                status = CARG_ERROR;
-                goto terminate;
-            }
-            eatstatus = _eat(c, tok.option, NULL, userptr);
-        }
-
-dessert:
-        switch (eatstatus) {
-            case CARG_EAT_OK:
-                continue;
-            case CARG_EAT_OK_EXIT:
-                status = CARG_OK_EXIT;
-                goto terminate;
-            default:
-                status = CARG_ERROR;
-                goto terminate;
-        }
-    }
+    status = _command_parse(c, t);
 
 terminate:
     tokenizer_dispose(t);

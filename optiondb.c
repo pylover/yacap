@@ -60,15 +60,13 @@ optiondb_extend(struct optiondb *db) {
 
 
 int
-optiondb_exists(struct optiondb *db, const struct carg_option *opt,
-        int flags) {
+optiondb_exists(struct optiondb *db, const struct carg_option *opt) {
     int i;
     const struct optioninfo *info;
 
     for (i = 0; i < db->count; i++) {
         info = db->repo + i;
-        if ((HASFLAG(info, OPT_UNIQUE) || (flags & OPT_UNIQUE)) &&
-                ((info->option->key == opt->key) ||
+        if (((info->option->key == opt->key) ||
                  (info->option->name && opt->name &&
                   CMP(info->option->name, opt->name)))) {
             return 1;
@@ -81,11 +79,11 @@ optiondb_exists(struct optiondb *db, const struct carg_option *opt,
 
 int
 optiondb_insert(struct optiondb *db, const struct carg_option *opt,
-        const struct carg_command *command, int flags) {
+        const struct carg_command *command) {
     struct optioninfo *info;
 
     /* check existance */
-    if (optiondb_exists(db, opt, flags)) {
+    if (optiondb_exists(db, opt)) {
         dprintf(STDERR_FILENO, "option duplicated -- '");
         option_print(STDERR_FILENO, opt);
         dprintf(STDERR_FILENO, "'\n");
@@ -99,7 +97,6 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
 
     info = db->repo + (db->count++);
     info->option = opt;
-    info->flags = flags;
     info->command = command;
     return 0;
 }
@@ -107,14 +104,14 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
 
 int
 optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
-        const struct carg_command *cmd, int flags) {
+        const struct carg_command *cmd) {
 
     if (opt == NULL) {
         return 0;
     }
 
     while (opt && opt->name) {
-        if (optiondb_insert(db, opt++, cmd, flags)) {
+        if (optiondb_insert(db, opt++, cmd)) {
             return -1;
         }
     }
