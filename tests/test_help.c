@@ -121,7 +121,7 @@ test_help_nooptions() {
         .flags = CARG_NO_HELP
     };
 
-    eqint(CARG_ERROR, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --help", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--help'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);

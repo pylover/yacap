@@ -25,7 +25,8 @@
 
 /* carg_parse() result */
 enum carg_status {
-    CARG_ERROR = -1,
+    CARG_USERERROR = -2,
+    CARG_FATAL = -1,
     CARG_OK = 0,
     CARG_OK_EXIT = 1,
 };

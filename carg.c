@@ -195,7 +195,8 @@ _command_parse(struct carg *c, struct tokenizer *t) {
     const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
 
     if (optiondb_insertvector(&state->optiondb, c->options, cmd) == -1) {
-        return -1;
+        status = CARG_FATAL;
+        goto terminate;
     }
 
     do {
@@ -203,7 +204,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
         if ((tokstatus = NEXT(t, &tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
                 REJECT_UNRECOGNIZED(state, tok.text, tok.len);
-                status = CARG_ERROR;
+                status = CARG_USERERROR;
             }
             goto terminate;
         }
@@ -221,7 +222,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
                 if ((tokstatus = NEXT(t, &nexttok))
                         != CARG_TOK_POSITIONAL) {
                     REJECT_OPTIONMISSINGARGUMENT(state, tok.option);
-                    status = CARG_ERROR;
+                    status = CARG_USERERROR;
                     goto terminate;
                 }
 
@@ -233,7 +234,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
         else {
             if (tok.text) {
                 REJECT_OPTIONHASARGUMENT(state, tok.option);
-                status = CARG_ERROR;
+                status = CARG_USERERROR;
                 goto terminate;
             }
             eatstatus = _eat(c, tok.option, NULL);
@@ -247,7 +248,7 @@ dessert:
                 status = CARG_OK_EXIT;
                 goto terminate;
             default:
-                status = CARG_ERROR;
+                status = CARG_FATAL;
                 goto terminate;
         }
     } while (tokstatus > CARG_TOK_END);
@@ -266,7 +267,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
     struct tokenizer *t;
 
     if (argc < 1) {
-        return CARG_ERROR;
+        return CARG_FATAL;
     }
 
 #ifdef CARG_USE_CLOG
@@ -274,13 +275,13 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
 #endif
 
     if (_build_optiondb(c, &state.optiondb)) {
-        return CARG_ERROR;
+        return CARG_FATAL;
     }
 
     t = tokenizer_new(argc, argv, &state.optiondb);
     if (t == NULL) {
         optiondb_dispose(&state.optiondb);
-        return CARG_ERROR;
+        return CARG_FATAL;
     }
 
     /* initialize command stack */
@@ -304,7 +305,7 @@ carg_parse(struct carg *c, int argc, const char **argv, void *userptr) {
 terminate:
     tokenizer_dispose(t);
     optiondb_dispose(&state.optiondb);
-    if (status < 0) {
+    if (status == CARG_USERERROR) {
         TRYHELP(&state);
     }
     return status;

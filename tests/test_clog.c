@@ -68,7 +68,7 @@ test_verbose_long() {
     };
 
     clog_verbosity = -1;
-    eqint(CARG_ERROR, carg_parse_string(&carg, "foo --verbosity", NULL));
+    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --verbosity", NULL));
 
     clog_verbosity = -1;
     eqint(CARG_OK, carg_parse_string(&carg, "foo --verbosity d", NULL));
