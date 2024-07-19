@@ -24,6 +24,7 @@
 #include "config.h"
 #include "carg.h"
 #include "internal.h"
+#include "command.h"
 #include "option.h"
 #include "help.h"
 #include "optiondb.h"
@@ -193,8 +194,9 @@ _command_parse(struct carg *c, struct tokenizer *t) {
     struct token nexttok;
     struct carg_state *state = c->state;
     const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
+    const struct carg_command *subcmd;
 
-    if (optiondb_insertvector(&state->optiondb, c->options, cmd) == -1) {
+    if (optiondb_insertvector(&state->optiondb, cmd->options, cmd) == -1) {
         status = CARG_FATAL;
         goto terminate;
     }
@@ -211,6 +213,18 @@ _command_parse(struct carg *c, struct tokenizer *t) {
 
         /* is this a positional? */
         if (tok.option == NULL) {
+            /* is this a sub-command? */
+            subcmd = command_findbyname(cmd, tok.text);
+            if (subcmd) {
+                if (cmdstack_push(&state->cmdstack, tok.text, subcmd) == -1) {
+                    status = CARG_FATAL;
+                }
+                else {
+                    status = _command_parse(c, t);
+                }
+                goto terminate;
+            }
+
             eatstatus = _eat(c, NULL, tok.text);
             goto dessert;
         }
@@ -259,7 +273,8 @@ terminate:
 
 
 enum carg_status
-carg_parse(struct carg *c, int argc, const char **argv) {
+carg_parse(struct carg *c, int argc, const char **argv,
+        const struct carg_subcommand **subcommand) {
     struct carg_state state;
     enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
@@ -286,6 +301,7 @@ carg_parse(struct carg *c, int argc, const char **argv) {
 
     /* initialize command stack */
     cmdstack_init(&state.cmdstack);
+    c->state = &state;
 
     /* excecutable name */
     if ((tokstatus = NEXT(t, &tok)) == CARG_TOK_POSITIONAL) {
@@ -297,9 +313,23 @@ carg_parse(struct carg *c, int argc, const char **argv) {
     else {
         goto terminate;
     }
-    c->state = &state;
 
     status = _command_parse(c, t);
+    if (status < CARG_OK) {
+        goto terminate;
+    }
+
+    if (subcommand) {
+        if (state.cmdstack.len == 1) {
+            /* root command */
+            *subcommand = NULL;
+        }
+        else {
+            /* sub-commands */
+            *subcommand = (const struct carg_subcommand*)
+                cmdstack_last(&state.cmdstack);
+        }
+    }
 
 terminate:
     tokenizer_dispose(t);

@@ -39,11 +39,11 @@ test_usage() {
         "Usage: foo [OPTION...] bar\n"
         "   or: foo [OPTION...] baz\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --usage"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --usage", NULL));
     eqstr(usage, out);
     eqstr("", err);
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo -?"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo -?", NULL));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -103,7 +103,7 @@ test_help_doc() {
 
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -121,7 +121,7 @@ test_help_nooptions() {
         .flags = CARG_NO_HELP
     };
 
-    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --help"));
+    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --help", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--help'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -134,7 +134,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
@@ -147,7 +147,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -185,7 +185,7 @@ test_help_default() {
 
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -250,7 +250,7 @@ test_help_options() {
 "Lorem ipsum footer\n";
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

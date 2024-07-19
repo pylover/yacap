@@ -113,7 +113,8 @@ failed:
 
 
 enum carg_status
-carg_parse_string(struct carg *c, const char * line) {
+carg_parse_string(struct carg *c, const char * line,
+        const struct carg_subcommand **subcommand) {
     char *argv[256];
     int argc = 0;
     char delim[1] = {' '};
@@ -152,7 +153,7 @@ carg_parse_string(struct carg *c, const char * line) {
     }
 
     bool failed = false;
-    int ret = carg_parse(c, argc, (const char **)argv);
+    int ret = carg_parse(c, argc, (const char **)argv, subcommand);
     memset(out, 0, BUFFSIZE + 1);
     memset(err, 0, BUFFSIZE + 1);
 

@@ -27,6 +27,8 @@
 #include "optiondb.h"
 
 
+#define CMP(x, y) (strcmp(x, y) == 0)
+#define CMPN(x, y, l) (strncmp(x, y, l) == 0)
 #define MAX(x, y) ((x) > (y)? (x): (y))
 #define HASFLAG(o, f) ((o)->flags & (f))
 #define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))

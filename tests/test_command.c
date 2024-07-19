@@ -59,8 +59,7 @@ test_command() {
         },
     };
 
-
-    eqint(CARG_OK, carg_parse_string(&carg, "foo thud"));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud", NULL));
 }
 
 

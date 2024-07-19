@@ -104,7 +104,8 @@ struct carg {
 
 
 enum carg_status
-carg_parse(struct carg *c, int argc, const char **argv);
+carg_parse(struct carg *c, int argc, const char **argv,
+        const struct carg_subcommand **subcommand);
 
 
 #endif  // CARG_H_

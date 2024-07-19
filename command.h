@@ -16,27 +16,16 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef TESTS_HELPERS_H_
-#define TESTS_HELPERS_H_
+#ifndef COMMAND_H_
+#define COMMAND_H_
 
 
+#include "config.h"
 #include "carg.h"
 
 
-#define BUFFSIZE    2047
-#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
-    "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
-    "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
-    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
+const struct carg_command *
+command_findbyname(const struct carg_command *cmd, const char *name);
 
 
-extern char out[];
-extern char err[];
-
-
-enum carg_status
-carg_parse_string(struct carg *c, const char * line,
-        const struct carg_subcommand **subcommand);
-
-
-#endif  // TESTS_HELPERS_H_
+#endif  // COMMAND_H_

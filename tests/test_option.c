@@ -79,7 +79,7 @@ test_duplicate_options() {
 
     clog_verbosity = CLOG_INFO;
 
-    eqint(CARG_FATAL, carg_parse_string(&c, "foo -f"));
+    eqint(CARG_FATAL, carg_parse_string(&c, "foo -f", NULL));
     eqstr("", out);
     eqstr("option duplicated -- '-f/--foo'\n", err);
 }
@@ -105,37 +105,37 @@ test_program_error() {
 
     clog_verbosity = CLOG_INFO;
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo -f"));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo -f", NULL));
     eqstr("", out);
     eqstr("foo: option requires an argument -- '-f/--foo'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --foo"));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --foo", NULL));
     eqstr("", out);
     eqstr("foo: option requires an argument -- '-f/--foo'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo -F"));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo -F", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '-F'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux"));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux="));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux=", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux='\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo -qthud"));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo -qthud", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '-q'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux=thud"));
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux=thud", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux=thud'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -162,25 +162,25 @@ test_option_value() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -f3"));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -f3", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(3, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo 4"));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo 4", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(4, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo=5"));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo --foo=5", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(5, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -qzf2"));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -qzf2", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(2, args.foo);
@@ -188,7 +188,7 @@ test_option_value() {
     eqint(1, args.baz);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -qf 9"));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -qf 9", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(9, args.foo);

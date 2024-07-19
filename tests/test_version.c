@@ -35,7 +35,7 @@ test_version() {
         .flags = 0,
     };
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --version"));
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --version", NULL));
     eqstr("foo 1.2.3\n", out);
     eqstr("", err);
 }
