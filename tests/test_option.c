@@ -86,7 +86,7 @@ test_duplicate_options() {
 
 
 static void
-test_program_error() {
+test_user_error() {
     struct carg_option options[] = {
         {"foo", 'f', "FOO", 0, "Foo option"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
@@ -138,6 +138,16 @@ test_program_error() {
     eqint(CARG_USERERROR, carg_parse_string(&c, "foo --qux=thud", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux=thud'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --q", NULL));
+    eqstr("", out);
+    eqstr("foo: invalid option -- '--q'\n"
+          "Try `foo --help' or `foo --usage' for more information.\n", err);
+
+    eqint(CARG_USERERROR, carg_parse_string(&c, "foo --f", NULL));
+    eqstr("", out);
+    eqstr("foo: invalid option -- '--f'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 }
 
@@ -199,8 +209,8 @@ test_option_value() {
 
 int
 main() {
+    test_user_error();
     test_duplicate_options();
-    test_program_error();
     test_option_value();
     return EXIT_SUCCESS;
 }

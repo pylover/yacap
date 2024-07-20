@@ -6,6 +6,8 @@
 - Error on option key and longname conflicts
 - Specify an argument multiple times.
 - Test for state.index and other public fields.
+- feature: aliases
+- feature: shorthands/abbr
 
 OPTION_ARG_OPTIONAL
 The argument associated with this option is optional.

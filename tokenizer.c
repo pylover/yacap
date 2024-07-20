@@ -154,7 +154,7 @@ tokenizer_next(struct tokenizer *t, struct token *token) {
             eq = strchr(t->tok, '=');
 
             /* Left side length */
-            if ((eq - t->tok) == 3) {
+            if ((t->toklen == 3) || (eq && ((eq - t->tok) == 3))) {
                 YIELD_OPT_UNKNOWN(t->tok, t->toklen);
                 continue;
             }

@@ -144,10 +144,14 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
         int len) {
     int i;
     const struct optioninfo *info;
+    char tmp[len + 1];
 
     if (name == NULL) {
         return NULL;
     }
+
+    strncpy(tmp, name, len);
+    tmp[len] = 0;
 
     for (i = 0; i < db->count; i++) {
         info = db->repo + i;
@@ -156,7 +160,7 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
             continue;
         }
 
-        if (CMPN(name, info->option->name, len)) {
+        if (CMP(tmp, info->option->name)) {
             return info;
         }
     }

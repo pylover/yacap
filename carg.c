@@ -340,5 +340,6 @@ terminate:
     if (status == CARG_USERERROR) {
         TRYHELP(&state);
     }
+    c->state = NULL;
     return status;
 }
