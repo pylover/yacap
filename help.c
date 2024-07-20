@@ -110,6 +110,41 @@ _print_multiline(int fd, const char *string, int indent, int linemax) {
 
 
 static void
+_print_optiongroup(int fd, const struct carg_option *opt, int gapsize) {
+    int rpad;
+
+    if (opt->name && (!CMP("-", opt->name))) {
+        rpad = (gapsize + 8) - strlen(opt->name);
+        dprintf(fd, "\n%s%*s", opt->name, rpad, "");
+    }
+
+    if (opt->help) {
+        _print_multiline(fd, opt->help, gapsize + 8, CARG_HELP_LINESIZE);
+    }
+    else {
+        dprintf(fd, "\n");
+    }
+}
+
+
+static void
+_print_subcommands(int fd, const struct carg_command *cmd) {
+    const struct carg_subcommand **c = cmd->commands;
+    const struct carg_subcommand *s;
+
+    if (cmd->commands == NULL) {
+        return;
+    }
+
+    dprintf(fd, "\nCommands:\n");
+    while ((s = *c)) {
+        dprintf(fd, "  %s\n", s->name);
+        c++;
+    }
+}
+
+
+static void
 _print_option(int fd, const struct carg_option *opt, int gapsize) {
     int rpad = gapsize - OPT_HELPLEN(opt);
 
@@ -148,9 +183,8 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
     const struct carg_option *opt;
     bool subcommand = c->state->cmdstack.len > 1;
 
-    /* calculate initial gap between options and description */
+    /* calculate gap size between options and description */
     gapsize = _calculate_initial_gapsize(c);
-
     while (cmd->options) {
         opt = &(cmd->options[i++]);
         if (opt->name == NULL) {
@@ -161,16 +195,6 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
     }
 
     dprintf(fd, "\n");
-    i = 0;
-    while (cmd->options) {
-        opt = &(cmd->options[i++]);
-        if (opt->name == NULL) {
-            break;
-        }
-
-        _print_option(fd, opt, gapsize);
-    }
-
     if (!HASFLAG(c, CARG_NO_HELP)) {
         _print_option(fd, &opt_help, gapsize);
     }
@@ -188,6 +212,21 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
 
     if (!subcommand && c->version) {
         _print_option(fd, &opt_version, gapsize);
+    }
+
+    i = 0;
+    while (cmd->options) {
+        opt = &(cmd->options[i++]);
+        if (opt->name == NULL) {
+            break;
+        }
+
+        if (opt->key) {
+            _print_option(fd, opt, gapsize);
+        }
+        else {
+            _print_optiongroup(fd, opt, gapsize);
+        }
     }
 }
 
@@ -237,19 +276,24 @@ carg_help_print(const struct carg *c) {
     struct carg_state *state = c->state;
     const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
 
-    /* Usage */
+    /* usage */
     carg_usage_print(c);
 
-    /* Header */
+    /* header */
     if (cmd->header) {
         POUT("\n");
         _print_multiline(STDOUT_FILENO, cmd->header, 0, CARG_HELP_LINESIZE);
     }
 
-    /* Options */
+    /* sub-commands */
+    if (cmd->commands) {
+        _print_subcommands(STDOUT_FILENO, cmd);
+    }
+
+    /* options */
     _print_options(STDOUT_FILENO, c, cmd);
 
-    /* Footer */
+    /* footer */
     if (cmd->footer) {
         POUT("\n");
         _print_multiline(STDOUT_FILENO, cmd->footer, 0, CARG_HELP_LINESIZE);

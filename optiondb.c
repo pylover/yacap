@@ -108,9 +108,11 @@ optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
     }
 
     while (opt && opt->name) {
-        if (optiondb_insert(db, opt++, cmd)) {
+        if (opt->key && optiondb_insert(db, opt, cmd)) {
             return -1;
         }
+
+        opt++;
     }
 
     return 0;

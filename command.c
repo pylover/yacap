@@ -25,6 +25,14 @@
 
 const struct carg_command *
 command_findbyname(const struct carg_command *cmd, const char *name) {
+    if (name == NULL) {
+        return NULL;
+    }
+
+    if ((cmd == NULL) || (cmd->commands == NULL)) {
+        return NULL;
+    }
+
     const struct carg_subcommand **c = cmd->commands;
     const struct carg_subcommand *s;
 

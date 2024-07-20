@@ -8,6 +8,7 @@ list(APPEND testrules
 	version
 	help
 	command
+	command_help
     # positional
 )
 if (CARG_USE_CLOG)

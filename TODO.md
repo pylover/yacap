@@ -1,4 +1,4 @@
-- Argument grouping
+- print list of available commands on --help 
 - Automatic shortcuts / aliases
 - Error on option key and longname conflicts
 - Specify an argument multiple times.

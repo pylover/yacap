@@ -194,10 +194,13 @@ test_help_default() {
 void
 test_help_options() {
     struct carg_option options[] = {
+        {"Common:", 0, 0, 0, NULL},
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {"-", 0, 0, 0, NULL},
         {"baz", 'z', "BAZ", 0, LOREM},
-        {"qux", 1, "QUX",  0, NULL},
+        {"Deprecated:", 0, 0, 0, "Will be removed at next version"},
+        {"qux", 'q', "QUX",  0, NULL},
         {NULL}
     };
 
@@ -213,15 +216,6 @@ test_help_options() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
-"  -f, --foo                Foo flag\n"
-"  -b, --bar=BAR            Bar option with value\n"
-"  -z, --baz=BAZ            Lorem merol ipsum dolor sit amet, consectetur adipi-\n"  // NOLINT
-"                           scing elit, sed do eiusmod tempor incididunt ut lab-\n"  // NOLINT
-"                           ore et dolore magna aliqua. Ut enim ad minim veniam,\n"  // NOLINT
-"                           quis nostrud exercitation ullamco laboris nisi ut a-\n"  // NOLINT
-"                           liquip ex ea commodo consequat. Duis aute irure dol-\n"  // NOLINT
-"                           or.\n"
-"      --qux=QUX            \n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
 "  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
@@ -231,21 +225,40 @@ test_help_options() {
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
 "                           ll be '3|w|warn'\n"
 "\n"
+"Common:                    \n"
+"  -f, --foo                Foo flag\n"
+"  -b, --bar=BAR            Bar option with value\n"
+"\n"
+"  -z, --baz=BAZ            Lorem merol ipsum dolor sit amet, consectetur adipi-\n"  // NOLINT
+"                           scing elit, sed do eiusmod tempor incididunt ut lab-\n"  // NOLINT
+"                           ore et dolore magna aliqua. Ut enim ad minim veniam,\n"  // NOLINT
+"                           quis nostrud exercitation ullamco laboris nisi ut a-\n"  // NOLINT
+"                           liquip ex ea commodo consequat. Duis aute irure dol-\n"  // NOLINT
+"                           or.\n"
+"\n"
+"Deprecated:                Will be removed at next version\n"
+"  -q, --qux=QUX            \n"
+"\n"
 "Lorem ipsum footer\n";
 #else
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
-"  -f, --foo        Foo flag\n"
-"  -b, --bar=BAR    Bar option with value\n"
-"  -z, --baz=BAZ    Lorem merol ipsum dolor sit amet, consectetur adipiscing el-\n"  // NOLINT
-"                   it, sed do eiusmod tempor incididunt ut labore et dolore ma-\n"  // NOLINT
-"                   gna aliqua. Ut enim ad minim veniam, quis nostrud exercitat-\n"  // NOLINT
-"                   ion ullamco laboris nisi ut aliquip ex ea commodo consequat.\n"  // NOLINT
-"                   Duis aute irure dolor.\n"
-"      --qux=QUX    \n"
-"  -h, --help       Give this help list and exit\n"
-"  -?, --usage      Give a short usage message and exit\n"
+"  -h, --help           Give this help list and exit\n"
+"  -?, --usage          Give a short usage message and exit\n"
+"\n"
+"Common:                \n"
+"  -f, --foo            Foo flag\n"
+"  -b, --bar=BAR        Bar option with value\n"
+"\n"
+"  -z, --baz=BAZ        Lorem merol ipsum dolor sit amet, consectetur adipiscing\n"  // NOLINT
+"                       elit, sed do eiusmod tempor incididunt ut labore et dol-\n"  // NOLINT
+"                       ore magna aliqua. Ut enim ad minim veniam, quis nostrud\n"  // NOLINT
+"                       exercitation ullamco laboris nisi ut aliquip ex ea comm-\n"  // NOLINT
+"                       odo consequat. Duis aute irure dolor.\n"
+"\n"
+"Deprecated:            Will be removed at next version\n"
+"  -q, --qux=QUX        \n"
 "\n"
 "Lorem ipsum footer\n";
 #endif
@@ -256,73 +269,12 @@ test_help_options() {
 }
 
 
-void
-test_help_subcommand() {
-    struct carg_option thud_options[] = {
-        {"baz", 'z', NULL, 0, "Baz flag"},
-        {NULL}
-    };
-
-    const struct carg_subcommand thud_cmd = {
-        .name = "thud",
-        .args = "qux",
-        .options = thud_options,
-        .header = "Header: Lorem ipsum footer",
-        .footer = "Footer: Lorem ipsum footer",
-        .eat = NULL,
-        .userptr = NULL,
-    };
-
-    struct carg_option root_options[] = {
-        {"foo", 'f', NULL, 0, "Foo flag"},
-        {"bar", 'b', "BAR", 0, "Bar option with value"},
-        {NULL}
-    };
-
-    struct carg carg = {
-        .args = NULL,
-        .header = NULL,
-        .eat = NULL,
-        .options = root_options,
-        .footer = NULL,
-        .version = NULL,
-        .flags = 0,
-        .userptr = NULL,
-        .commands = (const struct carg_subcommand*[]) {
-            &thud_cmd,
-            NULL
-        },
-    };
-
-    char *help =
-"Usage: foo thud [OPTION...] qux\n"
-"\n"
-"Header: Lorem ipsum footer\n"
-"\n"
-"  -z, --baz                Baz flag\n"
-"  -h, --help               Give this help list and exit\n"
-"  -?, --usage              Give a short usage message and exit\n"
-"\n"
-"Footer: Lorem ipsum footer\n";
-
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo thud --help", NULL));
-    eqstr(help, out);
-    eqstr("", err);
-
-    help = "Usage: foo thud [OPTION...] qux\n";
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo thud --usage", NULL));
-    eqstr(help, out);
-    eqstr("", err);
-}
-
-
 int
 main() {
+    test_help_options();
     test_usage();
     test_help_doc();
     test_help_default();
     test_help_nooptions();
-    test_help_options();
-    test_help_subcommand();
     return EXIT_SUCCESS;
 }
