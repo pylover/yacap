@@ -22,9 +22,58 @@
 #include "helpers.h"
 
 
+struct rootflags {
+    bool foo;
+    const char *bar;
+};
 
-// void
-// thud_main
+
+struct thudflags{
+    bool baz;
+};
+
+
+static struct rootflags root = {false, NULL};
+static struct thudflags thud = {false};
+
+enum carg_eatstatus
+root_eater(const struct carg_option *option, const char *value,
+        struct rootflags *flags) {
+    if (option == NULL) {
+        return CARG_EAT_UNRECOGNIZED;
+    }
+
+    switch (option->key) {
+        case 'f':
+            flags->foo = true;
+            break;
+        default:
+            return CARG_EAT_UNRECOGNIZED;
+    }
+
+    return CARG_EAT_OK;
+}
+
+
+enum carg_eatstatus
+thud_eater(const struct carg_option *option, const char *value,
+        struct thudflags *flags) {
+
+    if (option == NULL) {
+        return CARG_EAT_UNRECOGNIZED;
+    }
+
+    switch (option->key) {
+        case 'z':
+            flags->baz = true;
+            break;
+        default:
+            return CARG_EAT_UNRECOGNIZED;
+    }
+
+    return CARG_EAT_OK;
+}
+
 
 void
 test_command() {
@@ -37,6 +86,8 @@ test_command() {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
+        .eat = (carg_eater_t)thud_eater,
+        .userptr = &thud,
     };
 
     struct carg_option root_options[] = {
@@ -48,18 +99,37 @@ test_command() {
     struct carg carg = {
         .args = NULL,
         .header = NULL,
-        .eat = NULL,
+        .eat = (carg_eater_t)root_eater,
         .options = root_options,
         .footer = NULL,
         .version = NULL,
         .flags = 0,
+        .userptr = &root,
         .commands = (const struct carg_subcommand*[]) {
             &thud_cmd,
             NULL
         },
     };
 
-    eqint(CARG_OK, carg_parse_string(&carg, "foo thud", NULL));
+    const struct carg_subcommand *cmd;
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud", &cmd));
+    isnotnull(cmd);
+    eqptr(&thud_cmd, cmd);
+
+    eqint(CARG_OK, carg_parse_string(&carg, "foo", &cmd));
+    isnull(cmd);
+
+    memset(&root, 0, sizeof(struct rootflags));
+    memset(&thud, 0, sizeof(struct thudflags));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -f thud", &cmd));
+    eqptr(&thud_cmd, cmd);
+    istrue(root.foo);
+
+    memset(&root, 0, sizeof(struct rootflags));
+    memset(&thud, 0, sizeof(struct thudflags));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud -f", &cmd));
+    eqptr(&thud_cmd, cmd);
+    istrue(root.foo);
 }
 
 

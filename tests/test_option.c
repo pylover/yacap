@@ -154,7 +154,7 @@ test_option_value() {
     struct carg carg = {
         .args = NULL,
         .header = NULL,
-        .eat = (carg_eater)eatarg,
+        .eat = (carg_eater_t)eatarg,
         .options = options,
         .footer = NULL,
         .version = NULL,

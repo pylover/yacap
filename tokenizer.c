@@ -37,7 +37,7 @@ struct tokenizer {
     int c;
     int toklen;
     const char *tok;
-    const struct carg_option *option;
+    const struct optioninfo *optioninfo;
     bool dashdash;
 };
 
@@ -47,7 +47,7 @@ struct tokenizer {
         t->line = __LINE__; \
         token->text = v; \
         token->len = l; \
-        token->option = opt; \
+        token->optioninfo = opt; \
         return CARG_TOK_OPTION; \
         case __LINE__:; \
     } while (0)
@@ -57,7 +57,7 @@ struct tokenizer {
         t->line = __LINE__; \
         token->text = tok; \
         token->len = l; \
-        token->option = NULL; \
+        token->optioninfo = NULL; \
         return CARG_TOK_UNKNOWN; \
         case __LINE__:; \
     } while (0)
@@ -67,7 +67,7 @@ struct tokenizer {
         t->line = __LINE__; \
         token->text = v; \
         token->len = l; \
-        token->option = NULL; \
+        token->optioninfo = NULL; \
         return CARG_TOK_POSITIONAL; \
         case __LINE__:; \
     } while (0)
@@ -77,7 +77,7 @@ struct tokenizer {
     t->line = -1; \
     token->text = NULL; \
     token->len = 0; \
-    token->option = NULL; \
+    token->optioninfo = NULL; \
     return CARG_TOK_ERROR
 
 
@@ -85,7 +85,7 @@ struct tokenizer {
     t->line = 0; \
     token->text = NULL; \
     token->len = 0; \
-    token->option = NULL; \
+    token->optioninfo = NULL; \
     return CARG_TOK_END
 
 
@@ -127,7 +127,7 @@ tokenizer_next(struct tokenizer *t, struct token *token) {
     START;
     for (t->w = 0; t->w < t->argc; t->w++) {
         t->tok = t->argv[t->w];
-        t->option = NULL;
+        t->optioninfo = NULL;
 
         if (t->tok == NULL) {
             REJECT;
@@ -160,39 +160,39 @@ tokenizer_next(struct tokenizer *t, struct token *token) {
             }
 
             // TODO: check the rightside len
-            t->option = optiondb_findbyname(t->optiondb, t->tok + 2,
+            t->optioninfo = optiondb_findbyname(t->optiondb, t->tok + 2,
                     (eq? eq - t->tok: t->toklen) - 2);
 
-            if (t->option == NULL) {
+            if (t->optioninfo == NULL) {
                 YIELD_OPT_UNKNOWN(t->tok, t->toklen);
                 continue;
             }
 
             if (!eq) {
-                YIELD_OPT(t->option, NULL, 0);
+                YIELD_OPT(t->optioninfo, NULL, 0);
                 continue;
             }
 
-            YIELD_OPT(t->option, eq+1, strlen(eq+1));
+            YIELD_OPT(t->optioninfo, eq+1, strlen(eq+1));
             continue;
         }
 
         if (t->tok[0] == '-') {
             /* Single dash option: -f */
             for (t->c = 1; t->c < t->toklen; t->c++) {
-                t->option = optiondb_findbykey(t->optiondb, t->tok[t->c]);
-                if (t->option == NULL) {
+                t->optioninfo = optiondb_findbykey(t->optiondb, t->tok[t->c]);
+                if (t->optioninfo == NULL) {
                     YIELD_OPT_UNKNOWN(t->tok + t->c, 1);
                     break;
                 }
-                else if (CARG_OPTION_ARGNEEDED(t->option) &&
+                else if (CARG_OPTION_ARGNEEDED(t->optioninfo->option) &&
                         ((t->c + 1) < t->toklen)) {
-                    YIELD_OPT(t->option, t->tok + t->c + 1,
+                    YIELD_OPT(t->optioninfo, t->tok + t->c + 1,
                             strlen(t->tok + t->c + 1));
                     break;
                 }
                 else {
-                    YIELD_OPT(t->option, NULL, 0);
+                    YIELD_OPT(t->optioninfo, NULL, 0);
                 }
             }
 

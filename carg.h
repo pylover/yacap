@@ -51,7 +51,7 @@ enum carg_flags{
 
 
 struct carg_option;
-typedef enum carg_eatstatus (*carg_eater) (const struct carg_option *option,
+typedef enum carg_eatstatus (*carg_eater_t) (const struct carg_option *option,
         const char *value, void *userptr);
 
 
@@ -78,7 +78,7 @@ struct carg_command {
     const char *args;
     const char *header;
     const char *footer;
-    carg_eater eat;
+    carg_eater_t eat;
     void *userptr;
 };
 

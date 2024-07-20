@@ -141,8 +141,8 @@ _clogverbosity(const char *value) {
 
 
 static enum carg_eatstatus
-_eat(const struct carg *c, const struct carg_option *opt,
-        const char *value) {
+_eat(const struct carg *c, const struct carg_command *command,
+        const struct carg_option *opt, const char *value) {
     /* Try to solve it internaly */
     if (c->version && (opt == &opt_version)) {
         dprintf(STDOUT_FILENO, "%s\n", c->version);
@@ -173,8 +173,8 @@ _eat(const struct carg *c, const struct carg_option *opt,
     }
 #endif
 
-    if (c->eat) {
-        return c->eat(opt, value, c->userptr);
+    if (command->eat) {
+        return command->eat(opt, value, command->userptr);
     }
 
     return CARG_EAT_NOTEATEN;
@@ -212,7 +212,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
         }
 
         /* is this a positional? */
-        if (tok.option == NULL) {
+        if (tok.optioninfo == NULL) {
             /* is this a sub-command? */
             subcmd = command_findbyname(cmd, tok.text);
             if (subcmd) {
@@ -225,17 +225,18 @@ _command_parse(struct carg *c, struct tokenizer *t) {
                 goto terminate;
             }
 
-            eatstatus = _eat(c, NULL, tok.text);
+            eatstatus = _eat(c, cmd, NULL, tok.text);
             goto dessert;
         }
 
         /* Ensure option's value */
-        if (CARG_OPTION_ARGNEEDED(tok.option)) {
+        if (CARG_OPTION_ARGNEEDED(tok.optioninfo->option)) {
             if (tok.text == NULL) {
                 /* try the next token as value */
                 if ((tokstatus = NEXT(t, &nexttok))
                         != CARG_TOK_POSITIONAL) {
-                    REJECT_OPTIONMISSINGARGUMENT(state, tok.option);
+                    REJECT_OPTIONMISSINGARGUMENT(state,
+                            tok.optioninfo->option);
                     status = CARG_USERERROR;
                     goto terminate;
                 }
@@ -243,15 +244,17 @@ _command_parse(struct carg *c, struct tokenizer *t) {
                 tok.text = nexttok.text;
                 tok.len = nexttok.len;
             }
-            eatstatus = _eat(c, tok.option, tok.text);
+            eatstatus = _eat(c, tok.optioninfo->command,
+                    tok.optioninfo->option, tok.text);
         }
         else {
             if (tok.text) {
-                REJECT_OPTIONHASARGUMENT(state, tok.option);
+                REJECT_OPTIONHASARGUMENT(state, tok.optioninfo->option);
                 status = CARG_USERERROR;
                 goto terminate;
             }
-            eatstatus = _eat(c, tok.option, NULL);
+            eatstatus = _eat(c, tok.optioninfo->command,
+                    tok.optioninfo->option, NULL);
         }
 
 dessert:

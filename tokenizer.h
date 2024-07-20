@@ -26,7 +26,7 @@
 struct token {
     const char *text;
     unsigned int len;
-    const struct carg_option *option;
+    const struct optioninfo *optioninfo;
 };
 
 

@@ -64,12 +64,12 @@ int
 optiondb_exists(struct optiondb *db, const struct carg_option *opt);
 
 
-const struct carg_option *
+const struct optioninfo *
 optiondb_findbyname(const struct optiondb *db, const char *name,
         int len);
 
 
-const struct carg_option *
+const struct optioninfo *
 optiondb_findbykey(const struct optiondb *db, int key);
 
 

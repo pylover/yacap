@@ -141,7 +141,7 @@ optiondb_dispose(struct optiondb *db) {
 }
 
 
-const struct carg_option *
+const struct optioninfo *
 optiondb_findbyname(const struct optiondb *db, const char *name,
         int len) {
     int i;
@@ -159,7 +159,7 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
         }
 
         if (CMPN(name, info->option->name, len)) {
-            return info->option;
+            return info;
         }
     }
 
@@ -167,7 +167,7 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
 }
 
 
-const struct carg_option *
+const struct optioninfo *
 optiondb_findbykey(const struct optiondb *db, int key) {
     int i;
     const struct optioninfo *info;
@@ -176,7 +176,7 @@ optiondb_findbykey(const struct optiondb *db, int key) {
         info = db->repo + i;
 
         if (info->option->key == key) {
-            return info->option;
+            return info;
         }
     }
 
