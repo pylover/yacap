@@ -1,4 +1,3 @@
-- test: provide argument twice: error
 - Argument grouping
 - Automatic shortcuts / aliases
 - Error on option key and longname conflicts

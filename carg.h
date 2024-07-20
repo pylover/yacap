@@ -58,6 +58,7 @@ typedef enum carg_eatstatus (*carg_eater_t) (const struct carg_option *option,
 /* option flags */
 enum carg_optionflags {
     CARG_OPTION_NONE = 0,
+    CARG_OPTION_MULTIPLE = 1,
 };
 
 

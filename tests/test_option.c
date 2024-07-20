@@ -60,7 +60,7 @@ eatarg(struct carg_option *opt, const char *value) {
 
 
 static void
-test_duplicate_options() {
+test_options_duplicated() {
     struct carg_option options[] = {
         {"foo", 'f', "FOO", 0, "Foo option"},
         {"foo", 'f', "FOO", 0, "Foo option"},
@@ -90,6 +90,7 @@ test_user_error() {
     struct carg_option options[] = {
         {"foo", 'f', "FOO", 0, "Foo option"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {"baz", 'z', NULL, 0, NULL},
         {NULL}
     };
     struct carg c = {
@@ -104,6 +105,14 @@ test_user_error() {
     };
 
     clog_verbosity = CLOG_INFO;
+
+    eqint(CARG_FATAL, carg_parse_string(&c, "foo -z", NULL));
+    eqstr("", out);
+    eqstr("foo: option not eaten -- '-z/--baz'\n", err);
+
+    eqint(CARG_FATAL, carg_parse_string(&c, "foo --baz", NULL));
+    eqstr("", out);
+    eqstr("foo: option not eaten -- '-z/--baz'\n", err);
 
     eqint(CARG_USERERROR, carg_parse_string(&c, "foo -f", NULL));
     eqstr("", out);
@@ -210,7 +219,7 @@ test_option_value() {
 int
 main() {
     test_user_error();
-    test_duplicate_options();
+    test_options_duplicated();
     test_option_value();
     return EXIT_SUCCESS;
 }

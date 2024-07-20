@@ -32,6 +32,7 @@ enum optioninfoflag {
 struct optioninfo {
     const struct carg_option *option;
     const struct carg_command *command;
+    unsigned int occurances;
 };
 
 
@@ -64,12 +65,12 @@ int
 optiondb_exists(struct optiondb *db, const struct carg_option *opt);
 
 
-const struct optioninfo *
+struct optioninfo *
 optiondb_findbyname(const struct optiondb *db, const char *name,
         int len);
 
 
-const struct optioninfo *
+struct optioninfo *
 optiondb_findbykey(const struct optiondb *db, int key);
 
 

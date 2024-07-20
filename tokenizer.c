@@ -37,13 +37,14 @@ struct tokenizer {
     int c;
     int toklen;
     const char *tok;
-    const struct optioninfo *optioninfo;
+    struct optioninfo *optioninfo;
     bool dashdash;
 };
 
 
 /* Coroutine  stuff*/
 #define YIELD_OPT(opt, v, l) do { \
+        opt->occurances++; \
         t->line = __LINE__; \
         token->text = v; \
         token->len = l; \

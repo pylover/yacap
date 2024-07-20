@@ -38,22 +38,34 @@
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
     PERR(" --usage' for more information.\n")
 
-#define REJECT_OPTIONMISSINGARGUMENT(s, o) \
+#define REJECT_OPTION_MISSINGARGUMENT(s, o) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
     PERR(": option requires an argument -- '"); \
     option_print(STDERR_FILENO, o); \
     PERR("'\n")
 
-#define REJECT_OPTIONHASARGUMENT(s, o) \
+#define REJECT_OPTION_HASARGUMENT(s, o) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
     PERR(": no argument allowed for option -- '"); \
     option_print(STDERR_FILENO, o); \
     PERR("'\n")
 
-#define REJECT_UNRECOGNIZED(s, name, len) \
+#define REJECT_OPTION_UNRECOGNIZED(s, name, len) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
     PERR(": invalid option -- '%s%.*s'\n", \
         len == 1? "-": "", len, name)
+
+#define REJECT_OPTION_NOTEATEN(s, o) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    PERR(": option not eaten -- '"); \
+    option_print(STDERR_FILENO, o); \
+    PERR("'\n")
+
+#define REJECT_OPTION_REDUNDANT(s, o) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    PERR(": redundant option -- '"); \
+    option_print(STDERR_FILENO, o); \
+    PERR("'\n")
 
 
 static int
@@ -205,7 +217,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
         /* fetch the next token */
         if ((tokstatus = NEXT(t, &tok)) <= CARG_TOK_END) {
             if (tokstatus == CARG_TOK_UNKNOWN) {
-                REJECT_UNRECOGNIZED(state, tok.text, tok.len);
+                REJECT_OPTION_UNRECOGNIZED(state, tok.text, tok.len);
                 status = CARG_USERERROR;
             }
             goto terminate;
@@ -229,13 +241,22 @@ _command_parse(struct carg *c, struct tokenizer *t) {
             goto dessert;
         }
 
-        /* Ensure option's value */
+        /* ensure option occureances */
+        if ((!HASFLAG(tok.optioninfo->option, CARG_OPTION_MULTIPLE)) &&
+                (tok.optioninfo->occurances > 1)) {
+            REJECT_OPTION_REDUNDANT(state, tok.optioninfo->option);
+            status = CARG_USERERROR;
+            goto terminate;
+        }
+
+
+        /* ensure option's value */
         if (CARG_OPTION_ARGNEEDED(tok.optioninfo->option)) {
             if (tok.text == NULL) {
                 /* try the next token as value */
                 if ((tokstatus = NEXT(t, &nexttok))
                         != CARG_TOK_POSITIONAL) {
-                    REJECT_OPTIONMISSINGARGUMENT(state,
+                    REJECT_OPTION_MISSINGARGUMENT(state,
                             tok.optioninfo->option);
                     status = CARG_USERERROR;
                     goto terminate;
@@ -249,7 +270,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
         }
         else {
             if (tok.text) {
-                REJECT_OPTIONHASARGUMENT(state, tok.optioninfo->option);
+                REJECT_OPTION_HASARGUMENT(state, tok.optioninfo->option);
                 status = CARG_USERERROR;
                 goto terminate;
             }
@@ -264,6 +285,8 @@ dessert:
             case CARG_EAT_OK_EXIT:
                 status = CARG_OK_EXIT;
                 goto terminate;
+            case CARG_EAT_NOTEATEN:
+                REJECT_OPTION_NOTEATEN(state, tok.optioninfo->option);
             default:
                 status = CARG_FATAL;
                 goto terminate;

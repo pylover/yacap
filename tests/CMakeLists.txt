@@ -2,6 +2,7 @@
 include(CTest)
 list(APPEND testrules
 	option
+	option_multiple
 	optiondb
 	tokenizer
 	version

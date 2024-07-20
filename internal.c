@@ -43,7 +43,7 @@ const struct carg_option opt_verboseflag = {
     .name = NULL,
     .key = 'v',
     .arg = NULL,
-    .flags = 0,
+    .flags = CARG_OPTION_MULTIPLE,
     .help = "Increase the clog_verbosity on each occurance, e.g. -vvv"
 };
 #endif

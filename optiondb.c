@@ -95,6 +95,7 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
     info = db->repo + (db->count++);
     info->option = opt;
     info->command = command;
+    info->occurances = 0;
     return 0;
 }
 
@@ -139,11 +140,11 @@ optiondb_dispose(struct optiondb *db) {
 }
 
 
-const struct optioninfo *
+struct optioninfo *
 optiondb_findbyname(const struct optiondb *db, const char *name,
         int len) {
     int i;
-    const struct optioninfo *info;
+    struct optioninfo *info;
     char tmp[len + 1];
 
     if (name == NULL) {
@@ -169,10 +170,10 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
 }
 
 
-const struct optioninfo *
+struct optioninfo *
 optiondb_findbykey(const struct optiondb *db, int key) {
     int i;
-    const struct optioninfo *info;
+    struct optioninfo *info;
 
     for (i = 0; i < db->count; i++) {
         info = db->repo + i;
