@@ -1,8 +1,6 @@
-- print list of available commands on --help 
+- API review
+- readme
 - Automatic shortcuts / aliases
-- Error on option key and longname conflicts
-- Specify an argument multiple times.
-- Test for state.index and other public fields.
 - feature: aliases
 - feature: shorthands/abbr
 
