@@ -199,9 +199,9 @@ carg_usage_print(const struct carg *c) {
     char *buff = NULL;
     struct carg_state *state = c->state;
 
-    dprintf(STDOUT_FILENO, "Usage: ");
+    POUT("Usage: ");
     cmdstack_print(STDOUT_FILENO, &state->cmdstack);
-    dprintf(STDOUT_FILENO, " [OPTION...]");
+    POUT(" [OPTION...]");
 
     if (c->args == NULL) {
         goto done;
@@ -211,22 +211,22 @@ carg_usage_print(const struct carg *c) {
     strcpy(buff, c->args);
 
     needle = strtok_r(buff, delim, &saveptr);
-    dprintf(STDOUT_FILENO, " %s", needle);
+    POUT(" %s", needle);
     while (true) {
         needle = strtok_r(NULL, delim, &saveptr);
         if (needle == NULL) {
             break;
         }
-        dprintf(STDOUT_FILENO, "\n   or: ");
+        POUT("\n   or: ");
         cmdstack_print(STDOUT_FILENO, &state->cmdstack);
-        dprintf(STDOUT_FILENO, " [OPTION...] %s", needle);
+        POUT(" [OPTION...] %s", needle);
     }
 
 done:
     if (buff) {
         free(buff);
     }
-    dprintf(STDOUT_FILENO, "\n");
+    POUT("\n");
 }
 
 
@@ -237,7 +237,7 @@ carg_help_print(const struct carg *c) {
 
     /* Header */
     if (c->header) {
-        dprintf(STDOUT_FILENO, "\n");
+        POUT("\n");
         _print_multiline(STDOUT_FILENO, c->header, 0, CARG_HELP_LINESIZE);
     }
 
@@ -246,7 +246,7 @@ carg_help_print(const struct carg *c) {
 
     /* Footer */
     if (c->footer) {
-        dprintf(STDOUT_FILENO, "\n");
+        POUT("\n");
         _print_multiline(STDOUT_FILENO, c->footer, 0, CARG_HELP_LINESIZE);
     }
 }

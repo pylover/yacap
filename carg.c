@@ -32,27 +32,27 @@
 
 
 #define TRYHELP(s) \
-    dprintf(STDERR_FILENO, "Try `"); \
+    PERR("Try `"); \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
-    dprintf(STDERR_FILENO, " --help' or `"); \
+    PERR(" --help' or `"); \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
-    dprintf(STDERR_FILENO, " --usage' for more information.\n")
+    PERR(" --usage' for more information.\n")
 
 #define REJECT_OPTIONMISSINGARGUMENT(s, o) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
-    dprintf(STDERR_FILENO, ": option requires an argument -- '"); \
+    PERR(": option requires an argument -- '"); \
     option_print(STDERR_FILENO, o); \
-    dprintf(STDERR_FILENO, "'\n")
+    PERR("'\n")
 
 #define REJECT_OPTIONHASARGUMENT(s, o) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
-    dprintf(STDERR_FILENO, ": no argument allowed for option -- '"); \
+    PERR(": no argument allowed for option -- '"); \
     option_print(STDERR_FILENO, o); \
-    dprintf(STDERR_FILENO, "'\n")
+    PERR("'\n")
 
 #define REJECT_UNRECOGNIZED(s, name, len) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
-    dprintf(STDERR_FILENO, ": invalid option -- '%s%.*s'\n", \
+    PERR(": invalid option -- '%s%.*s'\n", \
         len == 1? "-": "", len, name)
 
 
@@ -145,7 +145,7 @@ _eat(const struct carg *c, const struct carg_command *command,
         const struct carg_option *opt, const char *value) {
     /* Try to solve it internaly */
     if (c->version && (opt == &opt_version)) {
-        dprintf(STDOUT_FILENO, "%s\n", c->version);
+        POUT("%s\n", c->version);
         return CARG_EAT_OK_EXIT;
     }
 

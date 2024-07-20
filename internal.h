@@ -42,6 +42,10 @@
         BETWEEN(c, 97, 122))
 
 
+#define PERR(...) dprintf(STDERR_FILENO, __VA_ARGS__)
+#define POUT(...) dprintf(STDOUT_FILENO, __VA_ARGS__)
+
+
 extern const struct carg_option opt_verbosity;
 extern const struct carg_option opt_verboseflag;
 extern const struct carg_option opt_version;

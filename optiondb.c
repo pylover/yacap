@@ -40,8 +40,7 @@ optiondb_extend(struct optiondb *db) {
     }
 
     if (newsize <= db->size) {
-        dprintf(STDERR_FILENO, "maximum allowed options are exceeded: %d\n",
-                CARG_OPTIONS_MAX);
+        PERR("maximum allowed options are exceeded: %d\n", CARG_OPTIONS_MAX);
         return -1;
     }
 
@@ -82,9 +81,9 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
 
     /* check existance */
     if (optiondb_exists(db, opt)) {
-        dprintf(STDERR_FILENO, "option duplicated -- '");
+        PERR("option duplicated -- '");
         option_print(STDERR_FILENO, opt);
-        dprintf(STDERR_FILENO, "'\n");
+        PERR("'\n");
         return -1;
     }
 
