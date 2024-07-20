@@ -103,7 +103,6 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
 int
 optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
         const struct carg_command *cmd) {
-
     if (opt == NULL) {
         return 0;
     }

@@ -47,6 +47,9 @@ root_eater(const struct carg_option *option, const char *value,
         case 'f':
             flags->foo = true;
             break;
+        case 'b':
+            flags->bar = value;
+            break;
         default:
             return CARG_EAT_UNRECOGNIZED;
     }
@@ -58,7 +61,6 @@ root_eater(const struct carg_option *option, const char *value,
 enum carg_eatstatus
 thud_eater(const struct carg_option *option, const char *value,
         struct thudflags *flags) {
-
     if (option == NULL) {
         return CARG_EAT_UNRECOGNIZED;
     }
@@ -127,9 +129,19 @@ test_command() {
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo thud -f", &cmd));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -f -b qux thud -z", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
+    istrue(thud.baz);
+    eqstr("qux", root.bar);
+
+    memset(&root, 0, sizeof(struct rootflags));
+    memset(&thud, 0, sizeof(struct thudflags));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud -fzbqux", &cmd));
+    eqptr(&thud_cmd, cmd);
+    istrue(root.foo);
+    istrue(thud.baz);
+    eqstr("qux", root.bar);
 }
 
 
