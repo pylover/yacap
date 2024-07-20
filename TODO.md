@@ -1,6 +1,4 @@
-- Don't allow --f (single char with -- options)
-- test carg_parse with argc == 1
-- Handle sub-command
+- test: provide argument twice: error
 - Argument grouping
 - Automatic shortcuts / aliases
 - Error on option key and longname conflicts

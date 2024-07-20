@@ -142,16 +142,17 @@ _print_option(int fd, const struct carg_option *opt, int gapsize) {
 
 
 static void
-_print_options(int fd, const struct carg *c) {
+_print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
     int gapsize;
     int i = 0;
     const struct carg_option *opt;
+    bool subcommand = c->state->cmdstack.len > 1;
 
     /* calculate initial gap between options and description */
     gapsize = _calculate_initial_gapsize(c);
 
-    while (c->options) {
-        opt = &(c->options[i++]);
+    while (cmd->options) {
+        opt = &(cmd->options[i++]);
         if (opt->name == NULL) {
             break;
         }
@@ -161,8 +162,8 @@ _print_options(int fd, const struct carg *c) {
 
     dprintf(fd, "\n");
     i = 0;
-    while (c->options) {
-        opt = &(c->options[i++]);
+    while (cmd->options) {
+        opt = &(cmd->options[i++]);
         if (opt->name == NULL) {
             break;
         }
@@ -179,13 +180,13 @@ _print_options(int fd, const struct carg *c) {
     }
 
 #ifdef CARG_USE_CLOG
-    if (!HASFLAG(c, CARG_NO_CLOG)) {
+    if ((!subcommand) && (!HASFLAG(c, CARG_NO_CLOG))) {
         _print_option(fd, &opt_verboseflag, gapsize);
         _print_option(fd, &opt_verbosity, gapsize);
     }
 #endif
 
-    if (c->version) {
+    if (!subcommand && c->version) {
         _print_option(fd, &opt_version, gapsize);
     }
 }
@@ -198,17 +199,18 @@ carg_usage_print(const struct carg *c) {
     char *saveptr = NULL;
     char *buff = NULL;
     struct carg_state *state = c->state;
+    const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
 
     POUT("Usage: ");
     cmdstack_print(STDOUT_FILENO, &state->cmdstack);
     POUT(" [OPTION...]");
 
-    if (c->args == NULL) {
+    if (cmd->args == NULL) {
         goto done;
     }
 
-    buff = malloc(strlen(c->args) + 1);
-    strcpy(buff, c->args);
+    buff = malloc(strlen(cmd->args) + 1);
+    strcpy(buff, cmd->args);
 
     needle = strtok_r(buff, delim, &saveptr);
     POUT(" %s", needle);
@@ -232,21 +234,24 @@ done:
 
 void
 carg_help_print(const struct carg *c) {
-    // /* Usage */
+    struct carg_state *state = c->state;
+    const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
+
+    /* Usage */
     carg_usage_print(c);
 
     /* Header */
-    if (c->header) {
+    if (cmd->header) {
         POUT("\n");
-        _print_multiline(STDOUT_FILENO, c->header, 0, CARG_HELP_LINESIZE);
+        _print_multiline(STDOUT_FILENO, cmd->header, 0, CARG_HELP_LINESIZE);
     }
 
     /* Options */
-    _print_options(STDOUT_FILENO, c);
+    _print_options(STDOUT_FILENO, c, cmd);
 
     /* Footer */
-    if (c->footer) {
+    if (cmd->footer) {
         POUT("\n");
-        _print_multiline(STDOUT_FILENO, c->footer, 0, CARG_HELP_LINESIZE);
+        _print_multiline(STDOUT_FILENO, cmd->footer, 0, CARG_HELP_LINESIZE);
     }
 }

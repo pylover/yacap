@@ -256,6 +256,66 @@ test_help_options() {
 }
 
 
+void
+test_help_subcommand() {
+    struct carg_option thud_options[] = {
+        {"baz", 'z', NULL, 0, "Baz flag"},
+        {NULL}
+    };
+
+    const struct carg_subcommand thud_cmd = {
+        .name = "thud",
+        .args = "qux",
+        .options = thud_options,
+        .header = "Header: Lorem ipsum footer",
+        .footer = "Footer: Lorem ipsum footer",
+        .eat = NULL,
+        .userptr = NULL,
+    };
+
+    struct carg_option root_options[] = {
+        {"foo", 'f', NULL, 0, "Foo flag"},
+        {"bar", 'b', "BAR", 0, "Bar option with value"},
+        {NULL}
+    };
+
+    struct carg carg = {
+        .args = NULL,
+        .header = NULL,
+        .eat = NULL,
+        .options = root_options,
+        .footer = NULL,
+        .version = NULL,
+        .flags = 0,
+        .userptr = NULL,
+        .commands = (const struct carg_subcommand*[]) {
+            &thud_cmd,
+            NULL
+        },
+    };
+
+    char *help =
+"Usage: foo thud [OPTION...] qux\n"
+"\n"
+"Header: Lorem ipsum footer\n"
+"\n"
+"  -z, --baz                Baz flag\n"
+"  -h, --help               Give this help list and exit\n"
+"  -?, --usage              Give a short usage message and exit\n"
+"\n"
+"Footer: Lorem ipsum footer\n";
+
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo thud --help", NULL));
+    eqstr(help, out);
+    eqstr("", err);
+
+    help = "Usage: foo thud [OPTION...] qux\n";
+    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo thud --usage", NULL));
+    eqstr(help, out);
+    eqstr("", err);
+}
+
+
 int
 main() {
     test_usage();
@@ -263,5 +323,6 @@ main() {
     test_help_default();
     test_help_nooptions();
     test_help_options();
+    test_help_subcommand();
     return EXIT_SUCCESS;
 }
