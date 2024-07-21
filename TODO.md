@@ -1,3 +1,4 @@
+- positionals
 - readme
 - Automatic shortcuts / aliases
 - feature: aliases

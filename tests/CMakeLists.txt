@@ -9,7 +9,7 @@ list(APPEND testrules
 	help
 	command
 	command_help
-    # positional
+    positional
 )
 if (CARG_USE_CLOG)
 	list(APPEND testrules clog)

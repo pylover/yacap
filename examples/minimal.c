@@ -21,17 +21,17 @@
 #include "carg.h"
 
 
-static struct carg cli = {
-    .options = NULL,
-    .commands = NULL,
-    .args = NULL,
-    .header = NULL,
-    .footer = NULL,
-    .eat = NULL,
-    .userptr = NULL,
-    .version = NULL,
-    .flags = 0,
-};
+// static struct carg cli = {
+//     .options = NULL,
+//     .commands = NULL,
+//     .args = NULL,
+//     .header = NULL,
+//     .footer = NULL,
+//     .eat = NULL,
+//     .userptr = NULL,
+//     .version = NULL,
+//     .flags = 0,
+// };
 
 
 int

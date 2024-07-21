@@ -67,6 +67,14 @@
     option_print(STDERR_FILENO, o); \
     PERR("'\n")
 
+#define REJECT_POSITIONAL_NOTEATEN(s, t) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    PERR(": argument not eaten -- '%s'\n", t)
+
+#define REJECT_POSITIONAL(s, t) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    PERR(": invalid argument -- '%s'\n", t)
+
 
 static int
 _build_optiondb(const struct carg *c, struct optiondb *db) {
@@ -285,8 +293,17 @@ dessert:
             case CARG_EAT_OK_EXIT:
                 status = CARG_OK_EXIT;
                 goto terminate;
+            case CARG_EAT_UNRECOGNIZED:
+                REJECT_POSITIONAL(state, tok.text);
+                status = CARG_USERERROR;
+                goto terminate;
             case CARG_EAT_NOTEATEN:
-                REJECT_OPTION_NOTEATEN(state, tok.optioninfo->option);
+                if (tok.optioninfo) {
+                    REJECT_OPTION_NOTEATEN(state, tok.optioninfo->option);
+                }
+                else {
+                    REJECT_POSITIONAL_NOTEATEN(state, tok.text);
+                }
             default:
                 status = CARG_FATAL;
                 goto terminate;
