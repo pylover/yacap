@@ -1,4 +1,3 @@
-- API review
 - readme
 - Automatic shortcuts / aliases
 - feature: aliases

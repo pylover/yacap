@@ -23,12 +23,4 @@
 #include "carg.h"
 
 
-void
-carg_usage_print(const struct carg *c);
-
-
-void
-carg_help_print(const struct carg *c);
-
-
 #endif  // HELP_H_

@@ -109,4 +109,12 @@ carg_parse(struct carg *c, int argc, const char **argv,
         const struct carg_subcommand **subcommand);
 
 
+void
+carg_usage_print(const struct carg *c);
+
+
+void
+carg_help_print(const struct carg *c);
+
+
 #endif  // CARG_H_
