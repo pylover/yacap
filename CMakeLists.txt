@@ -33,6 +33,8 @@ set_property(CACHE CARG_CMDSTACK_MAX PROPERTY
 set(CARG_HELP_LINESIZE 79 CACHE STRING "Option temp buffer size")
 
 option(CARG_USE_CLOG "Enable -v/--verbose option to set clog's verbosity" ON)
+option(CARG_BUILD_EXAMPLES "Build examples/*.c" ON)
+option(CARG_BUILD_TESTS "Build tests/*.c" ON)
 
 
 configure_file(config.h.in config.h)
@@ -103,7 +105,7 @@ include(CPack)
 
 
 # Testing
-if (NOT DEFINED ENV{SKIP_TESTS})
+if (CARG_BUILD_TESTS)
     enable_testing()
     # list(APPEND CMAKE_CTEST_ARGUMENTS "--verbose")
     add_subdirectory(tests)
@@ -111,7 +113,7 @@ if (NOT DEFINED ENV{SKIP_TESTS})
 endif()
 
 
-# # Examples
-# if (NOT DEFINED ENV{SKIP_EXAMPLES})
-# add_subdirectory(examples)
-# endif()
+# Examples
+if (CARG_BUILD_EXAMPLES)
+add_subdirectory(examples)
+endif()
