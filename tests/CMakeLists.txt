@@ -1,6 +1,7 @@
 # Testing
 include(CTest)
 list(APPEND testrules
+    arghint
 	option
 	option_multiple
 	optiondb
