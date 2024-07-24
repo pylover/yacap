@@ -129,6 +129,15 @@ test_arghint_parse_errors() {
     eqint(-1, arghint_parse("[...]"));
     eqint(-1, arghint_parse("FOO]"));
     eqint(-1, arghint_parse("[FOO"));
+
+    /* Pass 31 arg hints */
+    eqint(-1, arghint_parse(
+        "FOO BAR BAZ QUX QUUX THUD "
+        "FOO BAR BAZ QUX QUUX THUD "
+        "FOO BAR BAZ QUX QUUX THUD "
+        "FOO BAR BAZ QUX QUUX THUD "
+        "FOO BAR BAZ QUX QUUX THUD "
+        "FOO"));
 }
 
 
