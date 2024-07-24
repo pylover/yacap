@@ -11,6 +11,7 @@ list(APPEND testrules
 	command
 	command_help
     positional
+	dashdash
 )
 if (CARG_USE_CLOG)
 	list(APPEND testrules clog)
