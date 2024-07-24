@@ -32,15 +32,12 @@
     (strlen((o)->name) + ((o)->arg? strlen((o)->arg) + 1: 0)): 0)
 
 
-// TODO: use option_repr
-
-
 static int
-_calculate_initial_gapsize(const struct carg *c) {
+_calculate_initial_gapsize(const struct carg *c, bool subcommand) {
     int gapsize = 8;
 
 #ifdef CARG_USE_CLOG
-    if (!HASFLAG(c, CARG_NO_CLOG)) {
+    if ((!subcommand) && (!HASFLAG(c, CARG_NO_CLOG))) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verboseflag) + OPT_MINGAP);
     }
@@ -184,7 +181,7 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
     bool subcommand = c->state->cmdstack.len > 1;
 
     /* calculate gap size between options and description */
-    gapsize = _calculate_initial_gapsize(c);
+    gapsize = _calculate_initial_gapsize(c, subcommand);
     while (cmd->options) {
         opt = &(cmd->options[i++]);
         if (opt->name == NULL) {
