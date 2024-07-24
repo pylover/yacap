@@ -30,11 +30,12 @@ struct rootflags {
 
 struct thudflags{
     bool baz;
+    const char *arg;
 };
 
 
 static struct rootflags root = {false, NULL};
-static struct thudflags thud = {false};
+static struct thudflags thud = {false, NULL};
 
 enum carg_eatstatus
 root_eater(const struct carg_option *option, const char *value,
@@ -62,7 +63,11 @@ enum carg_eatstatus
 thud_eater(const struct carg_option *option, const char *value,
         struct thudflags *flags) {
     if (option == NULL) {
-        return CARG_EAT_UNRECOGNIZED;
+        if (flags->arg) {
+            return CARG_EAT_UNRECOGNIZED;
+        }
+        flags->arg = value;
+        return CARG_EAT_OK;
     }
 
     switch (option->key) {
@@ -114,7 +119,7 @@ test_command() {
     };
 
     const struct carg_subcommand *cmd;
-    eqint(CARG_OK, carg_parse_string(&carg, "foo thud", &cmd));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud qux", &cmd));
     isnotnull(cmd);
     eqptr(&thud_cmd, cmd);
 
@@ -123,13 +128,14 @@ test_command() {
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -f thud", &cmd));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo -f thud qux", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo -f -b qux thud -z", &cmd));
+    eqint(CARG_OK, carg_parse_string(&carg,
+                "foo -f -b qux thud -z quux", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
     istrue(thud.baz);
@@ -137,7 +143,7 @@ test_command() {
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(CARG_OK, carg_parse_string(&carg, "foo thud -fzbqux", &cmd));
+    eqint(CARG_OK, carg_parse_string(&carg, "foo thud -fzbqux quux", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
     istrue(thud.baz);

@@ -63,14 +63,14 @@ arghint_validate(size_t count, int pattern) {
 int
 arghint_parse(const char *args) {
     char *arghint;
+    char *dots;
+    char *strtokstate;
     char *tok;
     size_t toklen;
-    char *strtokstate;
     int counter = 0;
     int bits = 0;
     int opens = 0;
     int i;
-    char *dots;
 
     if ((args == NULL) || (strlen(args) == 0)) {
         SETBIT(bits, counter);
@@ -95,6 +95,9 @@ arghint_parse(const char *args) {
             opens++;
         }
         counter++;
+        if (counter > MAXARGS) {
+            goto failed;
+        }
 
         i = toklen - 1;
         if ((tok[i] != ']') && (i > 3) && (tok[i - 3] == ']')) {

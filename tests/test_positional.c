@@ -84,7 +84,7 @@ test_positionals() {
     memset(&args, 0, sizeof(args));
     eqint(CARG_USERERROR, carg_parse_string(&carg, "qux foo bar", NULL));
     eqstr("", out);
-    eqstr("qux: insufficient argument(s)\n"
+    eqstr("qux: invalid positional arguments count\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);
 }
 
@@ -169,6 +169,5 @@ test_positionals() {
 int
 main() {
     test_positionals();
-    // test_dashdash();
     return EXIT_SUCCESS;
 }

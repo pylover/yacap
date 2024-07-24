@@ -78,7 +78,7 @@
 
 #define REJECT_POSITIONALCOUNT(s) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
-    PERR(": invalid arguments count\n")
+    PERR(": invalid positional arguments count\n")
 
 
 static int
@@ -219,8 +219,8 @@ _command_parse(struct carg *c, struct tokenizer *t) {
     struct token nexttok;
     struct carg_state *state = c->state;
     const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
-    const struct carg_command *subcmd;
-    int positional_pattern = arghint_parse(cmd->args);
+    const struct carg_command *subcmd = NULL;
+    int arghint = arghint_parse(cmd->args);
 
     if (optiondb_insertvector(&state->optiondb, cmd->options, cmd) == -1) {
         status = CARG_FATAL;
@@ -318,12 +318,13 @@ dessert:
         }
     } while (tokstatus > CARG_TOK_END);
 
-    if (arghint_validate(positional_pattern, state->positionals)) {
+terminate:
+    if ((status == CARG_OK) && (subcmd == NULL) &&
+            arghint_validate(state->positionals, arghint)) {
         REJECT_POSITIONALCOUNT(state);
         status = CARG_USERERROR;
     }
 
-terminate:
     return status;
 }
 
