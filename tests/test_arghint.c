@@ -97,6 +97,8 @@ test_arghint_validate() {
     eqint(0, arghint_validate(2, arghint_parse("FOO BAR...")));
     eqint(0, arghint_validate(3, arghint_parse("FOO BAR...")));
     eqint(0, arghint_validate(4, arghint_parse("FOO BAR...")));
+
+    eqint(0, arghint_validate(255, arghint_parse("FOO BAR...")));
 }
 
 
@@ -132,8 +134,8 @@ test_arghint_parse_errors() {
 
 int
 main() {
+    test_arghint_validate();
     test_arghint_parse();
     test_arghint_parse_errors();
-    test_arghint_validate();
     return EXIT_SUCCESS;
 }

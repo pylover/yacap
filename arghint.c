@@ -35,7 +35,12 @@ arghint_validate(size_t count, int pattern) {
     int argspat = pattern & ARGSMASK;
 
     if (count > MAXARGS) {
-        return -1;
+        if (ISSET(pattern, 31)) {
+            return 0;
+        }
+        else {
+            return -1;
+        }
     }
 
     if (ISSET(argspat, count)) {
