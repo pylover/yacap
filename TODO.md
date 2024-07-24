@@ -1,3 +1,4 @@
+- maximum arghint bits `>=` 29
 - positionals
 - readme
 - Automatic shortcuts / aliases

@@ -24,6 +24,7 @@
 #include "config.h"
 #include "carg.h"
 #include "internal.h"
+#include "arghint.h"
 #include "command.h"
 #include "option.h"
 #include "help.h"
@@ -74,6 +75,10 @@
 #define REJECT_POSITIONAL(s, t) \
     cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
     PERR(": invalid argument -- '%s'\n", t)
+
+#define REJECT_POSITIONALCOUNT(s) \
+    cmdstack_print(STDERR_FILENO, &(s)->cmdstack); \
+    PERR(": invalid arguments count\n")
 
 
 static int
@@ -215,6 +220,7 @@ _command_parse(struct carg *c, struct tokenizer *t) {
     struct carg_state *state = c->state;
     const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
     const struct carg_command *subcmd;
+    int positional_pattern = arghint_parse(cmd->args);
 
     if (optiondb_insertvector(&state->optiondb, cmd->options, cmd) == -1) {
         status = CARG_FATAL;
@@ -245,6 +251,8 @@ _command_parse(struct carg *c, struct tokenizer *t) {
                 goto terminate;
             }
 
+            /* it's positional */
+            state->positionals++;
             eatstatus = _eat(c, cmd, NULL, tok.text);
             goto dessert;
         }
@@ -310,6 +318,11 @@ dessert:
         }
     } while (tokstatus > CARG_TOK_END);
 
+    if (arghint_validate(positional_pattern, state->positionals)) {
+        REJECT_POSITIONALCOUNT(state);
+        status = CARG_USERERROR;
+    }
+
 terminate:
     return status;
 }
@@ -318,7 +331,7 @@ terminate:
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv,
         const struct carg_subcommand **subcommand) {
-    struct carg_state state;
+    struct carg_state state = {.positionals = 0};
     enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
     struct token tok;

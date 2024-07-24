@@ -23,8 +23,85 @@
 
 #include "arghint.c"
 
+
 void
-test_arghint() {
+test_arghint_validate() {
+    eqint(0, arghint_validate(0, arghint_parse(NULL)));
+    eqint(-1, arghint_validate(1, arghint_parse(NULL)));
+    eqint(-1, arghint_validate(2, arghint_parse(NULL)));
+
+    eqint(0, arghint_validate(0, arghint_parse("")));
+    eqint(-1, arghint_validate(1, arghint_parse("")));
+    eqint(-1, arghint_validate(2, arghint_parse("")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO")));
+    eqint(0, arghint_validate(1, arghint_parse("FOO")));
+    eqint(-1, arghint_validate(2, arghint_parse("FOO")));
+
+    eqint(0, arghint_validate(0, arghint_parse("[FOO]")));
+    eqint(0, arghint_validate(1, arghint_parse("[FOO]")));
+    eqint(-1, arghint_validate(2, arghint_parse("[FOO]")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO BAR")));
+    eqint(-1, arghint_validate(1, arghint_parse("FOO BAR")));
+    eqint(0, arghint_validate(2, arghint_parse("FOO BAR")));
+    eqint(-1, arghint_validate(3, arghint_parse("FOO BAR")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO BAR BAZ")));
+    eqint(-1, arghint_validate(1, arghint_parse("FOO BAR BAZ")));
+    eqint(-1, arghint_validate(2, arghint_parse("FOO BAR BAZ")));
+    eqint(0, arghint_validate(3, arghint_parse("FOO BAR BAZ")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO [BAR]")));
+    eqint(0, arghint_validate(1, arghint_parse("FOO [BAR]")));
+    eqint(0, arghint_validate(2, arghint_parse("FOO [BAR]")));
+    eqint(-1, arghint_validate(3, arghint_parse("FOO [BAR]")));
+
+    eqint(0, arghint_validate(0, arghint_parse("[FOO [BAR]]")));
+    eqint(0, arghint_validate(1, arghint_parse("[FOO [BAR]]")));
+    eqint(0, arghint_validate(2, arghint_parse("[FOO [BAR]]")));
+    eqint(-1, arghint_validate(3, arghint_parse("[FOO [BAR]]")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO [BAR [BAZ]]")));
+    eqint(0, arghint_validate(1, arghint_parse("FOO [BAR [BAZ]]")));
+    eqint(0, arghint_validate(2, arghint_parse("FOO [BAR [BAZ]]")));
+    eqint(0, arghint_validate(3, arghint_parse("FOO [BAR [BAZ]]")));
+    eqint(-1, arghint_validate(4, arghint_parse("FOO [BAR [BAZ]]")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO [BAR BAZ]")));
+    eqint(0, arghint_validate(1, arghint_parse("FOO [BAR BAZ]")));
+    eqint(-1, arghint_validate(2, arghint_parse("FOO [BAR BAZ]")));
+    eqint(0, arghint_validate(3, arghint_parse("FOO [BAR BAZ]")));
+    eqint(-1, arghint_validate(4, arghint_parse("FOO [BAR BAZ]")));
+
+    eqint(0, arghint_validate(0, arghint_parse("...")));
+    eqint(0, arghint_validate(1, arghint_parse("...")));
+    eqint(0, arghint_validate(2, arghint_parse("...")));
+    eqint(0, arghint_validate(3, arghint_parse("...")));
+    eqint(0, arghint_validate(4, arghint_parse("...")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO...")));
+    eqint(0, arghint_validate(1, arghint_parse("FOO...")));
+    eqint(0, arghint_validate(2, arghint_parse("FOO...")));
+    eqint(0, arghint_validate(3, arghint_parse("FOO...")));
+    eqint(0, arghint_validate(4, arghint_parse("FOO...")));
+
+    eqint(0, arghint_validate(0, arghint_parse("[FOO]...")));
+    eqint(0, arghint_validate(1, arghint_parse("[FOO]...")));
+    eqint(0, arghint_validate(2, arghint_parse("[FOO]...")));
+    eqint(0, arghint_validate(3, arghint_parse("[FOO]...")));
+    eqint(0, arghint_validate(4, arghint_parse("[FOO]...")));
+
+    eqint(-1, arghint_validate(0, arghint_parse("FOO BAR...")));
+    eqint(-1, arghint_validate(1, arghint_parse("FOO BAR...")));
+    eqint(0, arghint_validate(2, arghint_parse("FOO BAR...")));
+    eqint(0, arghint_validate(3, arghint_parse("FOO BAR...")));
+    eqint(0, arghint_validate(4, arghint_parse("FOO BAR...")));
+}
+
+
+void
+test_arghint_parse() {
     eqint(0b00000000000000000000000000000001, arghint_parse(NULL));
     eqint(0b00000000000000000000000000000001, arghint_parse(""));
 
@@ -45,7 +122,7 @@ test_arghint() {
 
 
 void
-test_arghint_errors() {
+test_arghint_parse_errors() {
     eqint(-1, arghint_parse("[FOO...]"));
     eqint(-1, arghint_parse("[...]"));
     eqint(-1, arghint_parse("FOO]"));
@@ -55,7 +132,8 @@ test_arghint_errors() {
 
 int
 main() {
-    test_arghint();
-    test_arghint_errors();
+    test_arghint_parse();
+    test_arghint_parse_errors();
+    test_arghint_validate();
     return EXIT_SUCCESS;
 }

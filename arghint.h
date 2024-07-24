@@ -20,10 +20,8 @@
 #define ARGHINT_H_
 
 
-struct arghint {
-    unsigned int min;
-    unsigned int max;
-};
+int
+arghint_validate(size_t count, int pattern);
 
 
 int

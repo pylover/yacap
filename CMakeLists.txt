@@ -45,6 +45,7 @@ include_directories(
 
 
 add_library(internal OBJECT internal.c internal.h)
+add_library(arghint OBJECT arghint.c arghint.h)
 add_library(command OBJECT command.c command.h)
 add_library(cmdstack OBJECT cmdstack.c cmdstack.h)
 add_library(option OBJECT option.c option.h)
@@ -54,6 +55,7 @@ add_library(help_ OBJECT help.c help.h)
 add_library(carg STATIC 
     carg.c carg.h
     $<TARGET_OBJECTS:internal>
+    $<TARGET_OBJECTS:arghint>
     $<TARGET_OBJECTS:command>
     $<TARGET_OBJECTS:cmdstack>
     $<TARGET_OBJECTS:option>

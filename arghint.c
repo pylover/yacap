@@ -16,13 +16,43 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 
 #include "arghint.h"
 
 
+#define ISSET(i, b) (i & (1 << (b)))
 #define SETBIT(i, b) (i |= (1 << (b)))
+#define MAXBITS 32
+#define MAXARGS (MAXBITS - 2)
+#define ARGSMASK (~(3 << MAXARGS))
+
+
+int
+arghint_validate(size_t count, int pattern) {
+    int argspat = pattern & ARGSMASK;
+
+    if (count > MAXARGS) {
+        return -1;
+    }
+
+    if (ISSET(argspat, count)) {
+        return 0;
+    }
+
+    if ((argspat == 0) || (count == 0)) {
+        return -1;
+    }
+
+    int lastbit = (MAXBITS - __builtin_clz(pattern & ARGSMASK)) - 1;
+    if ((count > lastbit) && ISSET(pattern, 31)) {
+        return 0;
+    }
+
+    return -1;
+}
 
 
 int
@@ -83,7 +113,8 @@ arghint_parse(const char *args) {
                 SETBIT(bits, counter);
             }
 
-            bits |= 1 << 31;
+            SETBIT(bits, 31);
+            // bits |= 1 << 31;
             goto terminate;
         }
 
