@@ -89,7 +89,7 @@ test_command() {
         {NULL}
     };
 
-    const struct carg_subcommand thud_cmd = {
+    const struct carg_command thud_cmd = {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
@@ -112,13 +112,13 @@ test_command() {
         .version = NULL,
         .flags = 0,
         .userptr = &root,
-        .commands = (const struct carg_subcommand*[]) {
+        .commands = (const struct carg_command*[]) {
             &thud_cmd,
             NULL
         },
     };
 
-    const struct carg_subcommand *cmd;
+    const struct carg_command *cmd;
     eqint(CARG_OK, carg_parse_string(&carg, "foo thud qux", &cmd));
     isnotnull(cmd);
     eqptr(&thud_cmd, cmd);

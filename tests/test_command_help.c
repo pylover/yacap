@@ -31,7 +31,7 @@ test_command_help() {
         {NULL}
     };
 
-    const struct carg_subcommand thud_cmd = {
+    const struct carg_command thud_cmd = {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
@@ -56,7 +56,7 @@ test_command_help() {
         .version = NULL,
         .flags = 0,
         .userptr = NULL,
-        .commands = (const struct carg_subcommand*[]) {
+        .commands = (const struct carg_command*[]) {
             &thud_cmd,
             NULL
         },

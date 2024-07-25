@@ -1,6 +1,7 @@
 - example
 - delete cmdstack_print
 - delete cmdstack also (if possible!)
+- test command entrypoint
 - uninstall clog and build without the clog
 - readme
 - Automatic shortcuts / aliases

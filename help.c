@@ -126,8 +126,8 @@ _print_optiongroup(int fd, const struct carg_option *opt, int gapsize) {
 
 static void
 _print_subcommands(int fd, const struct carg_command *cmd) {
-    const struct carg_subcommand **c = cmd->commands;
-    const struct carg_subcommand *s;
+    const struct carg_command **c = cmd->commands;
+    const struct carg_command *s;
 
     if (cmd->commands == NULL) {
         return;

@@ -18,19 +18,39 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "carg.h"
 
 
 typedef int (*cmdmain_t) ();
-static struct carg_subcommand add = {
+
+
+static int
+_main(const struct carg *c, const struct carg_command *cmd) {
+    carg_commandchain_print(STDERR_FILENO, c);
+    dprintf(STDERR_FILENO, ": Invalid command\n");
+    carg_try_help(c);
+    return 0;
+}
+
+
+static int
+_route_add(const struct carg *c, const struct carg_command *cmd) {
+    printf("Adding route: TODO\n");
+    return 0;
+}
+
+
+static struct carg_command add = {
     .name = "add",
+    .entrypoint = _route_add,
 };
 
 
-static struct carg_subcommand route = {
+static struct carg_command route = {
     .name = "route",
-    .commands = (const struct carg_subcommand*[]) {
+    .commands = (const struct carg_command*[]) {
         &add,
         NULL
     },
@@ -39,38 +59,27 @@ static struct carg_subcommand route = {
 
 /* create and configure a CArg structure */
 static struct carg cli = {
-    .options = NULL,
-    .commands = (const struct carg_subcommand*[]) {
+    .commands = (const struct carg_command*[]) {
         &route,
         NULL
     },
-    .args = NULL,
-    .header = NULL,
-    .footer = NULL,
-    .eat = NULL,
-    .userptr = NULL,
-    .version = NULL,
-    .flags = 0,
+    .entrypoint = _main,
 };
 
 
 int
 main(int argc, const char **argv) {
-    const struct carg_subcommand *cmd;
+    int ret = EXIT_FAILURE;
+    const struct carg_command *cmd;
     enum carg_status status = carg_parse(&cli, argc, argv, &cmd);
 
     if (status == CARG_OK_EXIT) {
-        return EXIT_SUCCESS;
+        ret = EXIT_SUCCESS;
     }
-    else if (status < CARG_OK) {
-        return EXIT_FAILURE;
-    }
-
-    if (cmd) {
-        return ((cmdmain_t)cmd->userptr)();
+    else if ((status == CARG_OK) && cmd) {
+        ret = cmd->entrypoint(&cli, cmd);
     }
 
-    carg_usage_print(&cli);
     carg_dispose(&cli);
-    return 0;
+    return ret;
 }

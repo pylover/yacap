@@ -33,8 +33,8 @@ command_findbyname(const struct carg_command *cmd, const char *name) {
         return NULL;
     }
 
-    const struct carg_subcommand **c = cmd->commands;
-    const struct carg_subcommand *s;
+    const struct carg_command **c = cmd->commands;
+    const struct carg_command *s;
 
     while ((s = *c)) {
         if (CMP(name, s->name)) {

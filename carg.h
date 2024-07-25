@@ -50,9 +50,13 @@ enum carg_flags{
 };
 
 
+struct carg;
 struct carg_option;
+struct carg_command;
 typedef enum carg_eatstatus (*carg_eater_t) (const struct carg_option *option,
         const char *value, void *userptr);
+typedef int (*carg_entrypoint_t) (const struct carg *c,
+        const struct carg_command *cmd);
 
 
 /* option flags */
@@ -74,21 +78,15 @@ struct carg_option {
 
 /* Abstract base class! */
 struct carg_command {
+    const char *name;
     const struct carg_option *options;
-    const struct carg_subcommand **commands;
+    const struct carg_command **commands;
     const char *args;
     const char *header;
     const char *footer;
     carg_eater_t eat;
     void *userptr;
-};
-
-
-/* Sub Command */
-struct carg_subcommand {
-    struct carg_command;
-
-    const char *name;
+    carg_entrypoint_t entrypoint;
 };
 
 
@@ -106,7 +104,7 @@ struct carg {
 
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv,
-        const struct carg_subcommand **subcommand);
+        const struct carg_command **command);
 
 
 int
@@ -119,6 +117,14 @@ carg_usage_print(const struct carg *c);
 
 void
 carg_help_print(const struct carg *c);
+
+
+int
+carg_try_help(const struct carg *c);
+
+
+int
+carg_commandchain_print(int fd, const struct carg *c);
 
 
 #endif  // CARG_H_

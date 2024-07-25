@@ -331,7 +331,7 @@ terminate:
 
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv,
-        const struct carg_subcommand **subcommand) {
+        const struct carg_command **subcommand) {
     struct carg_state *state;
     enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
@@ -368,15 +368,15 @@ carg_parse(struct carg *c, int argc, const char **argv,
     cmdstack_init(&state->cmdstack);
 
     /* excecutable name */
-    if ((tokstatus = NEXT(t, &tok)) == CARG_TOK_POSITIONAL) {
-        if (cmdstack_push(&state->cmdstack, tok.text,
-                    (struct carg_command *)c) == -1) {
-            goto terminate;
-        }
-    }
-    else {
+    if ((tokstatus = NEXT(t, &tok)) != CARG_TOK_POSITIONAL) {
         goto terminate;
     }
+
+    if (cmdstack_push(&state->cmdstack, tok.text,
+                (struct carg_command *)c) == -1) {
+        goto terminate;
+    }
+    c->name = tok.text;
 
     status = _command_parse(c, t);
     if (status < CARG_OK) {
@@ -390,7 +390,7 @@ carg_parse(struct carg *c, int argc, const char **argv,
         }
         else {
             /* sub-commands */
-            *subcommand = (const struct carg_subcommand*)
+            *subcommand = (const struct carg_command*)
                 cmdstack_last(&state->cmdstack);
         }
     }
@@ -418,4 +418,33 @@ carg_dispose(struct carg *c) {
     free(c->state);
     c->state = NULL;
     return 0;
+}
+
+
+int
+carg_try_help(const struct carg* c) {
+    if (c == NULL) {
+        return -1;
+    }
+
+    if (c->state == NULL) {
+        return -1;
+    }
+
+    TRYHELP(c->state);
+    return 0;
+}
+
+
+int
+carg_commandchain_print(int fd, const struct carg *c) {
+    if (fd < 0) {
+        return -1;
+    }
+
+    if (c == NULL) {
+        return -1;
+    }
+
+    return cmdstack_print(fd, &c->state->cmdstack);
 }

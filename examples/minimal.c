@@ -31,15 +31,7 @@ _eat(const struct carg_option *opt, const char *value) {
 
 /* create and configure a CArg structure */
 static struct carg cli = {
-    .options = NULL,
-    .commands = NULL,
-    .args = "...",
-    .header = NULL,
-    .footer = NULL,
     .eat = (carg_eater_t)_eat,
-    .userptr = NULL,
-    .version = NULL,
-    .flags = 0,
 };
 
 
