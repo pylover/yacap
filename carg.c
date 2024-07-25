@@ -331,7 +331,7 @@ terminate:
 
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv,
-        const struct carg_command **subcommand) {
+        const struct carg_command **command) {
     struct carg_state *state;
     enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
@@ -383,16 +383,9 @@ carg_parse(struct carg *c, int argc, const char **argv,
         goto terminate;
     }
 
-    if (subcommand) {
-        if (state->cmdstack.len == 1) {
-            /* root command */
-            *subcommand = NULL;
-        }
-        else {
-            /* sub-commands */
-            *subcommand = (const struct carg_command*)
-                cmdstack_last(&state->cmdstack);
-        }
+    /* commands */
+    if (command) {
+        *command = cmdstack_last(&state->cmdstack);
     }
 
 terminate:

@@ -124,7 +124,8 @@ test_command() {
     eqptr(&thud_cmd, cmd);
 
     eqint(CARG_OK, carg_parse_string(&carg, "foo", &cmd));
-    isnull(cmd);
+    isnotnull(cmd);
+    eqptr(&carg, cmd);
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
