@@ -73,6 +73,10 @@ install(TARGETS carg DESTINATION "lib")
 install(FILES carg.h DESTINATION "include")
 
 
+# Uninstall
+add_custom_target(uninstall COMMAND xargs rm < install_manifest.txt)
+
+
 # Menu config
 add_custom_target(menu COMMAND ccmake ${PROJECT_BINARY_DIR} )
 add_custom_target(fresh COMMAND cmake ${PROJECT_SOURCE_DIR} --fresh)
