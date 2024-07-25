@@ -28,13 +28,15 @@ typedef int (*cmdmain_t) ();
 
 static int
 _main(const struct carg *c, const struct carg_command *cmd) {
-    carg_commandchain_print(STDERR_FILENO, c);
-    dprintf(STDERR_FILENO, ": Invalid command\n");
-    carg_try_help(c);
+    carg_help_print(c);
+    // carg_commandchain_print(STDERR_FILENO, c);
+    // dprintf(STDERR_FILENO, ": Invalid command\n");
+    // carg_try_help(c);
     return 0;
 }
 
 
+/* route add command */
 static int
 _route_add(const struct carg *c, const struct carg_command *cmd) {
     printf("Adding route: TODO\n");
@@ -48,16 +50,40 @@ static struct carg_command add = {
 };
 
 
+/* route del command */
+static int
+_route_delete(const struct carg *c, const struct carg_command *cmd) {
+    printf("Deleting route: TODO\n");
+    return 0;
+}
+
+
+static struct carg_command delete = {
+    .name = "del",
+    .entrypoint = _route_delete,
+};
+
+
+/* route command */
+static int
+_route_main(const struct carg *c, const struct carg_command *cmd) {
+    carg_help_print(c);
+    return 0;
+}
+
+
 static struct carg_command route = {
     .name = "route",
+    .entrypoint = _route_main,
     .commands = (const struct carg_command*[]) {
         &add,
+        &delete,
         NULL
     },
 };
 
 
-/* create and configure a CArg structure */
+/* Root CArg structure */
 static struct carg cli = {
     .commands = (const struct carg_command*[]) {
         &route,
@@ -75,11 +101,17 @@ main(int argc, const char **argv) {
 
     if (status == CARG_OK_EXIT) {
         ret = EXIT_SUCCESS;
+        goto terminate;
     }
-    else if ((status == CARG_OK) && cmd) {
+
+    if ((status == CARG_OK) && cmd) {
+        if (cmd->entrypoint == NULL) {
+            goto terminate;
+        }
         ret = cmd->entrypoint(&cli, cmd);
     }
 
+terminate:
     carg_dispose(&cli);
     return ret;
 }

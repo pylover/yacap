@@ -69,6 +69,7 @@ test_command_help() {
 "Commands:\n"
 "  thud\n"
 "\n"
+"Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
 "  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
@@ -85,6 +86,7 @@ test_command_help() {
 "Commands:\n"
 "  thud\n"
 "\n"
+"Options:\n"
 "  -h, --help       Give this help list and exit\n"
 "  -?, --usage      Give a short usage message and exit\n"
 "  -f, --foo        Foo flag\n"
@@ -100,6 +102,7 @@ test_command_help() {
 "\n"
 "Header: Lorem ipsum footer\n"
 "\n"
+"Options:\n"
 "  -h, --help     Give this help list and exit\n"
 "  -?, --usage    Give a short usage message and exit\n"
 "  -z, --baz      Baz flag\n"

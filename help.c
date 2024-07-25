@@ -191,7 +191,7 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
         gapsize = MAX(gapsize, OPT_HELPLEN(opt) + OPT_MINGAP);
     }
 
-    dprintf(fd, "\n");
+    dprintf(fd, "\nOptions:\n");
     if (!HASFLAG(c, CARG_NO_HELP)) {
         _print_option(fd, &opt_help, gapsize);
     }

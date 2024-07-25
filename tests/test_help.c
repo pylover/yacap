@@ -69,6 +69,7 @@ test_help_doc() {
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n"
 "\n"
+"Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
 "  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
@@ -93,6 +94,7 @@ test_help_doc() {
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n"
 "\n"
+"Options:\n"
 "  -h, --help     Give this help list and exit\n"
 "  -?, --usage    Give a short usage message and exit\n"
 "\n"
@@ -130,6 +132,7 @@ test_help_nooptions() {
     help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
+        "Options:\n"
         "  -h, --help    Give this help list and exit\n"
         "\n"
         "Lorem ipsum footer\n";
@@ -142,6 +145,7 @@ test_help_nooptions() {
     help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
+        "Options:\n"
         "  -h, --help     Give this help list and exit\n"
         "  -?, --usage    Give a short usage message and exit\n"
         "\n"
@@ -168,6 +172,7 @@ test_help_default() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
+"Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
 "  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
@@ -180,6 +185,7 @@ test_help_default() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
+"Options:\n"
 "  -h, --help     Give this help list and exit\n"
 "  -?, --usage    Give a short usage message and exit\n";
 
@@ -216,6 +222,7 @@ test_help_options() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
+"Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
 "  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
@@ -244,6 +251,7 @@ test_help_options() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
+"Options:\m"
 "  -h, --help           Give this help list and exit\n"
 "  -?, --usage          Give a short usage message and exit\n"
 "\n"
