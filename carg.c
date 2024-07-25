@@ -332,7 +332,7 @@ terminate:
 enum carg_status
 carg_parse(struct carg *c, int argc, const char **argv,
         const struct carg_subcommand **subcommand) {
-    struct carg_state state = {.positionals = 0};
+    struct carg_state *state;
     enum carg_status status = CARG_OK;
     enum tokenizer_status tokstatus;
     struct token tok;
@@ -346,23 +346,30 @@ carg_parse(struct carg *c, int argc, const char **argv,
     clog_verbosity = CLOG_WARNING;
 #endif
 
-    if (_build_optiondb(c, &state.optiondb)) {
+    state = malloc(sizeof(struct carg_state));
+    if (state == NULL) {
+        return CARG_FATAL;
+    }
+    memset(state, 0, sizeof(struct carg_state));
+    state->positionals = 0;
+    c->state = state;
+
+    if (_build_optiondb(c, &state->optiondb)) {
         return CARG_FATAL;
     }
 
-    t = tokenizer_new(argc, argv, &state.optiondb);
+    t = tokenizer_new(argc, argv, &state->optiondb);
     if (t == NULL) {
-        optiondb_dispose(&state.optiondb);
+        optiondb_dispose(&state->optiondb);
         return CARG_FATAL;
     }
 
     /* initialize command stack */
-    cmdstack_init(&state.cmdstack);
-    c->state = &state;
+    cmdstack_init(&state->cmdstack);
 
     /* excecutable name */
     if ((tokstatus = NEXT(t, &tok)) == CARG_TOK_POSITIONAL) {
-        if (cmdstack_push(&state.cmdstack, tok.text,
+        if (cmdstack_push(&state->cmdstack, tok.text,
                     (struct carg_command *)c) == -1) {
             goto terminate;
         }
@@ -377,23 +384,38 @@ carg_parse(struct carg *c, int argc, const char **argv,
     }
 
     if (subcommand) {
-        if (state.cmdstack.len == 1) {
+        if (state->cmdstack.len == 1) {
             /* root command */
             *subcommand = NULL;
         }
         else {
             /* sub-commands */
             *subcommand = (const struct carg_subcommand*)
-                cmdstack_last(&state.cmdstack);
+                cmdstack_last(&state->cmdstack);
         }
     }
 
 terminate:
     tokenizer_dispose(t);
-    optiondb_dispose(&state.optiondb);
+    optiondb_dispose(&state->optiondb);
     if (status == CARG_USERERROR) {
-        TRYHELP(&state);
+        TRYHELP(state);
     }
-    c->state = NULL;
     return status;
+}
+
+
+int
+carg_dispose(struct carg *c) {
+    if (c == NULL) {
+        return -1;
+    }
+
+    if (c->state == NULL) {
+        return -1;
+    }
+
+    free(c->state);
+    c->state = NULL;
+    return 0;
 }

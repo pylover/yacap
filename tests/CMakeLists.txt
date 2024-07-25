@@ -21,7 +21,7 @@ endif()
 list(TRANSFORM testrules PREPEND test_)
 set(profilerules ${testrules})
 list(TRANSFORM profilerules APPEND _profile)
-add_custom_target(profile DEPENDS ${profilerules})
+add_custom_target(profile_tests DEPENDS ${profilerules})
 add_library(helpers OBJECT helpers.c helpers.h)
 
 
@@ -53,7 +53,7 @@ foreach (t IN LISTS testrules)
 		DEPENDS ${t}
     )
     add_custom_target(${t}_profile
-        COMMAND "valgrind" ${VALGRIND_FLAGS} ctest -R ${t}
+		COMMAND "valgrind" ${VALGRIND_FLAGS} ${PROJECT_BINARY_DIR}/tests/${t}
 		DEPENDS ${t}
     )
 endforeach()

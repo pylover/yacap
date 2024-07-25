@@ -173,5 +173,6 @@ carg_parse_string(struct carg *c, const char * line,
         failed |= true;
     }
 
+    carg_dispose(c);
     return ret;
 }

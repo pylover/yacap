@@ -1,3 +1,7 @@
+- example
+- delete cmdstack_print
+- delete cmdstack also (if possible!)
+- uninstall clog and build without the clog
 - readme
 - Automatic shortcuts / aliases
 - feature: aliases

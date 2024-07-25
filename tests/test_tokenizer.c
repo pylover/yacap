@@ -190,6 +190,7 @@ test_tokenizer() {
     isnull(tok.optioninfo);
 
     tokenizer_dispose(t);
+    optiondb_dispose(&optdb);
 }
 
 
@@ -238,6 +239,7 @@ test_tokenizer_error() {
     isnull(tok.optioninfo);
 
     tokenizer_dispose(t);
+    optiondb_dispose(&optdb);
 }
 
 
