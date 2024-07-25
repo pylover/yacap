@@ -16,7 +16,6 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <clog.h>
 #include <cutest.h>
 
 #include "config.h"
@@ -251,7 +250,7 @@ test_help_options() {
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
-"Options:\m"
+"Options:\n"
 "  -h, --help           Give this help list and exit\n"
 "  -?, --usage          Give a short usage message and exit\n"
 "\n"

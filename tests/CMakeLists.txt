@@ -42,7 +42,10 @@ foreach (t IN LISTS testrules)
     # Test help
     add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
     target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
-	target_link_libraries(${t} PUBLIC clog PRIVATE carg)
+	target_link_libraries(${t} PRIVATE carg)
+	if (CARG_USE_CLOG)
+		target_link_libraries(${t} PUBLIC clog)
+	endif()
     add_test(NAME ${t} COMMAND ${t})
     add_custom_target(${t}_exec 
         COMMAND ctest --verbose -R "^${t}$"

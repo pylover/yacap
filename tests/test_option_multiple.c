@@ -16,7 +16,8 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <clog.h>
+#include <unistd.h>
+
 #include <cutest.h>
 
 #include "carg.h"
@@ -35,7 +36,7 @@ static enum carg_eatstatus
 _eater(const struct carg_option *opt, const char *value, void *) {
     if (opt == NULL) {
         /* Positional */
-        ERROR("Positional detected: %s", value);
+        dprintf(STDERR_FILENO, "Positional detected: %s", value);
         return CARG_EAT_UNRECOGNIZED;
     }
     switch (opt->key) {
@@ -79,8 +80,6 @@ test_options_multiple() {
         .flags = 0,
         .commands = NULL,
     };
-
-    clog_verbosity = CLOG_INFO;
 
     memset(&args, 0, sizeof(args));
     eqint(CARG_OK, carg_parse_string(&c, "foo -f1 -f2", NULL));

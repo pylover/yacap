@@ -18,7 +18,6 @@
  */
 #include <malloc.h>
 
-#include <clog.h>
 #include <cutest.h>
 
 #include "optiondb.c"

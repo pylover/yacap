@@ -18,9 +18,7 @@
  */
 #include <stdlib.h>
 
-#include <clog.h>
 #include <cutest.h>
-
 
 #include "carg.c"
 

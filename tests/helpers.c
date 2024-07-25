@@ -24,8 +24,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include <clog.h>
-
 #include "helpers.h"
 
 
@@ -141,13 +139,13 @@ carg_parse_string(struct carg *c, const char * line,
 
     fflush(stdout);
     if (_replace_fd(STDOUT_FILENO, outpipe, &outfd_backup) == -1) {
-        ERROR("_replace_fd");
+        dprintf(STDERR_FILENO, "_replace_fd");
         return CARG_FATAL;
     }
 
     fflush(stderr);
     if (_replace_fd(STDERR_FILENO, errpipe, &errfd_backup) == -1) {
-        ERROR("_replace_fd");
+        dprintf(STDERR_FILENO, "_replace_fd");
         _restore_fd(STDOUT_FILENO, outpipe[0], outfd_backup);
         return CARG_FATAL;
     }
