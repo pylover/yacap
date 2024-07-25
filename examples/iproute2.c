@@ -22,21 +22,32 @@
 #include "carg.h"
 
 
-static enum carg_eatstatus
-_eat(const struct carg_option *opt, const char *value) {
-    printf("%s\n", value);
-    return CARG_EAT_OK;
-}
+typedef int (*cmdmain_t) ();
+static struct carg_subcommand add = {
+    .name = "add",
+};
+
+
+static struct carg_subcommand route = {
+    .name = "route",
+    .commands = (const struct carg_subcommand*[]) {
+        &add,
+        NULL
+    },
+};
 
 
 /* create and configure a CArg structure */
 static struct carg cli = {
     .options = NULL,
-    .commands = NULL,
-    .args = "...",
+    .commands = (const struct carg_subcommand*[]) {
+        &route,
+        NULL
+    },
+    .args = NULL,
     .header = NULL,
     .footer = NULL,
-    .eat = (carg_eater_t)_eat,
+    .eat = NULL,
     .userptr = NULL,
     .version = NULL,
     .flags = 0,
@@ -45,12 +56,21 @@ static struct carg cli = {
 
 int
 main(int argc, const char **argv) {
-    enum carg_status status = carg_parse(&cli, argc, argv, NULL);
-    carg_dispose(&cli);
+    const struct carg_subcommand *cmd;
+    enum carg_status status = carg_parse(&cli, argc, argv, &cmd);
 
-    if (status >= CARG_OK) {
+    if (status == CARG_OK_EXIT) {
         return EXIT_SUCCESS;
     }
+    else if (status < CARG_OK) {
+        return EXIT_FAILURE;
+    }
 
-    return EXIT_FAILURE;
+    if (cmd) {
+        return ((cmdmain_t)cmd->userptr)();
+    }
+
+    carg_usage_print(&cli);
+    carg_dispose(&cli);
+    return 0;
 }
