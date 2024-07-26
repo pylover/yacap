@@ -53,8 +53,8 @@ enum yacap_flags{
 struct yacap;
 struct yacap_option;
 struct yacap_command;
-typedef enum yacap_eatstatus (*yacap_eater_t) (const struct yacap_option *option,
-        const char *value, void *userptr);
+typedef enum yacap_eatstatus (*yacap_eater_t)
+    (const struct yacap_option *option, const char *value, void *userptr);
 typedef int (*yacap_entrypoint_t) (const struct yacap *c,
         const struct yacap_command *cmd);
 

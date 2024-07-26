@@ -16,8 +16,9 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <cutest.h>
 #include <unistd.h>
+
+#include <cutest.h>
 
 #include "yacap.h"
 #include "helpers.h"
