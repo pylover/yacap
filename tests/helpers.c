@@ -1,18 +1,18 @@
 // Copyright 2023 Vahid Mardani
 /*
- * This file is part of CArg.
- *  CArg is free software: you can redistribute it and/or modify it under
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
  *
- *  CArg is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
  *
  *  You should have received a copy of the GNU General Public License along
- *  with CArg. If not, see <https://www.gnu.org/licenses/>.
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
@@ -110,9 +110,9 @@ failed:
 }
 
 
-enum carg_status
-carg_parse_string(struct carg *c, const char * line,
-        const struct carg_command **command) {
+enum yacap_status
+yacap_parse_string(struct yacap *c, const char * line,
+        const struct yacap_command **command) {
     char *argv[256];
     int argc = 0;
     char delim[1] = {' '};
@@ -140,18 +140,18 @@ carg_parse_string(struct carg *c, const char * line,
     fflush(stdout);
     if (_replace_fd(STDOUT_FILENO, outpipe, &outfd_backup) == -1) {
         dprintf(STDERR_FILENO, "_replace_fd");
-        return CARG_FATAL;
+        return YACAP_FATAL;
     }
 
     fflush(stderr);
     if (_replace_fd(STDERR_FILENO, errpipe, &errfd_backup) == -1) {
         dprintf(STDERR_FILENO, "_replace_fd");
         _restore_fd(STDOUT_FILENO, outpipe[0], outfd_backup);
-        return CARG_FATAL;
+        return YACAP_FATAL;
     }
 
     bool failed = false;
-    int ret = carg_parse(c, argc, (const char **)argv, command);
+    int ret = yacap_parse(c, argc, (const char **)argv, command);
     memset(out, 0, BUFFSIZE + 1);
     memset(err, 0, BUFFSIZE + 1);
 
@@ -171,6 +171,6 @@ carg_parse_string(struct carg *c, const char * line,
         failed |= true;
     }
 
-    carg_dispose(c);
+    yacap_dispose(c);
     return ret;
 }

@@ -1,36 +1,36 @@
 // Copyright 2023 Vahid Mardani
 /*
- * This file is part of CArg.
- *  CArg is free software: you can redistribute it and/or modify it under
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
  *
- *  CArg is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
  *
  *  You should have received a copy of the GNU General Public License along
- *  with CArg. If not, see <https://www.gnu.org/licenses/>.
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
 #include <cutest.h>
 
 #include "config.h"
-#include "carg.h"
+#include "yacap.h"
 #include "helpers.h"
 
 
 void
 test_command_help() {
-    struct carg_option thud_options[] = {
+    struct yacap_option thud_options[] = {
         {"baz", 'z', NULL, 0, "Baz flag"},
         {NULL}
     };
 
-    const struct carg_command thud_cmd = {
+    const struct yacap_command thud_cmd = {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
@@ -40,13 +40,13 @@ test_command_help() {
         .userptr = NULL,
     };
 
-    struct carg_option root_options[] = {
+    struct yacap_option root_options[] = {
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {NULL}
     };
 
-    struct carg carg = {
+    struct yacap yacap = {
         .args = NULL,
         .header = NULL,
         .eat = NULL,
@@ -55,14 +55,14 @@ test_command_help() {
         .version = NULL,
         .flags = 0,
         .userptr = NULL,
-        .commands = (const struct carg_command*[]) {
+        .commands = (const struct yacap_command*[]) {
             &thud_cmd,
             NULL
         },
     };
 
     char *help =
-#ifdef CARG_USE_CLOG
+#ifdef YACAP_USE_CLOG
 "Usage: foo [OPTION...]\n"
 "\n"
 "Commands:\n"
@@ -92,7 +92,7 @@ test_command_help() {
 "  -b, --bar=BAR    Bar option with value\n";
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
@@ -108,12 +108,12 @@ test_command_help() {
 "\n"
 "Footer: Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo thud --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo thud --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
     help = "Usage: foo thud [OPTION...] qux\n";
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo thud --usage", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo thud --usage", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

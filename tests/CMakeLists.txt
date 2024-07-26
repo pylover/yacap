@@ -13,7 +13,7 @@ list(APPEND testrules
     positional
 	dashdash
 )
-if (CARG_USE_CLOG)
+if (YACAP_USE_CLOG)
 	list(APPEND testrules clog)
 endif()
 
@@ -42,8 +42,8 @@ foreach (t IN LISTS testrules)
     # Test help
     add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
     target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
-	target_link_libraries(${t} PRIVATE carg)
-	if (CARG_USE_CLOG)
+	target_link_libraries(${t} PRIVATE yacap)
+	if (YACAP_USE_CLOG)
 		target_link_libraries(${t} PUBLIC clog)
 	endif()
     add_test(NAME ${t} COMMAND ${t})

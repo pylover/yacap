@@ -1,18 +1,18 @@
 // Copyright 2023 Vahid Mardani
 /*
- * This file is part of CArg.
- *  CArg is free software: you can redistribute it and/or modify it under
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
  *
- *  CArg is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
  *
  *  You should have received a copy of the GNU General Public License along
- *  with CArg. If not, see <https://www.gnu.org/licenses/>.
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
@@ -33,21 +33,21 @@
 
 
 static int
-_calculate_initial_gapsize(const struct carg *c, bool subcommand) {
+_calculate_initial_gapsize(const struct yacap *c, bool subcommand) {
     int gapsize = 8;
 
-#ifdef CARG_USE_CLOG
-    if ((!subcommand) && (!HASFLAG(c, CARG_NO_CLOG))) {
+#ifdef YACAP_USE_CLOG
+    if ((!subcommand) && (!HASFLAG(c, YACAP_NO_CLOG))) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verboseflag) + OPT_MINGAP);
     }
 #endif
 
-    if (!HASFLAG(c, CARG_NO_HELP)) {
+    if (!HASFLAG(c, YACAP_NO_HELP)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_help) + OPT_MINGAP);
     }
 
-    if (!HASFLAG(c, CARG_NO_USAGE)) {
+    if (!HASFLAG(c, YACAP_NO_USAGE)) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_usage) + OPT_MINGAP);
     }
 
@@ -107,7 +107,7 @@ _print_multiline(int fd, const char *string, int indent, int linemax) {
 
 
 static void
-_print_optiongroup(int fd, const struct carg_option *opt, int gapsize) {
+_print_optiongroup(int fd, const struct yacap_option *opt, int gapsize) {
     int rpad;
 
     if (opt->name && (!CMP("-", opt->name))) {
@@ -116,7 +116,7 @@ _print_optiongroup(int fd, const struct carg_option *opt, int gapsize) {
     }
 
     if (opt->help) {
-        _print_multiline(fd, opt->help, gapsize + 8, CARG_HELP_LINESIZE);
+        _print_multiline(fd, opt->help, gapsize + 8, YACAP_HELP_LINESIZE);
     }
     else {
         dprintf(fd, "\n");
@@ -125,9 +125,9 @@ _print_optiongroup(int fd, const struct carg_option *opt, int gapsize) {
 
 
 static void
-_print_subcommands(int fd, const struct carg_command *cmd) {
-    const struct carg_command **c = cmd->commands;
-    const struct carg_command *s;
+_print_subcommands(int fd, const struct yacap_command *cmd) {
+    const struct yacap_command **c = cmd->commands;
+    const struct yacap_command *s;
 
     if (cmd->commands == NULL) {
         return;
@@ -142,7 +142,7 @@ _print_subcommands(int fd, const struct carg_command *cmd) {
 
 
 static void
-_print_option(int fd, const struct carg_option *opt, int gapsize) {
+_print_option(int fd, const struct yacap_option *opt, int gapsize) {
     int rpad = gapsize - OPT_HELPLEN(opt);
 
     if (ISCHAR(opt->key)) {
@@ -165,7 +165,7 @@ _print_option(int fd, const struct carg_option *opt, int gapsize) {
     }
 
     if (opt->help) {
-        _print_multiline(fd, opt->help, gapsize + 8, CARG_HELP_LINESIZE);
+        _print_multiline(fd, opt->help, gapsize + 8, YACAP_HELP_LINESIZE);
     }
     else {
         dprintf(fd, "\n");
@@ -174,10 +174,10 @@ _print_option(int fd, const struct carg_option *opt, int gapsize) {
 
 
 static void
-_print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
+_print_options(int fd, const struct yacap *c, const struct yacap_command *cmd) {
     int gapsize;
     int i = 0;
-    const struct carg_option *opt;
+    const struct yacap_option *opt;
     bool subcommand = c->state->cmdstack.len > 1;
 
     /* calculate gap size between options and description */
@@ -192,16 +192,16 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
     }
 
     dprintf(fd, "\nOptions:\n");
-    if (!HASFLAG(c, CARG_NO_HELP)) {
+    if (!HASFLAG(c, YACAP_NO_HELP)) {
         _print_option(fd, &opt_help, gapsize);
     }
 
-    if (!HASFLAG(c, CARG_NO_USAGE)) {
+    if (!HASFLAG(c, YACAP_NO_USAGE)) {
         _print_option(fd, &opt_usage, gapsize);
     }
 
-#ifdef CARG_USE_CLOG
-    if ((!subcommand) && (!HASFLAG(c, CARG_NO_CLOG))) {
+#ifdef YACAP_USE_CLOG
+    if ((!subcommand) && (!HASFLAG(c, YACAP_NO_CLOG))) {
         _print_option(fd, &opt_verboseflag, gapsize);
         _print_option(fd, &opt_verbosity, gapsize);
     }
@@ -229,13 +229,13 @@ _print_options(int fd, const struct carg *c, const struct carg_command *cmd) {
 
 
 void
-carg_usage_print(const struct carg *c) {
+yacap_usage_print(const struct yacap *c) {
     char delim[1] = {'\n'};
     char *needle;
     char *saveptr = NULL;
     char *buff = NULL;
-    struct carg_state *state = c->state;
-    const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
+    struct yacap_state *state = c->state;
+    const struct yacap_command *cmd = cmdstack_last(&state->cmdstack);
 
     POUT("Usage: ");
     cmdstack_print(STDOUT_FILENO, &state->cmdstack);
@@ -269,17 +269,17 @@ done:
 
 
 void
-carg_help_print(const struct carg *c) {
-    struct carg_state *state = c->state;
-    const struct carg_command *cmd = cmdstack_last(&state->cmdstack);
+yacap_help_print(const struct yacap *c) {
+    struct yacap_state *state = c->state;
+    const struct yacap_command *cmd = cmdstack_last(&state->cmdstack);
 
     /* usage */
-    carg_usage_print(c);
+    yacap_usage_print(c);
 
     /* header */
     if (cmd->header) {
         POUT("\n");
-        _print_multiline(STDOUT_FILENO, cmd->header, 0, CARG_HELP_LINESIZE);
+        _print_multiline(STDOUT_FILENO, cmd->header, 0, YACAP_HELP_LINESIZE);
     }
 
     /* sub-commands */
@@ -293,6 +293,6 @@ carg_help_print(const struct carg *c) {
     /* footer */
     if (cmd->footer) {
         POUT("\n");
-        _print_multiline(STDOUT_FILENO, cmd->footer, 0, CARG_HELP_LINESIZE);
+        _print_multiline(STDOUT_FILENO, cmd->footer, 0, YACAP_HELP_LINESIZE);
     }
 }

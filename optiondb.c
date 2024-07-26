@@ -1,18 +1,18 @@
 // Copyright 2023 Vahid Mardani
 /*
- * This file is part of CArg.
- *  CArg is free software: you can redistribute it and/or modify it under
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
  *
- *  CArg is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
  *
  *  You should have received a copy of the GNU General Public License along
- *  with CArg. If not, see <https://www.gnu.org/licenses/>.
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
@@ -35,12 +35,12 @@ optiondb_extend(struct optiondb *db) {
     struct optioninfo *new;
     size_t newsize = db->size + EXTENDSIZE;
 
-    if (newsize > CARG_OPTIONS_MAX) {
-        newsize = CARG_OPTIONS_MAX;
+    if (newsize > YACAP_OPTIONS_MAX) {
+        newsize = YACAP_OPTIONS_MAX;
     }
 
     if (newsize <= db->size) {
-        PERR("maximum allowed options are exceeded: %d\n", CARG_OPTIONS_MAX);
+        PERR("maximum allowed options are exceeded: %d\n", YACAP_OPTIONS_MAX);
         return -1;
     }
 
@@ -57,7 +57,7 @@ optiondb_extend(struct optiondb *db) {
 
 
 int
-optiondb_exists(struct optiondb *db, const struct carg_option *opt) {
+optiondb_exists(struct optiondb *db, const struct yacap_option *opt) {
     int i;
     const struct optioninfo *info;
 
@@ -75,8 +75,8 @@ optiondb_exists(struct optiondb *db, const struct carg_option *opt) {
 
 
 int
-optiondb_insert(struct optiondb *db, const struct carg_option *opt,
-        const struct carg_command *command) {
+optiondb_insert(struct optiondb *db, const struct yacap_option *opt,
+        const struct yacap_command *command) {
     struct optioninfo *info;
 
     /* check existance */
@@ -101,8 +101,8 @@ optiondb_insert(struct optiondb *db, const struct carg_option *opt,
 
 
 int
-optiondb_insertvector(struct optiondb *db, const struct carg_option *opt,
-        const struct carg_command *cmd) {
+optiondb_insertvector(struct optiondb *db, const struct yacap_option *opt,
+        const struct yacap_command *cmd) {
     if (opt == NULL) {
         return 0;
     }

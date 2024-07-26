@@ -9,7 +9,7 @@ foreach (t IN LISTS examples)
   add_executable(${t} 
     ${t}.c
   )
-  target_link_libraries(${t} PRIVATE carg)
+  target_link_libraries(${t} PRIVATE yacap)
   target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
   add_custom_target(${t}_exec COMMAND ${t})
   add_custom_target(${t}_debug COMMAND gdb 

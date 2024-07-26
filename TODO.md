@@ -1,3 +1,5 @@
+- delete help.h
+- code coverage
 - example
 - test command entrypoint
 - readme
@@ -5,18 +7,18 @@
 - feature: aliases
 - feature: shorthands/abbr
 
-- feature: CARG_OPTION_ARGOPTIONAL
+- feature: YACAP_OPTION_ARGOPTIONAL
   The argument associated with this option is optional.
 
-- feature: CARG_OPTION_HIDDEN
+- feature: YACAP_OPTION_HIDDEN
   This option isn’t displayed in any help messages.
 
-- feature: CARG_OPTION_ALIAS
+- feature: YACAP_OPTION_ALIAS
   This option is an alias for the closest previous non-alias option. 
   This means that it will be displayed in the same help entry, and will 
   inherit fields other than name and key from the option being aliased.
 
-- feature: CARG_OPTION_DOC
+- feature: YACAP_OPTION_DOC
   This option isn’t actually an option and should be ignored by the actual 
   option parser. It is an arbitrary section of documentation that should be 
   displayed in much the same manner as the options. This is known as a 

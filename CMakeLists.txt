@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(carg 
+project(yacap 
     VERSION 1.0.0
     LANGUAGES C
 )
@@ -23,18 +23,18 @@ if(CMAKE_BUILD_TYPE!=Release)
 endif()
 
 
-set(CARG_OPTIONS_MAX 256 CACHE STRING "Maximum allowed options")
-set_property(CACHE CARG_OPTIONS_MAX PROPERTY STRINGS 64 128 256 512 1024)
+set(YACAP_OPTIONS_MAX 256 CACHE STRING "Maximum allowed options")
+set_property(CACHE YACAP_OPTIONS_MAX PROPERTY STRINGS 64 128 256 512 1024)
 
-set(CARG_CMDSTACK_MAX 8 CACHE STRING "Maximum allowed command chain length")
-set_property(CACHE CARG_CMDSTACK_MAX PROPERTY 
+set(YACAP_CMDSTACK_MAX 8 CACHE STRING "Maximum allowed command chain length")
+set_property(CACHE YACAP_CMDSTACK_MAX PROPERTY 
 	STRINGS 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
 
-set(CARG_HELP_LINESIZE 79 CACHE STRING "Option temp buffer size")
+set(YACAP_HELP_LINESIZE 79 CACHE STRING "Option temp buffer size")
 
-option(CARG_USE_CLOG "Enable -v/--verbose option to set clog's verbosity" ON)
-option(CARG_BUILD_EXAMPLES "Build examples/*.c" ON)
-option(CARG_BUILD_TESTS "Build tests/*.c" ON)
+option(YACAP_USE_CLOG "Enable -v/--verbose option to set clog's verbosity" ON)
+option(YACAP_BUILD_EXAMPLES "Build examples/*.c" ON)
+option(YACAP_BUILD_TESTS "Build tests/*.c" ON)
 
 
 configure_file(config.h.in config.h)
@@ -52,8 +52,8 @@ add_library(option OBJECT option.c option.h)
 add_library(optiondb OBJECT optiondb.c optiondb.h)
 add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
 add_library(help_ OBJECT help.c help.h)
-add_library(carg STATIC 
-    carg.c carg.h
+add_library(yacap STATIC 
+    yacap.c yacap.h
     $<TARGET_OBJECTS:internal>
     $<TARGET_OBJECTS:arghint>
     $<TARGET_OBJECTS:command>
@@ -63,14 +63,14 @@ add_library(carg STATIC
     $<TARGET_OBJECTS:tokenizer>
     $<TARGET_OBJECTS:help_>
 )
-if (CARG_USE_CLOG)
-	target_link_libraries(carg PUBLIC clog)
+if (YACAP_USE_CLOG)
+	target_link_libraries(yacap PUBLIC clog)
 endif()
 
 
 # Install
-install(TARGETS carg DESTINATION "lib")
-install(FILES carg.h DESTINATION "include")
+install(TARGETS yacap DESTINATION "lib")
+install(FILES yacap.h DESTINATION "include")
 
 
 # Uninstall
@@ -102,16 +102,16 @@ add_custom_target(lint
 
 
 # CPack
-set(CPACK_PACKAGE_FILE_NAME "libcarg-${PROJECT_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "libyacap-${PROJECT_VERSION}")
 set(CPACK_SET_DESTDIR true)
-set(CPACK_PACKAGE_NAME libcarg)
+set(CPACK_PACKAGE_NAME libyacap)
 set(CPACK_PACKAGE_CONTACT "Vahid Mardani <vahid.mardani@gmail.com>")
 set(CPACK_GENERATOR DEB)
 include(CPack)
 
 
 # Testing
-if (CARG_BUILD_TESTS)
+if (YACAP_BUILD_TESTS)
     enable_testing()
     # list(APPEND CMAKE_CTEST_ARGUMENTS "--verbose")
     add_subdirectory(tests)
@@ -120,6 +120,6 @@ endif()
 
 
 # Examples
-if (CARG_BUILD_EXAMPLES)
+if (YACAP_BUILD_EXAMPLES)
 add_subdirectory(examples)
 endif()

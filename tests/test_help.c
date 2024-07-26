@@ -1,31 +1,31 @@
 // Copyright 2023 Vahid Mardani
 /*
- * This file is part of CArg.
- *  CArg is free software: you can redistribute it and/or modify it under
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
  *
- *  CArg is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
  *
  *  You should have received a copy of the GNU General Public License along
- *  with CArg. If not, see <https://www.gnu.org/licenses/>.
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
 #include <cutest.h>
 
 #include "config.h"
-#include "carg.h"
+#include "yacap.h"
 #include "helpers.h"
 
 
 void
 test_usage() {
-    struct carg carg = {
+    struct yacap yacap = {
         .args = "bar\nbaz",
         .header = NULL,
         .options = NULL,
@@ -38,11 +38,11 @@ test_usage() {
         "Usage: foo [OPTION...] bar\n"
         "   or: foo [OPTION...] baz\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --usage", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --usage", NULL));
     eqstr(usage, out);
     eqstr("", err);
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo -?", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo -?", NULL));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -50,7 +50,7 @@ test_usage() {
 
 void
 test_help_doc() {
-    struct carg carg = {
+    struct yacap yacap = {
         .args = NULL,
         .header = LOREM,
         .options = NULL,
@@ -58,7 +58,7 @@ test_help_doc() {
         .version = NULL,
     };
 
-#ifdef CARG_USE_CLOG
+#ifdef YACAP_USE_CLOG
 
     char *help =
 "Usage: foo [OPTION...]\n"
@@ -104,7 +104,7 @@ test_help_doc() {
 
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -113,21 +113,21 @@ test_help_doc() {
 void
 test_help_nooptions() {
     char *help;
-    struct carg carg = {
+    struct yacap yacap = {
         .args = "FOO",
         .header = NULL,
         .options = NULL,
         .footer = "Lorem ipsum footer",
         .version = NULL,
-        .flags = CARG_NO_HELP
+        .flags = YACAP_NO_HELP
     };
 
-    eqint(CARG_USERERROR, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--help'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    carg.flags = CARG_NO_CLOG | CARG_NO_USAGE;
+    yacap.flags = YACAP_NO_CLOG | YACAP_NO_USAGE;
     help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
@@ -136,11 +136,11 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
-    carg.flags = CARG_NO_CLOG;
+    yacap.flags = YACAP_NO_CLOG;
     help =
         "Usage: foo [OPTION...] FOO\n"
         "\n"
@@ -150,7 +150,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -158,7 +158,7 @@ test_help_nooptions() {
 
 void
 test_help_default() {
-    struct carg carg = {
+    struct yacap yacap = {
         .args = NULL,
         .header = NULL,
         .options = NULL,
@@ -167,7 +167,7 @@ test_help_default() {
         .flags = 0,
     };
 
-#ifdef CARG_USE_CLOG
+#ifdef YACAP_USE_CLOG
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
@@ -190,7 +190,7 @@ test_help_default() {
 
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -198,7 +198,7 @@ test_help_default() {
 
 void
 test_help_options() {
-    struct carg_option options[] = {
+    struct yacap_option options[] = {
         {"Common:", 0, 0, 0, NULL},
         {"foo", 'f', NULL, 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
@@ -209,7 +209,7 @@ test_help_options() {
         {NULL}
     };
 
-    struct carg carg = {
+    struct yacap yacap = {
         .args = NULL,
         .header = NULL,
         .options = options,
@@ -217,7 +217,7 @@ test_help_options() {
         .version = NULL,
     };
 
-#ifdef CARG_USE_CLOG
+#ifdef YACAP_USE_CLOG
     char *help =
 "Usage: foo [OPTION...]\n"
 "\n"
@@ -270,7 +270,7 @@ test_help_options() {
 "Lorem ipsum footer\n";
 #endif
 
-    eqint(CARG_OK_EXIT, carg_parse_string(&carg, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

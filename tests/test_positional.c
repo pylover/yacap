@@ -1,24 +1,24 @@
 // Copyright 2023 Vahid Mardani
 /*
- * This file is part of CArg.
- *  CArg is free software: you can redistribute it and/or modify it under
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation, either version 3 of the License, or (at your option)
  *  any later version.
  *
- *  CArg is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
  *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
  *
  *  You should have received a copy of the GNU General Public License along
- *  with CArg. If not, see <https://www.gnu.org/licenses/>.
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
 #include <cutest.h>
 
-#include "carg.h"
+#include "yacap.h"
 #include "helpers.h"
 
 
@@ -29,11 +29,11 @@ struct foobarbaz {
 };
 
 
-static enum carg_eatstatus
-_eater(const struct carg_option *opt, const char *value,
+static enum yacap_eatstatus
+_eater(const struct yacap_option *opt, const char *value,
         struct foobarbaz *a) {
     if (opt) {
-        return CARG_EAT_UNRECOGNIZED;
+        return YACAP_EAT_UNRECOGNIZED;
     }
 
     if (a->foo == NULL) {
@@ -46,17 +46,17 @@ _eater(const struct carg_option *opt, const char *value,
         a->baz = value;
     }
     else {
-        return CARG_EAT_UNRECOGNIZED;
+        return YACAP_EAT_UNRECOGNIZED;
     }
-    return CARG_EAT_OK;
+    return YACAP_EAT_OK;
 }
 
 
 static void
 test_positionals() {
     struct foobarbaz args = {NULL, NULL, NULL};
-    struct carg carg = {
-        .eat = (carg_eater_t)_eater,
+    struct yacap yacap = {
+        .eat = (yacap_eater_t)_eater,
         .options = NULL,
         .args = "FOO BAR BAZ",
         .header = NULL,
@@ -67,7 +67,7 @@ test_positionals() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_OK, carg_parse_string(&carg, "qux foo bar baz", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo bar baz", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foo);
@@ -75,14 +75,14 @@ test_positionals() {
     eqstr("baz", args.baz);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_USERERROR,
-            carg_parse_string(&carg, "qux foo bar baz thud", NULL));
+    eqint(YACAP_USERERROR,
+            yacap_parse_string(&yacap, "qux foo bar baz thud", NULL));
     eqstr("", out);
     eqstr("qux: invalid argument -- 'thud'\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(CARG_USERERROR, carg_parse_string(&carg, "qux foo bar", NULL));
+    eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "qux foo bar", NULL));
     eqstr("", out);
     eqstr("qux: invalid positional arguments count\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);
