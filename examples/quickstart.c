@@ -1,34 +1,21 @@
-# yacap!
-Yet another C argument parser with sub-command support.
-
-
-## Features
-- sub-comman hirerarchy
-- positional argument vallidation
-- [clog](https://github.com/pylover/clog) integration
-
-
-## Build & Install 
-
-### From source 
-```bash
-mkdir build
-cmake path/to/source
-make menu
-make all
-make install
-```
-
-### Debian package
-```bash
-cd build
-cpack
-sudo dpkg -i libyacap-*.deb
-```
-
-## Quickstart
-
-```c
+// Copyright 2023 Vahid Mardani
+/*
+ * This file is part of yacap.
+ *  yacap is free software: you can redistribute it and/or modify it under
+ *  the terms of the GNU General Public License as published by the Free
+ *  Software Foundation, either version 3 of the License, or (at your option)
+ *  any later version.
+ *
+ *  yacap is distributed in the hope that it will be useful, but WITHOUT ANY
+ *  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ *  details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with yacap. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Author: Vahid Mardani <vahid.mardani@gmail.com>
+ */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -68,7 +55,7 @@ static struct yacap cli = {
         {"foo", 'f', "FOO", 0, "Foo option with value"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {"baz", 'z', NULL, 0, NULL},
-        {NULL} // vector termination
+        {NULL}  // vector termination
     },
 };
 
@@ -84,27 +71,3 @@ main(int argc, const char **argv) {
 
     return EXIT_FAILURE;
 }
-```
-
-See `examples` directory for other usages such as sub-commands.
-
-
-## Contribution
-
-### Running all tests
-```bash
-make test
-```
-
-### Running specific test
-```bash
-cd build
-make test_<test name>_[exec|debug|profile]
-```
-
-For example
-```bash
-make test_option_exec
-make test_option_debug
-make test_option_profile
-```

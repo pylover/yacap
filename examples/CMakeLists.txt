@@ -1,6 +1,7 @@
 list(APPEND examples
   minimal
   iproute2
+  quickstart
 )
 
 
