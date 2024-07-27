@@ -99,7 +99,7 @@ make test
 ### Running specific test
 ```bash
 cd build
-make test_<test name>_[exec|debug|profile]
+make test_<name>_[exec|debug|profile]
 ```
 
 For example
