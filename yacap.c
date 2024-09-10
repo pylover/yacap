@@ -125,7 +125,7 @@ _build_optiondb(const struct yacap *c, struct optiondb *db) {
 
 void
 _clogverboser() {
-    if (clog_verbosity < CLOG_DEBUG) {
+    if (clog_verbosity < CLOG_DEBUG2) {
         clog_verbosity++;
     }
 }
@@ -140,16 +140,10 @@ _clogverbosity(const char *value) {
     }
 
     if (valuelen == 1) {
-        if (value[0] == 'v') {
-            /* -vv */
-            clog_verbosity = CLOG_DEBUG;
-            return;
-        }
-
         if (ISDIGIT(value[0])) {
             /* -v0 ... -v5 */
             clog_verbosity = atoi(value);
-            if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG)) {
+            if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG2)) {
                 clog_verbosity = CLOG_INFO;
                 return;
             }
@@ -344,7 +338,7 @@ yacap_parse(struct yacap *c, int argc, const char **argv,
     }
 
 #ifdef YACAP_USE_CLOG
-    clog_verbosity = CLOG_WARNING;
+    clog_verbosity = CLOG_INFO;
 #endif
 
     state = malloc(sizeof(struct yacap_state));

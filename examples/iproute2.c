@@ -23,9 +23,6 @@
 #include "yacap.h"
 
 
-typedef int (*cmdmain_t) ();
-
-
 static int
 _main(const struct yacap *c, const struct yacap_command *cmd) {
     yacap_help_print(c);
