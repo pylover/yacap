@@ -35,7 +35,7 @@ const struct yacap_option opt_verbosity = {
     .flags = 0,
     .help = "Verbosity level. one of: '0|s|silent', '1|f|fatal', '2|e|error'"
         ", '3|w|warn', '4|i|info' and '5|d|debug'. if this option is not "
-        "given, the verbosity level will be '3|w|warn'"
+        "given, the verbosity level will be '4|i|info'"
 };
 
 
