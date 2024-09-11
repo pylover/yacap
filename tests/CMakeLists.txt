@@ -36,8 +36,6 @@ set(VALGRIND_FLAGS
 )
 
 
-
-
 foreach (t IN LISTS testrules) 
     # Test help
   add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
