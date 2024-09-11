@@ -76,13 +76,12 @@ test_help_doc() {
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
-"                           ll be '3|w|warn'\n"
+"                           ll be '4|i|info'\n"
 "\n"
 "Lorem merol ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n"  // NOLINT
 "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, q-\n"  // NOLINT
 "uis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequ-\n"  // NOLINT
 "at. Duis aute irure dolor.\n";
-
 #else
 
     char *help =
@@ -179,7 +178,7 @@ test_help_default() {
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
-"                           ll be '3|w|warn'\n";
+"                           ll be '4|i|info'\n";
 #else
     char *help =
 "Usage: foo [OPTION...]\n"
@@ -229,7 +228,7 @@ test_help_options() {
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
-"                           ll be '3|w|warn'\n"
+"                           ll be '4|i|info'\n"
 "\n"
 "Common:                    \n"
 "  -f, --foo                Foo flag\n"

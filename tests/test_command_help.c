@@ -76,7 +76,7 @@ test_command_help() {
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
-"                           ll be '3|w|warn'\n"
+"                           ll be '4|i|info'\n"
 "  -f, --foo                Foo flag\n"
 "  -b, --bar=BAR            Bar option with value\n";
 #else

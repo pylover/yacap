@@ -1,7 +1,7 @@
 # Testing
 include(CTest)
 list(APPEND testrules
-    arghint
+  arghint
 	option
 	option_multiple
 	optiondb
@@ -10,7 +10,7 @@ list(APPEND testrules
 	help
 	command
 	command_help
-    positional
+  positional
 	dashdash
 )
 if (YACAP_USE_CLOG)
@@ -27,36 +27,37 @@ add_library(helpers OBJECT helpers.c helpers.h)
 
 # Valgrind, Profiling
 set(VALGRIND_FLAGS
-    -s
-    --tool=memcheck 
-    --leak-check=yes 
-    --show-reachable=yes 
-    --num-callers=20 
-    --track-fds=yes 
+  -s
+  --tool=memcheck 
+  --leak-check=yes 
+  --show-reachable=yes 
+  --num-callers=20 
+  --track-fds=yes 
 )
 
 
-# link_libraries(
+
 
 foreach (t IN LISTS testrules) 
     # Test help
-    add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
-    target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
+  add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
+  target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
 	target_link_libraries(${t} PRIVATE yacap)
 	if (YACAP_USE_CLOG)
 		target_link_libraries(${t} PUBLIC clog)
 	endif()
-    add_test(NAME ${t} COMMAND ${t})
-    add_custom_target(${t}_exec 
-        COMMAND ctest --verbose -R "^${t}$"
-		DEPENDS ${t}
-    )
-    add_custom_target(${t}_debug 
-		COMMAND gdb --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb ./${t}
-		DEPENDS ${t}
-    )
-    add_custom_target(${t}_profile
-		COMMAND "valgrind" ${VALGRIND_FLAGS} ${PROJECT_BINARY_DIR}/tests/${t}
-		DEPENDS ${t}
-    )
+  add_test(NAME ${t} COMMAND ${t})
+
+  add_custom_target(${t}_exec 
+    COMMAND ctest --verbose -R "^${t}$"
+    DEPENDS ${t} ${CMAKE_PROJECT_NAME}
+  )
+  add_custom_target(${t}_debug 
+	  COMMAND gdb --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb ./${t}
+	  DEPENDS ${t} ${CMAKE_PROJECT_NAME}
+  )
+  add_custom_target(${t}_profile
+	  COMMAND "valgrind" ${VALGRIND_FLAGS} ${PROJECT_BINARY_DIR}/tests/${t}
+	  DEPENDS ${t} ${CMAKE_PROJECT_NAME}
+  )
 endforeach()

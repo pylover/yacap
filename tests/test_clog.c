@@ -39,19 +39,19 @@ test_verbose_short() {
     /* default logging level */
     clog_verbosity = CLOG_UNKNOWN;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo", NULL));
-    eqint(CLOG_WARNING, clog_verbosity);
-
-    clog_verbosity = CLOG_UNKNOWN;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -v", NULL));
     eqint(CLOG_INFO, clog_verbosity);
 
     clog_verbosity = CLOG_UNKNOWN;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vv", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -v", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = CLOG_UNKNOWN;
+    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vv", NULL));
+    eqint(CLOG_DEBUG2, clog_verbosity);
+
+    clog_verbosity = CLOG_UNKNOWN;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vvv", NULL));
-    eqint(CLOG_DEBUG, clog_verbosity);
+    eqint(CLOG_DEBUG2, clog_verbosity);
 }
 
 
