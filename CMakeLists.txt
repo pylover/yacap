@@ -6,7 +6,7 @@ project(yacap
 
 
 # GCC and it's flags
-set(CMAKE_C_COMPILER gcc)
+# set(CMAKE_C_COMPILER gcc)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fms-extensions")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE=1")
