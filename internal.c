@@ -48,6 +48,7 @@ const struct yacap_option opt_verboseflag = {
 };
 #endif
 
+
 const struct yacap_option opt_version = {
     .name = "version",
     .key = YACAP_OPTKEY_VERSION,
