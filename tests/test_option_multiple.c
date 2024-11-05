@@ -49,7 +49,7 @@ _eater(const struct yacap_option *opt, const char *value, void *) {
         case 'z':
             args.baz = 1;
             break;
-        case 'q':
+        case 'x':
             args.qux += 1;
             break;
         default:
@@ -66,7 +66,7 @@ test_options_multiple() {
         {"foo", 'f', "FOO", YACAP_OPTION_MULTIPLE, "Foo option"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {"baz", 'z', NULL, 0, NULL},
-        {"qux", 'q', NULL, YACAP_OPTION_MULTIPLE, NULL},
+        {"qux", 'x', NULL, YACAP_OPTION_MULTIPLE, NULL},
         {NULL}
     };
     struct yacap c = {
@@ -88,19 +88,19 @@ test_options_multiple() {
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -q -q", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&c, "foo -x -x", NULL));
     eqint(2, args.qux);
     eqstr("", out);
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -qq", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&c, "foo -xx", NULL));
     eqint(2, args.qux);
     eqstr("", out);
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -qqqqqqqqqqqqqqqqqqqqq", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&c, "foo -xxxxxxxxxxxxxxxxxxxxx", NULL));
     eqint(21, args.qux);
     eqstr("", out);
     eqstr("", err);

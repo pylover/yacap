@@ -40,6 +40,7 @@ _calculate_initial_gapsize(const struct yacap *c, bool subcommand) {
     if ((!subcommand) && (!HASFLAG(c, YACAP_NO_CLOG))) {
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verbosity) + OPT_MINGAP);
         gapsize = MAX(gapsize, OPT_HELPLEN(&opt_verboseflag) + OPT_MINGAP);
+        gapsize = MAX(gapsize, OPT_HELPLEN(&opt_quietflag) + OPT_MINGAP);
     }
 #endif
 
@@ -203,6 +204,7 @@ _print_options(int fd, const struct yacap *c, const struct yacap_command *cmd) {
 #ifdef YACAP_USE_CLOG
     if ((!subcommand) && (!HASFLAG(c, YACAP_NO_CLOG))) {
         _print_option(fd, &opt_verboseflag, gapsize);
+        _print_option(fd, &opt_quietflag, gapsize);
         _print_option(fd, &opt_verbosity, gapsize);
     }
 #endif

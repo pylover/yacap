@@ -73,6 +73,8 @@ test_command_help() {
 "  -?, --usage              Give a short usage message and exit\n"
 "  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
 "                           -vvv\n"
+"  -q                       Decrease the clog_verbosity on each occurance, e.g.\n" // NOLINT
+"                           -qq\n"
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT

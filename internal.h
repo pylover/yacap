@@ -48,6 +48,7 @@
 
 extern const struct yacap_option opt_verbosity;
 extern const struct yacap_option opt_verboseflag;
+extern const struct yacap_option opt_quietflag;
 extern const struct yacap_option opt_version;
 extern const struct yacap_option opt_help;
 extern const struct yacap_option opt_usage;

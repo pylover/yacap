@@ -111,6 +111,9 @@ _build_optiondb(const struct yacap *c, struct optiondb *db) {
         if (optiondb_insert(db, &opt_verboseflag, (struct yacap_command *)c)) {
             return -1;
         }
+        if (optiondb_insert(db, &opt_quietflag, (struct yacap_command *)c)) {
+            return -1;
+        }
     }
 #endif
 
@@ -121,6 +124,14 @@ _build_optiondb(const struct yacap *c, struct optiondb *db) {
 #ifdef YACAP_USE_CLOG
 
 #include <clog.h>
+
+
+void
+_clogquieter() {
+    if (clog_verbosity > CLOG_SILENT) {
+        clog_verbosity--;
+    }
+}
 
 
 void
@@ -188,6 +199,11 @@ _eat(const struct yacap *c, const struct yacap_command *command,
 
         if (opt == &opt_verboseflag) {
             _clogverboser();
+            return YACAP_EAT_OK;
+        }
+
+        if (opt == &opt_quietflag) {
+            _clogquieter();
             return YACAP_EAT_OK;
         }
     }

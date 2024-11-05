@@ -49,7 +49,7 @@ eatarg(struct yacap_option *opt, const char *value) {
         case 'z':
             args.baz += 1;
             break;
-        case 'q':
+        case 'x':
             args.qux += 1;
             break;
         default:
@@ -136,9 +136,9 @@ test_user_error() {
     eqstr("foo: invalid option -- '--qux='\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -qthud", NULL));
+    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -xthud", NULL));
     eqstr("", out);
-    eqstr("foo: invalid option -- '-q'\n"
+    eqstr("foo: invalid option -- '-x'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --qux=thud", NULL));
@@ -146,9 +146,9 @@ test_user_error() {
     eqstr("foo: invalid option -- '--qux=thud'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --q", NULL));
+    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --x", NULL));
     eqstr("", out);
-    eqstr("foo: invalid option -- '--q'\n"
+    eqstr("foo: invalid option -- '--x'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --f", NULL));
@@ -164,7 +164,7 @@ test_option_value() {
         {"foo", 'f', "FOO", 0, "Foo flag"},
         {"bar", 'b', "BAR", 0, "Bar option with value"},
         {"baz", 'z', NULL, 0, NULL},
-        {"qux", 'q', NULL, 0, NULL},
+        {"qux", 'x', NULL, 0, NULL},
         {NULL}
     };
     struct yacap yacap = {
@@ -196,7 +196,7 @@ test_option_value() {
     eqint(5, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -qzf2", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -xzf2", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(2, args.foo);
@@ -204,7 +204,7 @@ test_option_value() {
     eqint(1, args.baz);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -qf 9", NULL));
+    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -xf 9", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(9, args.foo);
