@@ -337,10 +337,6 @@ yacap_parse(struct yacap *c, int argc, const char **argv,
         return YACAP_FATAL;
     }
 
-#ifdef YACAP_USE_CLOG
-    clog_verbosity = CLOG_INFO;
-#endif
-
     state = malloc(sizeof(struct yacap_state));
     if (state == NULL) {
         return YACAP_FATAL;
