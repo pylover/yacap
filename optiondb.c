@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 #include "config.h"
-#include "internal.h"
+#include "helpers.h"
 #include "option.h"
 #include "optiondb.h"
 
@@ -65,7 +65,7 @@ optiondb_exists(struct optiondb *db, const struct yacap_option *opt) {
         info = db->repo + i;
         if (((info->option->key == opt->key) ||
                  (info->option->name && opt->name &&
-                  CMP(info->option->name, opt->name)))) {
+                  STREQ(info->option->name, opt->name)))) {
             return 1;
         }
     }
@@ -163,7 +163,7 @@ optiondb_findbyname(const struct optiondb *db, const char *name,
             continue;
         }
 
-        if (CMP(tmp, info->option->name)) {
+        if (STREQ(tmp, info->option->name)) {
             return info;
         }
     }

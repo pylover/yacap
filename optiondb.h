@@ -20,6 +20,8 @@
 #define OPTIONDB_H_
 
 
+#include <stddef.h>
+
 #include "yacap.h"
 
 

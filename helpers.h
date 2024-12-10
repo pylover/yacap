@@ -16,33 +16,38 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <stdlib.h>
-#include <string.h>
-
-#include "command.h"
-#include "helpers.h"
+#ifndef HELPERS_H_
+#define HELPERS_H_
 
 
-const struct yacap_command *
-command_findbyname(const struct yacap_command *cmd, const char *name) {
-    if (name == NULL) {
-        return NULL;
-    }
+#define HASFLAG(o, f) ((o)->flags & (f))
 
-    if ((cmd == NULL) || (cmd->commands == NULL)) {
-        return NULL;
-    }
 
-    const struct yacap_command **c = cmd->commands;
-    const struct yacap_command *s;
+/* stdout & stderr */
+#define PERR(...) dprintf(STDERR_FILENO, __VA_ARGS__)
+#define POUT(...) dprintf(STDOUT_FILENO, __VA_ARGS__)
 
-    while ((s = *c)) {
-        if (STREQ(name, s->name)) {
-            return (const struct yacap_command *)s;
-        }
 
-        c++;
-    }
+/* numeric */
+#define MAX(x, y) ((x) > (y)? (x): (y))
+#define MIN(x, y) ((x) < (y)? (x): (y))
+#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
 
-    return NULL;
-}
+
+/* character */
+#define ISSIGN(c) (\
+        BETWEEN(c, 32, 47) || \
+        BETWEEN(c, 58, 64) || \
+        BETWEEN(c, 123, 126))
+#define ISDIGIT(c) BETWEEN(c, 48, 57)
+#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
+        BETWEEN(c, 65, 90) || \
+        BETWEEN(c, 97, 122))
+
+
+/* string */
+#define STREQ(x, y) (strcmp(x, y) == 0)
+#define STRNEQ(x, y, l) (strncmp(x, y, l) == 0)
+
+
+#endif  // HELPERS_H_

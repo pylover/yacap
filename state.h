@@ -16,36 +16,20 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <stdio.h>
+#ifndef STATE_H_
+#define STATE_H_
 
-#include "config.h"
-#include "helpers.h"
+
 #include "yacap.h"
-#include "option.h"
+#include "cmdstack.h"
+#include "optiondb.h"
 
 
-int
-option_print(int fd, const struct yacap_option *opt) {
-    int bytes = 0;
-    int status;
+struct yacap_state {
+    struct cmdstack cmdstack;
+    struct optiondb optiondb;
+    size_t positionals;
+};
 
-    if ((opt->key != 0) && ISCHAR(opt->key)) {
-        status = dprintf(fd, "-%c%s", opt->key, opt->name? "/": "");
-        if (status == -1) {
-            return -1;
-        }
 
-        bytes += status;
-    }
-
-    if (opt->name) {
-        status = dprintf(fd, "--%s", opt->name);
-        if (status == -1) {
-            return -1;
-        }
-
-        bytes += status;
-    }
-
-    return bytes;
-}
+#endif  // STATE_H_

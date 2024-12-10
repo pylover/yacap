@@ -16,49 +16,20 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef INTERNAL_H_
-#define INTERNAL_H_
+#ifndef BUILTIN_H_
+#define BUILTIN_H_
 
-#include <limits.h>
-
-#include "config.h"
 #include "yacap.h"
-#include "cmdstack.h"
-#include "optiondb.h"
 
 
-#define CMP(x, y) (strcmp(x, y) == 0)
-#define CMPN(x, y, l) (strncmp(x, y, l) == 0)
-#define MAX(x, y) ((x) > (y)? (x): (y))
-#define HASFLAG(o, f) ((o)->flags & (f))
-#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
-#define ISSIGN(c) (\
-        BETWEEN(c, 32, 47) || \
-        BETWEEN(c, 58, 64) || \
-        BETWEEN(c, 123, 126))
-#define ISDIGIT(c) BETWEEN(c, 48, 57)
-#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
-        BETWEEN(c, 65, 90) || \
-        BETWEEN(c, 97, 122))
-
-
-#define PERR(...) dprintf(STDERR_FILENO, __VA_ARGS__)
-#define POUT(...) dprintf(STDOUT_FILENO, __VA_ARGS__)
-
-
+#ifdef YACAP_USE_CLOG
 extern const struct yacap_option opt_verbosity;
 extern const struct yacap_option opt_verboseflag;
 extern const struct yacap_option opt_quietflag;
+#endif
 extern const struct yacap_option opt_version;
 extern const struct yacap_option opt_help;
 extern const struct yacap_option opt_usage;
 
 
-struct yacap_state {
-    struct cmdstack cmdstack;
-    struct optiondb optiondb;
-    size_t positionals;
-};
-
-
-#endif  // INTERNAL_H_
+#endif  // BUILTIN_H_

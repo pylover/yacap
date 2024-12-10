@@ -23,7 +23,9 @@
 #include <ctype.h>
 
 #include "config.h"
-#include "internal.h"
+#include "helpers.h"
+#include "builtin.h"
+#include "state.h"
 #include "help.h"
 
 
@@ -111,7 +113,7 @@ static void
 _print_optiongroup(int fd, const struct yacap_option *opt, int gapsize) {
     int rpad;
 
-    if (opt->name && (!CMP("-", opt->name))) {
+    if (opt->name && (!STREQ("-", opt->name))) {
         rpad = (gapsize + 8) - strlen(opt->name);
         dprintf(fd, "\n%s%*s", opt->name, rpad, "");
     }

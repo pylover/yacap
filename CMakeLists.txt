@@ -44,7 +44,7 @@ include_directories(
 )
 
 
-add_library(internal OBJECT internal.c internal.h)
+add_library(builtin OBJECT builtin.c builtin.h)
 add_library(arghint OBJECT arghint.c arghint.h)
 add_library(command OBJECT command.c command.h)
 add_library(cmdstack OBJECT cmdstack.c cmdstack.h)
@@ -54,7 +54,7 @@ add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
 add_library(help_ OBJECT help.c help.h)
 add_library(yacap STATIC 
     yacap.c yacap.h
-    $<TARGET_OBJECTS:internal>
+    $<TARGET_OBJECTS:builtin>
     $<TARGET_OBJECTS:arghint>
     $<TARGET_OBJECTS:command>
     $<TARGET_OBJECTS:cmdstack>

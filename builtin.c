@@ -16,10 +16,11 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
+#include <limits.h>
 #include <stddef.h>
 
 #include "config.h"
-#include "internal.h"
+#include "builtin.h"
 
 
 /* builtin options */
