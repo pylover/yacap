@@ -25,6 +25,7 @@ set(profilerules ${testrules})
 list(TRANSFORM profilerules APPEND _profile)
 add_custom_target(profile_tests DEPENDS ${profilerules})
 add_library(pipewrap OBJECT pipewrap.c pipewrap.h)
+add_library(suggest OBJECT suggest.c suggest.h)
 
 
 # Valgrind, Profiling
@@ -40,7 +41,10 @@ set(VALGRIND_FLAGS
 
 foreach (t IN LISTS testrules) 
     # Test help
-  add_executable(${t} ${t}.c $<TARGET_OBJECTS:pipewrap>)
+  add_executable(${t} ${t}.c 
+    $<TARGET_OBJECTS:pipewrap>
+    $<TARGET_OBJECTS:suggest>
+  )
   target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
 	target_link_libraries(${t} PRIVATE yacap)
 	if (YACAP_USE_CLOG)

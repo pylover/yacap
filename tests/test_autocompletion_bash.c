@@ -20,6 +20,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
+#include "suggest.h"
 
 
 static struct yacap_command bar_cmd = {
@@ -37,15 +38,17 @@ static struct yacap root = {
 
 
 
-static char *buff = NULL;
-static char *suggestions[8];
 #define BUFFSIZE 1024
-#define SUGGEST(cmd) suggest(&root, buff, BUFFSIZE, &suggestions, cmd)
+#define SUGGESTIONS_MAX 8
+static char *buff = NULL;
+static char *suggestions[SUGGESTIONS_MAX];
+#define SUGGEST(cmd) suggest(&root, buff, BUFFSIZE, cmd, suggestions, \
+        SUGGESTIONS_MAX)
 
 
 void
 test_autocompletion_bash() {
-    // eqint(YACAP_OK, SUGGEST("foo "));
+    eqint(0, SUGGEST("foo "));
     // eqstr("bar", suggestions[0]);
     // isnull(suggestions[1]);
 }
