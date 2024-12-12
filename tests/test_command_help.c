@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 void
@@ -94,7 +94,7 @@ test_command_help() {
 "  -b, --bar=BAR    Bar option with value\n";
 #endif
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
@@ -110,12 +110,12 @@ test_command_help() {
 "\n"
 "Footer: Lorem ipsum footer\n";
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo thud --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo thud --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
     help = "Usage: foo thud [OPTION...] qux\n";
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo thud --usage", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo thud --usage", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

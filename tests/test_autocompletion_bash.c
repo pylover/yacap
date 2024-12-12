@@ -16,36 +16,50 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#include <stdio.h>
+#include <clog.h>
+#include <cutest.h>
 
-#include "config.h"
-#include "toolbox.h"
 #include "yacap.h"
-#include "option.h"
+
+
+static struct yacap_command bar_cmd = {
+    .name = "bar",
+};
+
+
+static struct yacap root = {
+    .name = "foo",
+    .commands = (const struct yacap_command*[]) {
+        &bar_cmd,
+        NULL
+    },
+};
+
+
+
+static char *buff = NULL;
+static char *suggestions[8];
+#define BUFFSIZE 1024
+#define SUGGEST(cmd) suggest(&root, buff, BUFFSIZE, &suggestions, cmd)
+
+
+void
+test_autocompletion_bash() {
+    // eqint(YACAP_OK, SUGGEST("foo "));
+    // eqstr("bar", suggestions[0]);
+    // isnull(suggestions[1]);
+}
 
 
 int
-option_print(int fd, const struct yacap_option *opt) {
-    int bytes = 0;
-    int status;
-
-    if ((opt->key != 0) && ISCHAR(opt->key)) {
-        status = dprintf(fd, "-%c%s", opt->key, opt->name? "/": "");
-        if (status == -1) {
-            return -1;
-        }
-
-        bytes += status;
+main() {
+    buff = malloc(BUFFSIZE);
+    if (buff == NULL) {
+        ERROR("Out of memmory!");
+        return EXIT_FAILURE;
     }
+    test_autocompletion_bash();
 
-    if (opt->name) {
-        status = dprintf(fd, "--%s", opt->name);
-        if (status == -1) {
-            return -1;
-        }
-
-        bytes += status;
-    }
-
-    return bytes;
+    free(buff);
+    return EXIT_SUCCESS;
 }

@@ -1,3 +1,4 @@
+- compgen cmd
 - delete help.h
 - code coverage
 - example

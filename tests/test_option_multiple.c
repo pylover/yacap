@@ -21,7 +21,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 static struct {
@@ -82,45 +82,45 @@ test_options_multiple() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -f1 -f2", NULL));
+    eqint(YACAP_OK, pipewrap(&c, "foo -f1 -f2", NULL));
     eqint(3, args.foo);
     eqstr("", out);
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -x -x", NULL));
+    eqint(YACAP_OK, pipewrap(&c, "foo -x -x", NULL));
     eqint(2, args.qux);
     eqstr("", out);
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -xx", NULL));
+    eqint(YACAP_OK, pipewrap(&c, "foo -xx", NULL));
     eqint(2, args.qux);
     eqstr("", out);
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&c, "foo -xxxxxxxxxxxxxxxxxxxxx", NULL));
+    eqint(YACAP_OK, pipewrap(&c, "foo -xxxxxxxxxxxxxxxxxxxxx", NULL));
     eqint(21, args.qux);
     eqstr("", out);
     eqstr("", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -b1 -b2", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo -b1 -b2", NULL));
     eqint(1, args.bar);
     eqstr("", out);
     eqstr("foo: redundant option -- '-b/--bar'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -z -z", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo -z -z", NULL));
     eqint(1, args.baz);
     eqstr("", out);
     eqstr("foo: redundant option -- '-z/--baz'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -zz", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo -zz", NULL));
     eqint(1, args.baz);
     eqstr("", out);
     eqstr("foo: redundant option -- '-z/--baz'\n"

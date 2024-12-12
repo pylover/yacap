@@ -2,6 +2,7 @@
 include(CTest)
 list(APPEND testrules
   arghint
+  autocompletion_bash
 	option
 	option_multiple
 	optiondb
@@ -23,7 +24,7 @@ list(TRANSFORM testrules PREPEND test_)
 set(profilerules ${testrules})
 list(TRANSFORM profilerules APPEND _profile)
 add_custom_target(profile_tests DEPENDS ${profilerules})
-add_library(helpers OBJECT helpers.c helpers.h)
+add_library(pipewrap OBJECT pipewrap.c pipewrap.h)
 
 
 # Valgrind, Profiling
@@ -39,7 +40,7 @@ set(VALGRIND_FLAGS
 
 foreach (t IN LISTS testrules) 
     # Test help
-  add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
+  add_executable(${t} ${t}.c $<TARGET_OBJECTS:pipewrap>)
   target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
 	target_link_libraries(${t} PRIVATE yacap)
 	if (YACAP_USE_CLOG)

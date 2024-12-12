@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 void
@@ -38,11 +38,11 @@ test_usage() {
         "Usage: foo [OPTION...] bar\n"
         "   or: foo [OPTION...] baz\n";
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --usage", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --usage", NULL));
     eqstr(usage, out);
     eqstr("", err);
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo -?", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo -?", NULL));
     eqstr(usage, out);
     eqstr("", err);
 }
@@ -105,7 +105,7 @@ test_help_doc() {
 
 #endif
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -123,7 +123,7 @@ test_help_nooptions() {
         .flags = YACAP_NO_HELP
     };
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&yacap, "foo --help", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--help'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -137,7 +137,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 
@@ -151,7 +151,7 @@ test_help_nooptions() {
         "\n"
         "Lorem ipsum footer\n";
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -193,7 +193,7 @@ test_help_default() {
 
 #endif
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }
@@ -275,7 +275,7 @@ test_help_options() {
 "Lorem ipsum footer\n";
 #endif
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --help", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --help", NULL));
     eqstr(help, out);
     eqstr("", err);
 }

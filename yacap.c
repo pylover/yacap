@@ -25,7 +25,7 @@
 #include "config.h"
 #include "yacap.h"
 #include "state.h"
-#include "helpers.h"
+#include "toolbox.h"
 #include "builtin.h"
 #include "arghint.h"
 #include "command.h"

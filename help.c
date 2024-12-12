@@ -23,7 +23,7 @@
 #include <ctype.h>
 
 #include "config.h"
-#include "helpers.h"
+#include "toolbox.h"
 #include "builtin.h"
 #include "state.h"
 #include "help.h"

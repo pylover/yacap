@@ -16,15 +16,13 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
 
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 char out[BUFFSIZE + 1] = "\0";
@@ -111,7 +109,7 @@ failed:
 
 
 enum yacap_status
-yacap_parse_string(struct yacap *c, const char * line,
+pipewrap(struct yacap *c, const char * line,
         const struct yacap_command **command) {
     char *argv[256];
     int argc = 0;

@@ -21,7 +21,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 static struct {
@@ -78,7 +78,7 @@ test_options_duplicated() {
         .commands = NULL,
     };
 
-    eqint(YACAP_FATAL, yacap_parse_string(&c, "foo -f", NULL));
+    eqint(YACAP_FATAL, pipewrap(&c, "foo -f", NULL));
     eqstr("", out);
     eqstr("option duplicated -- '-f/--foo'\n", err);
 }
@@ -103,55 +103,55 @@ test_user_error() {
         .commands = NULL,
     };
 
-    eqint(YACAP_FATAL, yacap_parse_string(&c, "foo -z", NULL));
+    eqint(YACAP_FATAL, pipewrap(&c, "foo -z", NULL));
     eqstr("", out);
     eqstr("foo: option not eaten -- '-z/--baz'\n", err);
 
-    eqint(YACAP_FATAL, yacap_parse_string(&c, "foo --baz", NULL));
+    eqint(YACAP_FATAL, pipewrap(&c, "foo --baz", NULL));
     eqstr("", out);
     eqstr("foo: option not eaten -- '-z/--baz'\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -f", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo -f", NULL));
     eqstr("", out);
     eqstr("foo: option requires an argument -- '-f/--foo'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --foo", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo --foo", NULL));
     eqstr("", out);
     eqstr("foo: option requires an argument -- '-f/--foo'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -F", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo -F", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '-F'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --qux", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo --qux", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --qux=", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo --qux=", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux='\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo -xthud", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo -xthud", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '-x'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --qux=thud", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo --qux=thud", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--qux=thud'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --x", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo --x", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--x'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
 
-    eqint(YACAP_USERERROR, yacap_parse_string(&c, "foo --f", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&c, "foo --f", NULL));
     eqstr("", out);
     eqstr("foo: invalid option -- '--f'\n"
           "Try `foo --help' or `foo --usage' for more information.\n", err);
@@ -178,25 +178,25 @@ test_option_value() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -f3", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -f3", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(3, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --foo 4", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo --foo 4", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(4, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --foo=5", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo --foo=5", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(5, args.foo);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -xzf2", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -xzf2", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(2, args.foo);
@@ -204,7 +204,7 @@ test_option_value() {
     eqint(1, args.baz);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -xf 9", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -xf 9", NULL));
     eqstr("", out);
     eqstr("", err);
     eqint(9, args.foo);

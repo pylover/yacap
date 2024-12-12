@@ -19,7 +19,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 struct foobarbaz {
@@ -67,7 +67,7 @@ test_positionals() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo bar baz", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "qux foo bar baz", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.foo);
@@ -76,13 +76,13 @@ test_positionals() {
 
     memset(&args, 0, sizeof(args));
     eqint(YACAP_USERERROR,
-            yacap_parse_string(&yacap, "qux foo bar baz thud", NULL));
+            pipewrap(&yacap, "qux foo bar baz thud", NULL));
     eqstr("", out);
     eqstr("qux: invalid argument -- 'thud'\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "qux foo bar", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&yacap, "qux foo bar", NULL));
     eqstr("", out);
     eqstr("qux: invalid positional arguments count\n"
         "Try `qux --help' or `qux --usage' for more information.\n", err);

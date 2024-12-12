@@ -16,27 +16,38 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef TESTS_HELPERS_H_
-#define TESTS_HELPERS_H_
+#ifndef TOOLBOX_H_
+#define TOOLBOX_H_
 
 
-#include "yacap.h"
+#define HASFLAG(o, f) ((o)->flags & (f))
 
 
-#define BUFFSIZE    2047
-#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
-    "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
-    "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
-    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
+/* stdout & stderr */
+#define PERR(...) dprintf(STDERR_FILENO, __VA_ARGS__)
+#define POUT(...) dprintf(STDOUT_FILENO, __VA_ARGS__)
 
 
-extern char out[];
-extern char err[];
+/* numeric */
+#define MAX(x, y) ((x) > (y)? (x): (y))
+#define MIN(x, y) ((x) < (y)? (x): (y))
+#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
 
 
-enum yacap_status
-yacap_parse_string(struct yacap *c, const char * line,
-        const struct yacap_command **command);
+/* character */
+#define ISSIGN(c) (\
+        BETWEEN(c, 32, 47) || \
+        BETWEEN(c, 58, 64) || \
+        BETWEEN(c, 123, 126))
+#define ISDIGIT(c) BETWEEN(c, 48, 57)
+#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
+        BETWEEN(c, 65, 90) || \
+        BETWEEN(c, 97, 122))
 
 
-#endif  // TESTS_HELPERS_H_
+/* string */
+#define STREQ(x, y) (strcmp(x, y) == 0)
+#define STRNEQ(x, y, l) (strncmp(x, y, l) == 0)
+
+
+#endif  // TOOLBOX_H_

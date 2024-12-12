@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 #include "config.h"
-#include "helpers.h"
+#include "toolbox.h"
 #include "option.h"
 #include "optiondb.h"
 

@@ -20,7 +20,7 @@
 #include <string.h>
 
 #include "command.h"
-#include "helpers.h"
+#include "toolbox.h"
 
 
 const struct yacap_command *

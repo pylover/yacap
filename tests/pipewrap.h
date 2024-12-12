@@ -16,38 +16,27 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
-#ifndef HELPERS_H_
-#define HELPERS_H_
+#ifndef TESTS_PIPEWRAP_H_
+#define TESTS_PIPEWRAP_H_
 
 
-#define HASFLAG(o, f) ((o)->flags & (f))
+#include "yacap.h"
 
 
-/* stdout & stderr */
-#define PERR(...) dprintf(STDERR_FILENO, __VA_ARGS__)
-#define POUT(...) dprintf(STDOUT_FILENO, __VA_ARGS__)
+#define BUFFSIZE    2047
+#define LOREM "Lorem merol ipsum dolor sit amet, consectetur adipiscing " \
+    "elit, sed do eiusmod tempor incididunt ut labore et dolore magna " \
+    "aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco " \
+    "laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor."
 
 
-/* numeric */
-#define MAX(x, y) ((x) > (y)? (x): (y))
-#define MIN(x, y) ((x) < (y)? (x): (y))
-#define BETWEEN(c, l, u) (((c) >= l) && ((c) <= u))
+extern char out[];
+extern char err[];
 
 
-/* character */
-#define ISSIGN(c) (\
-        BETWEEN(c, 32, 47) || \
-        BETWEEN(c, 58, 64) || \
-        BETWEEN(c, 123, 126))
-#define ISDIGIT(c) BETWEEN(c, 48, 57)
-#define ISCHAR(c) ((c == '?') || ISDIGIT(c) || \
-        BETWEEN(c, 65, 90) || \
-        BETWEEN(c, 97, 122))
+enum yacap_status
+pipewrap(struct yacap *c, const char * line,
+        const struct yacap_command **command);
 
 
-/* string */
-#define STREQ(x, y) (strcmp(x, y) == 0)
-#define STRNEQ(x, y, l) (strncmp(x, y, l) == 0)
-
-
-#endif  // HELPERS_H_
+#endif  // TESTS_PIPEWRAP_H_

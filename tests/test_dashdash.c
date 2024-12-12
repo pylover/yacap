@@ -19,7 +19,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 struct barbaz {
@@ -60,7 +60,7 @@ test_dashdash() {
     };
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo bar baz", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "qux foo bar baz", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.args[0]);
@@ -69,7 +69,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo -- --bar -zbaz -- quux",
+    eqint(YACAP_OK, pipewrap(&yacap, "qux foo -- --bar -zbaz -- quux",
                 NULL));
     eqstr("", out);
     eqstr("", err);
@@ -81,7 +81,7 @@ test_dashdash() {
     eqint(5, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux -- foo bar baz", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "qux -- foo bar baz", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.args[0]);
@@ -90,7 +90,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo -- bar baz", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "qux foo -- bar baz", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.args[0]);
@@ -99,7 +99,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo bar -- baz", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "qux foo bar -- baz", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.args[0]);
@@ -108,7 +108,7 @@ test_dashdash() {
     eqint(3, args.count);
 
     memset(&args, 0, sizeof(args));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "qux foo bar baz --", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "qux foo bar baz --", NULL));
     eqstr("", out);
     eqstr("", err);
     eqstr("foo", args.args[0]);

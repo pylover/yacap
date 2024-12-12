@@ -19,7 +19,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 static void
@@ -34,7 +34,7 @@ test_version() {
         .flags = 0,
     };
 
-    eqint(YACAP_OK_EXIT, yacap_parse_string(&yacap, "foo --version", NULL));
+    eqint(YACAP_OK_EXIT, pipewrap(&yacap, "foo --version", NULL));
     eqstr("foo 1.2.3\n", out);
     eqstr("", err);
 }

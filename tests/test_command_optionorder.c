@@ -19,7 +19,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 struct opts {
@@ -101,17 +101,17 @@ void
 test_comand_optionorder() {
     const struct yacap_command *cmd;
 
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo", &cmd));
     isnotnull(cmd);
     eqptr(&yacap, cmd);
 
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo add", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo add", &cmd));
     isnotnull(cmd);
     eqptr(&add_cmd, cmd);
 
     memset(&root, 0, sizeof(struct opts));
     memset(&add, 0, sizeof(struct opts));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo add -f", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo add -f", &cmd));
     istrue(root.foo);
     isfalse(root.bar);
     isfalse(add.foo);
@@ -119,7 +119,7 @@ test_comand_optionorder() {
 
     memset(&root, 0, sizeof(struct opts));
     memset(&add, 0, sizeof(struct opts));
-    eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "foo -F add", &cmd));
+    eqint(YACAP_USERERROR, pipewrap(&yacap, "foo -F add", &cmd));
     eqstr("foo: invalid option -- '-F'\n"
         "Try `foo --help' or `foo --usage' for more information.\n", err);
     isfalse(root.foo);

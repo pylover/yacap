@@ -19,7 +19,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 struct rootflags {
@@ -119,23 +119,23 @@ test_command() {
     };
 
     const struct yacap_command *cmd;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo thud qux", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo thud qux", &cmd));
     isnotnull(cmd);
     eqptr(&thud_cmd, cmd);
 
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo", &cmd));
     isnotnull(cmd);
     eqptr(&yacap, cmd);
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -f thud qux", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -f thud qux", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(YACAP_OK, yacap_parse_string(&yacap,
+    eqint(YACAP_OK, pipewrap(&yacap,
                 "foo -f -b qux thud -z quux", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
@@ -144,7 +144,7 @@ test_command() {
 
     memset(&root, 0, sizeof(struct rootflags));
     memset(&thud, 0, sizeof(struct thudflags));
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo thud -fzbqux quux", &cmd));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo thud -fzbqux quux", &cmd));
     eqptr(&thud_cmd, cmd);
     istrue(root.foo);
     istrue(thud.baz);

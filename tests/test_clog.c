@@ -20,7 +20,7 @@
 #include <cutest.h>
 
 #include "yacap.h"
-#include "helpers.h"
+#include "pipewrap.h"
 
 
 static struct yacap yacap = {
@@ -38,19 +38,19 @@ static void
 test_verbose_short() {
     /* default logging level */
     clog_verbosity = CLOG_INFO;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo", NULL));
     eqint(CLOG_INFO, clog_verbosity);
 
     clog_verbosity = CLOG_INFO;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -v", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -v", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = CLOG_INFO;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vv", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -vv", NULL));
     eqint(CLOG_DEBUG2, clog_verbosity);
 
     clog_verbosity = CLOG_INFO;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vvv", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo -vvv", NULL));
     eqint(CLOG_DEBUG2, clog_verbosity);
 }
 
@@ -68,22 +68,22 @@ test_verbose_long() {
     };
 
     clog_verbosity = -1;
-    eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "foo --verbosity", NULL));
+    eqint(YACAP_USERERROR, pipewrap(&yacap, "foo --verbosity", NULL));
 
     clog_verbosity = -1;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity d", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo --verbosity d", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = -1;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity debug", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo --verbosity debug", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = -1;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity=debug", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo --verbosity=debug", NULL));
     eqint(CLOG_DEBUG, clog_verbosity);
 
     clog_verbosity = -1;
-    eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity 2", NULL));
+    eqint(YACAP_OK, pipewrap(&yacap, "foo --verbosity 2", NULL));
     eqint(CLOG_ERROR, clog_verbosity);
 }
 
