@@ -10,6 +10,7 @@ list(APPEND testrules
 	help
 	command
 	command_help
+	command_optionorder
   positional
 	dashdash
 )

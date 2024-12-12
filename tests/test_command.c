@@ -37,8 +37,8 @@ struct thudflags{
 static struct rootflags root = {false, NULL};
 static struct thudflags thud = {false, NULL};
 
-enum yacap_eatstatus
-root_eater(const struct yacap_option *option, const char *value,
+static enum yacap_eatstatus
+_root_eater(const struct yacap_option *option, const char *value,
         struct rootflags *flags) {
     if (option == NULL) {
         return YACAP_EAT_UNRECOGNIZED;
@@ -106,7 +106,7 @@ test_command() {
     struct yacap yacap = {
         .args = NULL,
         .header = NULL,
-        .eat = (yacap_eater_t)root_eater,
+        .eat = (yacap_eater_t)_root_eater,
         .options = root_options,
         .footer = NULL,
         .version = NULL,

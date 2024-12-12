@@ -53,7 +53,7 @@ add_library(optiondb OBJECT optiondb.c optiondb.h)
 add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
 add_library(help_ OBJECT help.c help.h)
 add_library(yacap STATIC 
-    yacap.c yacap.h
+    yacap.c include/yacap.h
     $<TARGET_OBJECTS:builtin>
     $<TARGET_OBJECTS:arghint>
     $<TARGET_OBJECTS:command>

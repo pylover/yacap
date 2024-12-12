@@ -1,3 +1,4 @@
 set noparent
 # filter=-whitespace/newline,-whitespace/blank_line
+filter=-build/header_guard
 exclude_files=build
