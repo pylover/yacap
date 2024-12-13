@@ -16,12 +16,168 @@
  *
  *  Author: Vahid Mardani <vahid.mardani@gmail.com>
  */
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
+#include <clog.h>
+
 #include "suggest.h"
+#include "yacap.h"
+
+
+#define BASH_PATH "/usr/bin/bash"
+#define SUGGESTIONS_MAX 8
+#define BUFFSIZE 1024
+char *_Nullable suggestions[SUGGESTIONS_MAX];
+char outbuff[BUFFSIZE];
+char errbuff[BUFFSIZE];
+
+
+#define SCRIPT \
+    "echo Helloccccccc"
+
+
+static void
+_pipeclose(int p[2]) {
+    int i;
+
+    for (i = 0; i < 2; i++) {
+        if (p[i] > -1) {
+            close(p[i]);
+        }
+    }
+}
+
+
+static int
+_child() {
+    char *argv[] = { NULL };
+    char *env[] = { NULL };
+    if (execve(BASH_PATH, argv, env) == -1) {
+        return -1;
+    }
+
+    exit(EXIT_SUCCESS);
+}
 
 
 int
-suggest(struct yacap *y, char *buff, size_t buffsize, const char *userinput,
-        char *out[], size_t outmax) {
+suggest(struct yacap *y, const char *userinput) {
+    int rbytes;
+    int pipein[2] = {-1, -1};
+    int pipeout[2] = {-1, -1};
+    int pipeerr[2] = {-1, -1};
+    pid_t cpid;
+    pid_t w;
+    int wstatus;
 
+    if (pipe(pipein)) {
+        goto failed;
+    }
+
+    if (pipe(pipeout)) {
+        goto failed;
+    }
+
+    if (pipe(pipeerr)) {
+        goto failed;
+    }
+
+    cpid = fork();
+    if (cpid == -1) {
+        goto failed;
+    }
+
+    if (cpid) {
+        /* Parrent process */
+        DEBUG("child pid: %d", cpid);
+
+        /* close the read side of the std-in pipe */
+        close(pipein[0]);
+
+        /* close the write side of the std-out pipe */
+        close(pipeout[1]);
+
+        /* close the write side of the std-err pipe */
+        close(pipeerr[1]);
+
+        if (dprintf(pipein[1], "/usr/bin/echo hello spb") < 0) {
+            goto failed;
+        }
+        close(pipein[1]);
+
+        rbytes = read(pipeout[0], outbuff, 12);
+        if (rbytes == -1) {
+            goto failed;
+        }
+        DEBUG("sp read: %d bytes %.*s", rbytes, rbytes, outbuff);
+        do {
+            w = waitpid(cpid, &wstatus, WUNTRACED | WCONTINUED);
+            if (w == -1) {
+                ERROR("waitpid");
+                goto failed;
+            }
+
+            if (WIFEXITED(wstatus)) {
+                DEBUG("exited, status=%d", WEXITSTATUS(wstatus));
+            }
+            else if (WIFSIGNALED(wstatus)) {
+                DEBUG("killed by signal %d", WTERMSIG(wstatus));
+            }
+            else if (WIFSTOPPED(wstatus)) {
+                DEBUG("stopped by signal %d", WSTOPSIG(wstatus));
+            }
+            else if (WIFCONTINUED(wstatus)) {
+                printf("continued\n");
+            }
+        } while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
+    }
+    else {
+        /* Child process */
+
+        /* close the write side of the std-in pipe */
+        close(pipein[1]);
+
+        /* close the read side of the std-out pipe */
+        close(pipeout[0]);
+
+        /* close the read side of the std-err pipe */
+        close(pipeerr[0]);
+
+        /* replace stdin with the read side of the input pipe */
+        if (dup2(pipein[0], STDIN_FILENO) == -1) {
+            ERROR("dup2 stdin");
+            goto childfailed;
+        }
+
+        /* replace stdout with the write side of the output pipe */
+        if (dup2(pipeout[1], STDOUT_FILENO) == -1) {
+            ERROR("dup2 stdout");
+            goto childfailed;
+        }
+
+        /* replace stderr with the write side of the error pipe */
+        if (dup2(pipeerr[1], STDERR_FILENO) == -1) {
+            ERROR("dup2 stderr");
+            goto childfailed;
+        }
+
+        /* execute script */
+        exit(_child());
+
+childfailed:
+        exit(EXIT_FAILURE);
+    }
+
+    _pipeclose(pipein);
+    _pipeclose(pipeout);
+    _pipeclose(pipeerr);
+    return 0;
+
+failed:
+    _pipeclose(pipein);
+    _pipeclose(pipeout);
+    _pipeclose(pipeerr);
     return -1;
 }

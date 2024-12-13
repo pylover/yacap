@@ -25,9 +25,13 @@
 #include "yacap.h"
 
 
+extern char *suggestions[];
+extern char outbuff[];
+extern char errbuff[];
+
+
 int
-suggest(struct yacap *y, char *buff, size_t buffsize, const char *userinput,
-        char *out[], size_t outmax);
+suggest(struct yacap *y, const char *userinput);
 
 
 #endif  // TESTS_SUGGEST_H_

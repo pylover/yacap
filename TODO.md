@@ -1,3 +1,4 @@
+- detect shell and do not initialize auto completion if it's not bash.
 - compgen cmd
 - delete help.h
 - code coverage

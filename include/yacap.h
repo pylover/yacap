@@ -23,6 +23,18 @@
 #include <stdbool.h>
 
 
+#ifdef __clang__
+#define _Nonnull _Nonnull
+#define _Nullable _Nullable
+#elif defined(__GNUC__)
+#define _Nonnull __attribute__((nonnull))
+#define _Nullable
+#else
+#define _Nonnull
+#define _Nullable 888
+#endif
+
+
 /* yacap_parse() result */
 enum yacap_status {
     YACAP_USERERROR = -2,
@@ -79,8 +91,8 @@ struct yacap_option {
 /* Abstract base class! */
 struct yacap_command {
     const char *name;
-    const struct yacap_option *options;
-    const struct yacap_command **commands;
+    const struct yacap_option * _Nullable options;
+    const struct yacap_command ** _Nullable commands;
     const char *args;
     const char *header;
     const char *footer;

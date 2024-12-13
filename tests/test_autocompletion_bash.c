@@ -37,18 +37,9 @@ static struct yacap root = {
 };
 
 
-
-#define BUFFSIZE 1024
-#define SUGGESTIONS_MAX 8
-static char *buff = NULL;
-static char *suggestions[SUGGESTIONS_MAX];
-#define SUGGEST(cmd) suggest(&root, buff, BUFFSIZE, cmd, suggestions, \
-        SUGGESTIONS_MAX)
-
-
 void
 test_autocompletion_bash() {
-    eqint(0, SUGGEST("foo "));
+    eqint(0, suggest(&root, "foo "));
     // eqstr("bar", suggestions[0]);
     // isnull(suggestions[1]);
 }
@@ -56,13 +47,6 @@ test_autocompletion_bash() {
 
 int
 main() {
-    buff = malloc(BUFFSIZE);
-    if (buff == NULL) {
-        ERROR("Out of memmory!");
-        return EXIT_FAILURE;
-    }
     test_autocompletion_bash();
-
-    free(buff);
     return EXIT_SUCCESS;
 }

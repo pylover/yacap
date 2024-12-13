@@ -40,6 +40,7 @@ option(YACAP_BUILD_TESTS "Build tests/*.c" ON)
 configure_file(config.h.in config.h)
 include_directories(
     ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}
 )
 
