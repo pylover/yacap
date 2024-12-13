@@ -28,10 +28,10 @@
 
 #define BASH_PATH "/usr/bin/bash"
 #define SUGGESTIONS_MAX 8
-#define BUFFSIZE 1024
+#define BUFFSIZE 1023
 char *_Nullable suggestions[SUGGESTIONS_MAX];
-char outbuff[BUFFSIZE];
-char errbuff[BUFFSIZE];
+char outbuff[BUFFSIZE + 1];
+char errbuff[BUFFSIZE + 1];
 
 
 #define SCRIPT \
@@ -93,25 +93,30 @@ suggest(struct yacap *y, const char *userinput) {
         /* Parrent process */
         DEBUG("child pid: %d", cpid);
 
-        /* close the read side of the std-in pipe */
+        /* close the read side of the stdin pipe and also write side of the
+         * stdout and stderr pipes. */
         close(pipein[0]);
-
-        /* close the write side of the std-out pipe */
         close(pipeout[1]);
-
-        /* close the write side of the std-err pipe */
         close(pipeerr[1]);
 
-        if (dprintf(pipein[1], "/usr/bin/echo hello spb") < 0) {
-            goto failed;
-        }
+        dprintf(pipein[1], "/usr/bin/echo hello stdout;\n");
+        dprintf(pipein[1], "/usr/bin/echo hello stderr >&2;\n");
         close(pipein[1]);
 
-        rbytes = read(pipeout[0], outbuff, 12);
+        /* read from stdout */
+        rbytes = read(pipeout[0], outbuff, BUFFSIZE);
         if (rbytes == -1) {
             goto failed;
         }
-        DEBUG("sp read: %d bytes %.*s", rbytes, rbytes, outbuff);
+        outbuff[rbytes] = '\0';
+
+        /* read from stderr */
+        rbytes = read(pipeerr[0], errbuff, BUFFSIZE);
+        if (rbytes == -1) {
+            goto failed;
+        }
+        errbuff[rbytes] = '\0';
+
         do {
             w = waitpid(cpid, &wstatus, WUNTRACED | WCONTINUED);
             if (w == -1) {
@@ -120,29 +125,29 @@ suggest(struct yacap *y, const char *userinput) {
             }
 
             if (WIFEXITED(wstatus)) {
-                DEBUG("exited, status=%d", WEXITSTATUS(wstatus));
+                INFO("child process: %d exited, status=%d", cpid,
+                        WEXITSTATUS(wstatus));
             }
             else if (WIFSIGNALED(wstatus)) {
-                DEBUG("killed by signal %d", WTERMSIG(wstatus));
+                WARN("child process: %d killed by signal %d",  cpid,
+                        WTERMSIG(wstatus));
             }
             else if (WIFSTOPPED(wstatus)) {
-                DEBUG("stopped by signal %d", WSTOPSIG(wstatus));
+                WARN("child process: %d stopped by signal %d", cpid,
+                        WSTOPSIG(wstatus));
             }
             else if (WIFCONTINUED(wstatus)) {
-                printf("continued\n");
+                INFO("child process: %d continued", cpid);
             }
         } while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
     }
     else {
         /* Child process */
 
-        /* close the write side of the std-in pipe */
+        /* close the write side of the stdin pipe and read side of the stdout
+         * and stderr pipes. */
         close(pipein[1]);
-
-        /* close the read side of the std-out pipe */
         close(pipeout[0]);
-
-        /* close the read side of the std-err pipe */
         close(pipeerr[0]);
 
         /* replace stdin with the read side of the input pipe */

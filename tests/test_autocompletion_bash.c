@@ -40,6 +40,8 @@ static struct yacap root = {
 void
 test_autocompletion_bash() {
     eqint(0, suggest(&root, "foo "));
+    eqstr("hello stdout\n", outbuff);
+    eqstr("hello stderr\n", errbuff);
     // eqstr("bar", suggestions[0]);
     // isnull(suggestions[1]);
 }
