@@ -34,10 +34,6 @@ char outbuff[BUFFSIZE + 1];
 char errbuff[BUFFSIZE + 1];
 
 
-#define SCRIPT \
-    "echo Helloccccccc"
-
-
 static void
 _pipeclose(int p[2]) {
     int i;

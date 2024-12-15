@@ -26,6 +26,8 @@ list(TRANSFORM profilerules APPEND _profile)
 add_custom_target(profile_tests DEPENDS ${profilerules})
 add_library(pipewrap OBJECT pipewrap.c pipewrap.h)
 add_library(suggest OBJECT suggest.c suggest.h)
+add_library(mockfd OBJECT mockfd.c mockfd.h)
+add_library(mockstd OBJECT mockstd.c mockstd.h)
 
 
 # Valgrind, Profiling
@@ -44,6 +46,8 @@ foreach (t IN LISTS testrules)
   add_executable(${t} ${t}.c 
     $<TARGET_OBJECTS:pipewrap>
     $<TARGET_OBJECTS:suggest>
+    $<TARGET_OBJECTS:mockfd>
+    $<TARGET_OBJECTS:mockstd>
   )
   target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
 	target_link_libraries(${t} PRIVATE yacap)
