@@ -16,6 +16,7 @@ _pipeclose(struct mockfd *mfd) {
             mfd->pipe[i] = -1;
         }
     }
+    errno = 0;
 }
 
 
@@ -29,7 +30,7 @@ mockfd_init(struct mockfd *mfd, int fd, enum mockfd_direction dir,
 
     mfd->flags = flags;
 
-    if (!(flags & MFDF_NOBUFF)) {
+    if (!(flags & MFDF_UNBUFFERED)) {
         if (buffsize <= 0) {
             errno = EINVAL;
             return -1;
@@ -38,9 +39,11 @@ mockfd_init(struct mockfd *mfd, int fd, enum mockfd_direction dir,
         mfd->buffsize = buffsize;
         mfd->bufflen = 0;
 
-        mfd->buff = malloc(buffsize + 1);
-        if (mfd->buff == NULL) {
-            return -1;
+        if (!(flags & MFDF_USERBUFFERS)) {
+            mfd->buff = malloc(buffsize + 1);
+            if (mfd->buff == NULL) {
+                return -1;
+            }
         }
         mfd->buff[0] = '\0';
     }
@@ -56,19 +59,19 @@ mockfd_init(struct mockfd *mfd, int fd, enum mockfd_direction dir,
     }
 
     if ((flags & MFDF_CHILD_NONBLOCK) &&
-        (fcntl(MFD_CHILDSIDE(mfd), F_SETFL, O_NONBLOCK) == -1)) {
+        (fcntl(MFD_PIPEFD_CHILD(mfd), F_SETFL, O_NONBLOCK) == -1)) {
         goto failed;
     }
 
     if ((flags & MFDF_PARENT_NONBLOCK) &&
-        (fcntl(MFD_PARENTSIDE(mfd), F_SETFL, O_NONBLOCK) == -1)) {
+        (fcntl(MFD_PIPEFD_PARENT(mfd), F_SETFL, O_NONBLOCK) == -1)) {
         goto failed;
     }
 
     return 0;
 
 failed:
-    if (!(flags & MFDF_NOBUFF)) {
+    if ((!(flags & MFDF_UNBUFFERED)) && (!(flags & MFDF_USERBUFFERS))) {
         free(mfd->buff);
         mfd->buff = NULL;
     }
@@ -90,14 +93,14 @@ mockfd_child_replace(struct mockfd *mfd) {
     }
 
     /* perform the actual replacement */
-    if (dup2(MFD_CHILDSIDE(mfd), mfd->fd) == -1) {
+    if (dup2(MFD_PIPEFD_CHILD(mfd), mfd->fd) == -1) {
         mfd->backupfd = -1;
         return -1;
     }
 
     /* close the other(parent) side of the pipe */
-    close(mfd->pipe[MFD_PARENTSIDE(mfd)]);
-    mfd->pipe[MFD_PARENTSIDE(mfd)] = -1;
+    close(MFD_PIPEFD_PARENT(mfd));
+    MFD_PIPEFD_PARENT(mfd) = -1;
     return 0;
 }
 
@@ -114,21 +117,28 @@ mockfd_child_restore(struct mockfd *mfd) {
     }
 
     close(mfd->backupfd);
-    close(mfd->pipe[MFD_CHILDSIDE(mfd)]);
+    close(MFD_PIPEFD_CHILD(mfd));
+    MFD_PIPEFD_CHILD(mfd) = -1;
     mfd->backupfd = -1;
-    mfd->pipe[MFD_CHILDSIDE(mfd)] = -1;
     return 0;
+}
+
+
+void
+mockfd_parent_prepare(struct mockfd *mfd) {
+    close(MFD_PIPEFD_CHILD(mfd));
+    MFD_PIPEFD_CHILD(mfd) = -1;
 }
 
 
 int
 mockfd_parent_perform(struct mockfd *mfd) {
     int ret;
-    int parentfd = MFD_PARENTSIDE(mfd);
+    int parentfd = MFD_PIPEFD_PARENT(mfd);
 
-    if (mfd->flags & MFDF_NOBUFF) {
-        ERROR("Cannot perform an unbuffered mockfd");
-        return -1;
+    if (mfd->flags & MFDF_UNBUFFERED) {
+        /* Cannot perform an unbuffered mockfd */
+        goto done;
     }
 
     if (mfd->direction == MFDD_IN) {
@@ -148,6 +158,7 @@ mockfd_parent_perform(struct mockfd *mfd) {
         mfd->buff[ret] = '\0';
     }
 
+done:
     close(parentfd);
     return 0;
 }
@@ -160,15 +171,16 @@ mockfd_deinit(struct mockfd *mfd) {
     }
 
     _pipeclose(mfd);
+    errno = 0;
 
-    if (!(mfd->flags & MFDF_NOBUFF)) {
-        if (mfd->buff) {
+    if (!(mfd->flags & MFDF_UNBUFFERED)) {
+        if ((!(mfd->flags & MFDF_USERBUFFERS)) && mfd->buff) {
             free(mfd->buff);
+            mfd->buff = NULL;
         }
 
         mfd->buffsize = 0;
         mfd->bufflen = 0;
-        mfd->buff = NULL;
     }
 
     mfd->pipe[0] = -1;

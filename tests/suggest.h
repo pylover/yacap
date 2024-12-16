@@ -25,9 +25,8 @@
 #include "yacap.h"
 
 
-extern char *suggestions[];
-extern char outbuff[];
-extern char errbuff[];
+extern char sugout[];
+extern char sugerr[];
 
 
 int

@@ -16,7 +16,8 @@ enum mockfd_direction {
 enum mockfd_bitflags {
     MFDF_CHILD_NONBLOCK = 1,
     MFDF_PARENT_NONBLOCK = 2,
-    MFDF_NOBUFF = 4,
+    MFDF_UNBUFFERED = 4,
+    MFDF_USERBUFFERS = 8,
 };
 
 
@@ -32,8 +33,8 @@ struct mockfd {
 };
 
 
-#define MFD_CHILDSIDE(m) ((int)(m->direction == MFDD_OUT))
-#define MFD_PARENTSIDE(m) ((int)(m->direction == MFDD_IN))
+#define MFD_PIPEFD_CHILD(m) (m)->pipe[(int)((m)->direction == MFDD_OUT)]
+#define MFD_PIPEFD_PARENT(m) (m)->pipe[(int)((m)->direction == MFDD_IN)]
 
 
 int
@@ -51,6 +52,10 @@ mockfd_child_replace(struct mockfd *mfd);
 
 int
 mockfd_child_restore(struct mockfd *mfd);
+
+
+void
+mockfd_parent_prepare(struct mockfd *mfd);
 
 
 int
