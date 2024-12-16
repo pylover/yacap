@@ -37,7 +37,7 @@ struct mockstd mockstd;
 
 static int
 _child() {
-    char *argv[] = { NULL };
+    char *argv[] = { "" };
     char *env[] = { NULL };
     if (execve(BASH_PATH, argv, env) == -1) {
         return -1;
@@ -79,6 +79,11 @@ _wait(pid_t cpid) {
 
     return 0;
 }
+
+
+// static int
+// _subprocess_stdin_write() {
+// }
 
 
 int
