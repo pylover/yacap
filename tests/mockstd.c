@@ -130,13 +130,25 @@ mockstd_child_restore(struct mockstd *m) {
 
 
 int
-mockstd_parent_write(struct mockstd *m, const char *fmt, ...) {
+mockstd_parent_vprintf(struct mockstd *m, const char *fmt, va_list args) {
+    return vdprintf(MFD_PIPEFD_PARENT(&m->in), fmt, args);
+}
+
+
+int
+mockstd_parent_printf(struct mockstd *m, const char *fmt, ...) {
     int ret;
     va_list args;
 
     va_start(args, fmt);
-    ret = vdprintf(MFD_PIPEFD_PARENT(&m->in), fmt, args);
+    ret = mockstd_parent_vprintf(m, fmt, args);
     va_end(args);
 
     return ret;
+}
+
+
+int
+mockstd_parent_stdin_fileno(struct mockstd *m) {
+    return MFD_PIPEFD_PARENT(&m->in);
 }

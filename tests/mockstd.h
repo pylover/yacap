@@ -39,7 +39,15 @@ mockstd_child_restore(struct mockstd *m);
 
 
 int
-mockstd_parent_write(struct mockstd *m, const char *fmt, ...);
+mockstd_parent_vprintf(struct mockstd *m, const char *fmt, va_list args);
+
+
+int
+mockstd_parent_printf(struct mockstd *m, const char *fmt, ...);
+
+
+int
+mockstd_parent_stdin_fileno(struct mockstd *m);
 
 
 #endif  // TESTS_MOCKSTD_H_

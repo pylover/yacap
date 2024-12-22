@@ -52,6 +52,7 @@ add_library(cmdstack OBJECT cmdstack.c cmdstack.h)
 add_library(option OBJECT option.c option.h)
 add_library(optiondb OBJECT optiondb.c optiondb.h)
 add_library(tokenizer OBJECT tokenizer.c tokenizer.h)
+add_library(completionscript OBJECT completionscript.c completionscript.h)
 add_library(help_ OBJECT help.c help.h)
 add_library(yacap STATIC 
     yacap.c include/yacap.h
@@ -62,6 +63,7 @@ add_library(yacap STATIC
     $<TARGET_OBJECTS:option>
     $<TARGET_OBJECTS:optiondb>
     $<TARGET_OBJECTS:tokenizer>
+    $<TARGET_OBJECTS:completionscript>
     $<TARGET_OBJECTS:help_>
 )
 if (YACAP_USE_CLOG)

@@ -23,6 +23,7 @@
 #include <clog.h>
 
 #include "suggest.h"
+#include "completionscript.h"
 #include "mockstd.h"
 #include "yacap.h"
 
@@ -37,8 +38,12 @@ struct mockstd mockstd;
 
 static int
 _child() {
-    char *argv[] = { "" };
-    char *env[] = { NULL };
+    char *_Nullable argv[] = { "-s", NULL };
+    char *_Nullable env[] = {
+        "COMP_POINT=",
+        "COMP_LINE=",
+        NULL
+    };
     if (execve(BASH_PATH, argv, env) == -1) {
         return -1;
     }
@@ -81,54 +86,45 @@ _wait(pid_t cpid) {
 }
 
 
-// static int
-// _subprocess_stdin_write() {
-// }
-
-
 int
 suggest(struct yacap *y, const char *userinput) {
+    int ret = 0;
     pid_t cpid;
 
-    mockstd_init(&mockstd, sugout, BUFFSIZE, sugerr, BUFFSIZE);
+    if (mockstd_init(&mockstd, sugout, BUFFSIZE, sugerr, BUFFSIZE)) {
+        return -1;
+    }
+
     cpid = fork();
     if (cpid == -1) {
-        goto failed;
+        ret = -1;
+        goto fine;
     }
 
+    /* Parrent process */
     if (cpid) {
-        /* Parrent process */
-
         mockstd_parent_prepare(&mockstd);
-        mockstd_parent_write(&mockstd, "/usr/bin/echo hello stdout;\n");
-        mockstd_parent_write(&mockstd, "/usr/bin/echo hello stderr >&2;\n");
+        completionscript_write(mockstd_parent_stdin_fileno(&mockstd), y);
+        // mockstd_parent_printf(&mockstd, "/usr/bin/echo hello stdout;\n");
+        // mockstd_parent_printf(&mockstd, "/usr/bin/echo hello stderr >&2;\n");
         mockstd_parent_perform(&mockstd);
 
-        if (_wait(cpid)) {
-            ERROR("wait(pid: %d)", cpid);
-            goto failed;
-        }
-
+        /* Wait for child process to finish */
+        ret = _wait(cpid);
     }
+    /* Child process */
     else {
-        /* Child process */
-
         /* replace standard files */
         mockstd_child_replace(&mockstd);
 
-        /* execute script */
-        int cstatus = _child();
+        /* execute script inside the child prcess */
+        ret = _child();
 
         /* restore standard files */
         mockstd_child_restore(&mockstd);
-        mockstd_deinit(&mockstd);
-        exit(cstatus);
     }
 
+fine:
     mockstd_deinit(&mockstd);
-    return 0;
-
-failed:
-    mockstd_deinit(&mockstd);
-    return -1;
+    return ret;
 }
