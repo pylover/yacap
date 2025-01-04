@@ -2,7 +2,8 @@
 include(CTest)
 list(APPEND testrules
   arghint
-  autocompletion_bash
+  completionscript
+  completion_bash
 	option
 	option_multiple
 	optiondb

@@ -36,22 +36,6 @@ char sugerr[BUFFSIZE + 1];
 struct mockstd mockstd;
 
 
-static int
-_child() {
-    char *_Nullable argv[] = { "-s", NULL };
-    char *_Nullable env[] = {
-        "COMP_POINT=",
-        "COMP_LINE=",
-        NULL
-    };
-    if (execve(BASH_PATH, argv, env) == -1) {
-        return -1;
-    }
-
-    exit(EXIT_SUCCESS);
-}
-
-
 static
 int
 _wait(pid_t cpid) {
@@ -86,6 +70,48 @@ _wait(pid_t cpid) {
 }
 
 
+static int
+_child(const char *userinput, int cursor) {
+    char _Nullable pbuff[16];
+    char _Nullable lbuff[BUFFSIZE + 1];
+
+    sprintf(pbuff, "COMP_POINT=%d", cursor);
+    sprintf(lbuff, "COMP_LINE=\"%s\"", userinput);
+    char *_Nullable argv[] = {"-s", NULL};
+    char *_Nullable env[] = {
+        pbuff,
+        lbuff,
+        "COMP_WORDBREAKS=\"'><=;|&(:",
+        "COMP_CWORD=3",
+        "COMP_WORDS=(foo bar baz)",
+        NULL
+    };
+
+    if (execve(BASH_PATH, argv, env) == -1) {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+
+static int
+_parent(struct yacap *y) {
+    int fd = mockstd_parent_stdin_fileno(&mockstd);
+
+    mockstd_parent_prepare(&mockstd);
+    dprintf(fd, "source /etc/bash_completion\n");
+    completionscript_write(fd, y);
+    dprintf(fd, "__foo_main\n");
+
+    if (mockstd_parent_perform(&mockstd)) {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+
 int
 suggest(struct yacap *y, const char *userinput) {
     int ret = 0;
@@ -103,14 +129,11 @@ suggest(struct yacap *y, const char *userinput) {
 
     /* Parrent process */
     if (cpid) {
-        mockstd_parent_prepare(&mockstd);
-        completionscript_write(mockstd_parent_stdin_fileno(&mockstd), y);
-        // mockstd_parent_printf(&mockstd, "/usr/bin/echo hello stdout;\n");
-        // mockstd_parent_printf(&mockstd, "/usr/bin/echo hello stderr >&2;\n");
-        mockstd_parent_perform(&mockstd);
+        /* read/write to/from standard in/out of the child */
+        ret = _parent(y);
 
         /* Wait for child process to finish */
-        ret = _wait(cpid);
+        ret |= _wait(cpid);
     }
     /* Child process */
     else {
@@ -118,7 +141,7 @@ suggest(struct yacap *y, const char *userinput) {
         mockstd_child_replace(&mockstd);
 
         /* execute script inside the child prcess */
-        ret = _child();
+        ret = _child(userinput, strlen(userinput) - 1);
 
         /* restore standard files */
         mockstd_child_restore(&mockstd);

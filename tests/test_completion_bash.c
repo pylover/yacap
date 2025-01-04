@@ -28,10 +28,16 @@ static struct yacap_command bar_cmd = {
 };
 
 
+static struct yacap_command baz_cmd = {
+    .name = "baz",
+};
+
+
 static struct yacap root = {
     .name = "foo",
     .commands = (const struct yacap_command*[]) {
         &bar_cmd,
+        &baz_cmd,
         NULL
     },
 };
@@ -39,9 +45,9 @@ static struct yacap root = {
 
 void
 test_autocompletion_bash() {
-    eqint(0, suggest(&root, "foo "));
-    eqstr("hello stdout\n", sugout);
-    eqstr("hello stderr\n", sugerr);
+    eqint(0, suggest(&root, "foo bar baz "));
+    eqstr("", sugerr);
+    eqstr("bar baz", sugout);
     // eqstr("bar", suggestions[0]);
     // isnull(suggestions[1]);
 }
