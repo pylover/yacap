@@ -71,19 +71,10 @@ _wait(pid_t cpid) {
 
 
 static int
-_child(const char *userinput, int cursor) {
-    char _Nullable pbuff[16];
-    char _Nullable lbuff[BUFFSIZE + 1];
-
-    sprintf(pbuff, "COMP_POINT=%d", cursor);
-    sprintf(lbuff, "COMP_LINE=\"%s\"", userinput);
+_child() {
     char *_Nullable argv[] = {"-s", NULL};
     char *_Nullable env[] = {
-        pbuff,
-        lbuff,
-        "COMP_WORDBREAKS=\"'><=;|&(:",
-        "COMP_CWORD=3",
-        "COMP_WORDS=(foo bar baz)",
+        "YACAP_DEBUG=1",
         NULL
     };
 
@@ -141,7 +132,7 @@ suggest(struct yacap *y, const char *userinput) {
         mockstd_child_replace(&mockstd);
 
         /* execute script inside the child prcess */
-        ret = _child(userinput, strlen(userinput) - 1);
+        ret = _child();
 
         /* restore standard files */
         mockstd_child_restore(&mockstd);

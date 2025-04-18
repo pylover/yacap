@@ -56,7 +56,11 @@ _mainfunc_write(int fd, struct yacap *y) {
 
     ret += dprintf(fd,
         l("__%s_main () {")
-        l("  echo \"foo bar\"                                               ")
+        l("  local ci=$1                                                    ")
+        l("  local cw=$2                                                    ")
+        l("  local pw=$3                                                    ")
+        l("  local aw=$4                                                    ")
+        l("  echo $aw                                                       ")
         l("}                                                                "),
         y->name
     );
@@ -79,8 +83,9 @@ _completionfunc_write(int fd, struct yacap *y) {
         l("  _get_comp_words_by_ref -n '=:' cur prev words cword            ")
         l("  echo \"${cur}, ${prev}, ${words[*]}, ${cword}\" >> /tmp/gg     ")
         l("  echo wbrk: ${COMP_WORDBREAKS} >> /tmp/gg                       ")
-        l("  COMPREPLY=(${words[*]})                                        ")
+        l("  COMPREPLY=$(__%s_main $cword $ur $prev $words)                 ")
         l("} && complete -F __%s %s                                         "),
+        y->name,
         y->name,
         y->name,
         y->name
