@@ -18,8 +18,8 @@
  */
 #include <cutest.h>
 
+#include "include/yacap.h"
 #include "config.h"
-#include "yacap.h"
 #include "helpers.h"
 
 

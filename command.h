@@ -20,11 +20,11 @@
 #define COMMAND_H_
 
 
+#include "include/yacap.h"
 #include "config.h"
-#include "yacap.h"
 
 
-const struct yacap_command *
+struct yacap_command *
 command_findbyname(const struct yacap_command *cmd, const char *name);
 
 

@@ -22,8 +22,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "include/yacap.h"
 #include "config.h"
-#include "yacap.h"
 #include "state.h"
 #include "helpers.h"
 #include "builtin.h"
@@ -85,7 +85,7 @@
 
 
 static int
-_build_optiondb(const struct yacap *c, struct optiondb *db) {
+_optiondb_init(const struct yacap *c, struct optiondb *db) {
     if (optiondb_init(db)) {
         return -1;
     }
@@ -232,7 +232,7 @@ _command_parse(struct yacap *c, struct tokenizer *t) {
     struct token nexttok;
     struct yacap_state *state = c->state;
     const struct yacap_command *cmd = cmdstack_last(&state->cmdstack);
-    const struct yacap_command *subcmd = NULL;
+    struct yacap_command *subcmd = NULL;
     int arghint = arghint_parse(cmd->args);
 
     if (optiondb_insertvector(&state->optiondb, cmd->options, cmd) == -1) {
@@ -252,9 +252,15 @@ _command_parse(struct yacap *c, struct tokenizer *t) {
 
         /* is this a positional? */
         if (tok.optioninfo == NULL) {
+
             /* is this a sub-command? */
             subcmd = command_findbyname(cmd, tok.text);
             if (subcmd) {
+                if (subcmd->init && subcmd->init(subcmd)) {
+                    status = YACAP_FATAL;
+                    goto terminate;
+                }
+
                 if (cmdstack_push(&state->cmdstack, tok.text, subcmd) == -1) {
                     status = YACAP_FATAL;
                 }
@@ -355,6 +361,7 @@ yacap_parse(struct yacap *c, int argc, const char **argv,
         return YACAP_FATAL;
     }
 
+    /* allocate the context */
     state = malloc(sizeof(struct yacap_state));
     if (state == NULL) {
         return YACAP_FATAL;
@@ -363,10 +370,13 @@ yacap_parse(struct yacap *c, int argc, const char **argv,
     state->positionals = 0;
     c->state = state;
 
-    if (_build_optiondb(c, &state->optiondb)) {
+    /* create and initialize a database to index all (root & subcommand)
+     * options. */
+    if (_optiondb_init(c, &state->optiondb)) {
         return YACAP_FATAL;
     }
 
+    /* create a tokenizer */
     t = tokenizer_new(argc, argv, &state->optiondb);
     if (t == NULL) {
         optiondb_dispose(&state->optiondb);

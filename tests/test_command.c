@@ -18,7 +18,7 @@
  */
 #include <cutest.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 #include "helpers.h"
 
 
@@ -31,11 +31,13 @@ struct rootflags {
 struct thudflags{
     bool baz;
     const char *arg;
+    bool init;
 };
 
 
-static struct rootflags root = {false, NULL};
-static struct thudflags thud = {false, NULL};
+static struct rootflags _root = {false, NULL};
+static struct thudflags _thud = {false, NULL, false};
+
 
 static enum yacap_eatstatus
 _root_eater(const struct yacap_option *option, const char *value,
@@ -59,8 +61,16 @@ _root_eater(const struct yacap_option *option, const char *value,
 }
 
 
-enum yacap_eatstatus
-thud_eater(const struct yacap_option *option, const char *value,
+static int
+_thud_init(struct yacap_command *command) {
+    struct thudflags *state = (struct thudflags*) command->userptr;
+    state->init = true;
+    return 0;
+}
+
+
+static enum yacap_eatstatus
+_thud_eater(const struct yacap_option *option, const char *value,
         struct thudflags *flags) {
     if (option == NULL) {
         if (flags->arg) {
@@ -89,12 +99,16 @@ test_command() {
         {NULL}
     };
 
-    const struct yacap_command thud_cmd = {
+    struct yacap_command thud_cmd = {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
-        .eat = (yacap_eater_t)thud_eater,
-        .userptr = &thud,
+        .commands = NULL,
+        .header = NULL,
+        .footer = NULL,
+        .init = _thud_init,
+        .eat = (yacap_eater_t)_thud_eater,
+        .userptr = &_thud,
     };
 
     struct yacap_option root_options[] = {
@@ -111,7 +125,7 @@ test_command() {
         .footer = NULL,
         .version = NULL,
         .flags = 0,
-        .userptr = &root,
+        .userptr = &_root,
         .commands = (const struct yacap_command*[]) {
             &thud_cmd,
             NULL
@@ -127,28 +141,31 @@ test_command() {
     isnotnull(cmd);
     eqptr(&yacap, cmd);
 
-    memset(&root, 0, sizeof(struct rootflags));
-    memset(&thud, 0, sizeof(struct thudflags));
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -f thud qux", &cmd));
     eqptr(&thud_cmd, cmd);
-    istrue(root.foo);
+    istrue(_root.foo);
+    istrue(_thud.init);
 
-    memset(&root, 0, sizeof(struct rootflags));
-    memset(&thud, 0, sizeof(struct thudflags));
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap,
                 "foo -f -b qux thud -z quux", &cmd));
     eqptr(&thud_cmd, cmd);
-    istrue(root.foo);
-    istrue(thud.baz);
-    eqstr("qux", root.bar);
+    istrue(_root.foo);
+    istrue(_thud.baz);
+    istrue(_thud.init);
+    eqstr("qux", _root.bar);
 
-    memset(&root, 0, sizeof(struct rootflags));
-    memset(&thud, 0, sizeof(struct thudflags));
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo thud -fzbqux quux", &cmd));
     eqptr(&thud_cmd, cmd);
-    istrue(root.foo);
-    istrue(thud.baz);
-    eqstr("qux", root.bar);
+    istrue(_root.foo);
+    istrue(_thud.baz);
+    istrue(_thud.init);
+    eqstr("qux", _root.bar);
 }
 
 

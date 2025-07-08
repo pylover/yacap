@@ -20,7 +20,7 @@
 #define STATE_H_
 
 
-#include "yacap.h"
+#include "include/yacap.h"
 #include "cmdstack.h"
 #include "optiondb.h"
 

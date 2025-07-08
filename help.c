@@ -129,10 +129,10 @@ _print_optiongroup(int fd, const struct yacap_option *opt, int gapsize) {
 
 static void
 _print_subcommands(int fd, const struct yacap_command *cmd) {
-    const struct yacap_command **c = cmd->commands;
-    const struct yacap_command *s;
+    struct yacap_command * const *c = cmd->commands;
+    struct yacap_command *s;
 
-    if (cmd->commands == NULL) {
+    if (cmd->commands[0] == NULL) {
         return;
     }
 
@@ -287,7 +287,7 @@ yacap_help_print(const struct yacap *c) {
     }
 
     /* sub-commands */
-    if (cmd->commands) {
+    if (cmd->commands[0]) {
         _print_subcommands(STDOUT_FILENO, cmd);
     }
 

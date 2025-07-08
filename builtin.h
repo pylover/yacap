@@ -19,7 +19,8 @@
 #ifndef BUILTIN_H_
 #define BUILTIN_H_
 
-#include "yacap.h"
+
+#include "include/yacap.h"
 
 
 #ifdef YACAP_USE_CLOG

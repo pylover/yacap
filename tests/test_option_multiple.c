@@ -20,7 +20,7 @@
 
 #include <cutest.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 #include "helpers.h"
 
 

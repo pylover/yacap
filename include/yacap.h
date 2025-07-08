@@ -34,10 +34,23 @@ enum yacap_status {
 
 /* argument eat result */
 enum yacap_eatstatus {
+    /* when an argument was eaten successfully
+     * */
     YACAP_EAT_OK,
+
+    /* when an argument was eaten successfully and tell the yacap to terminate
+     * the process immediately.
+     * */
     YACAP_EAT_OK_EXIT,
+
+    /* when an argument is not recognized, yacap terminates the process after
+     * raising this status by the programmer.
+     * */
     YACAP_EAT_UNRECOGNIZED,
-    YACAP_EAT_INVALID,
+
+    /* kinda programming error when an option is not implemented yet, yacap
+     * terminates the process after raising this status by the programmer.
+     * */
     YACAP_EAT_NOTEATEN,
 };
 
@@ -53,8 +66,13 @@ enum yacap_flags{
 struct yacap;
 struct yacap_option;
 struct yacap_command;
-typedef enum yacap_eatstatus (*yacap_eater_t)
-    (const struct yacap_option *option, const char *value, void *userptr);
+
+
+/* callbacks */
+typedef int (*yacap_commandhook_t) (struct yacap_command *cmd);
+typedef enum yacap_eatstatus (*yacap_eater_t) (
+        const struct yacap_option *option, const char *value,
+        void *userptr);
 typedef int (*yacap_entrypoint_t) (const struct yacap *c,
         const struct yacap_command *cmd);
 
@@ -76,17 +94,18 @@ struct yacap_option {
 };
 
 
-/* Abstract base class! */
+/* command */
 struct yacap_command {
     const char *name;
     const struct yacap_option *options;
-    const struct yacap_command **commands;
     const char *args;
     const char *header;
     const char *footer;
+    yacap_commandhook_t init;
     yacap_eater_t eat;
-    void *userptr;
     yacap_entrypoint_t entrypoint;
+    void *userptr;
+    struct yacap_command * const commands[];
 };
 
 
