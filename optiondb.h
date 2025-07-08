@@ -22,7 +22,7 @@
 
 #include <stddef.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 
 
 enum optioninfoflag {

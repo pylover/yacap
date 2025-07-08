@@ -2,20 +2,20 @@
 include(CTest)
 list(APPEND testrules
   arghint
-	option
-	option_multiple
-	optiondb
-	tokenizer
-	version
-	help
-	command
-	command_help
-	command_optionorder
+  option
+  option_multiple
+  optiondb
+  tokenizer
+  version
+  help
+  command
+  command_help
+  command_optionorder
   positional
-	dashdash
+  dashdash
 )
 if (YACAP_USE_CLOG)
-	list(APPEND testrules clog)
+  list(APPEND testrules clog)
 endif()
 
 
@@ -41,10 +41,10 @@ foreach (t IN LISTS testrules)
     # Test help
   add_executable(${t} ${t}.c $<TARGET_OBJECTS:helpers>)
   target_include_directories(${t} PUBLIC "${PROJECT_BINARY_DIR}")
-	target_link_libraries(${t} PRIVATE yacap)
-	if (YACAP_USE_CLOG)
-		target_link_libraries(${t} PUBLIC clog)
-	endif()
+  target_link_libraries(${t} PRIVATE yacap)
+  if (YACAP_USE_CLOG)
+    target_link_libraries(${t} PUBLIC clog)
+  endif()
   add_test(NAME ${t} COMMAND ${t})
 
   add_custom_target(${t}_exec 
@@ -52,11 +52,11 @@ foreach (t IN LISTS testrules)
     DEPENDS ${t} ${CMAKE_PROJECT_NAME}
   )
   add_custom_target(${t}_debug 
-	  COMMAND gdb --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb ./${t}
-	  DEPENDS ${t} ${CMAKE_PROJECT_NAME}
+    COMMAND gdb --command=${PROJECT_SOURCE_DIR}/tests/${t}.gdb ./${t}
+    DEPENDS ${t} ${CMAKE_PROJECT_NAME}
   )
   add_custom_target(${t}_profile
-	  COMMAND "valgrind" ${VALGRIND_FLAGS} ${PROJECT_BINARY_DIR}/tests/${t}
-	  DEPENDS ${t} ${CMAKE_PROJECT_NAME}
+    COMMAND "valgrind" ${VALGRIND_FLAGS} ${PROJECT_BINARY_DIR}/tests/${t}
+    DEPENDS ${t} ${CMAKE_PROJECT_NAME}
   )
 endforeach()

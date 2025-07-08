@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 
 
 static enum yacap_eatstatus

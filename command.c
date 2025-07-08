@@ -23,22 +23,22 @@
 #include "helpers.h"
 
 
-const struct yacap_command *
+struct yacap_command *
 command_findbyname(const struct yacap_command *cmd, const char *name) {
     if (name == NULL) {
         return NULL;
     }
 
-    if ((cmd == NULL) || (cmd->commands == NULL)) {
+    if ((cmd == NULL) || (!cmd->commands) || (!cmd->commands[0])) {
         return NULL;
     }
 
-    const struct yacap_command **c = cmd->commands;
-    const struct yacap_command *s;
+    struct yacap_command * const *c = cmd->commands;
+    struct yacap_command *s;
 
     while ((s = *c)) {
         if (STREQ(name, s->name)) {
-            return (const struct yacap_command *)s;
+            return s;
         }
 
         c++;

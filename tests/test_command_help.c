@@ -18,8 +18,8 @@
  */
 #include <cutest.h>
 
+#include "include/yacap.h"
 #include "config.h"
-#include "yacap.h"
 #include "helpers.h"
 
 
@@ -30,7 +30,7 @@ test_command_help() {
         {NULL}
     };
 
-    const struct yacap_command thud_cmd = {
+    struct yacap_command thud_cmd = {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
@@ -55,7 +55,7 @@ test_command_help() {
         .version = NULL,
         .flags = 0,
         .userptr = NULL,
-        .commands = (const struct yacap_command*[]) {
+        .commands = (struct yacap_command * const[]) {
             &thud_cmd,
             NULL
         },

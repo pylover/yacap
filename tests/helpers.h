@@ -20,7 +20,7 @@
 #define TESTS_HELPERS_H_
 
 
-#include "yacap.h"
+#include "include/yacap.h"
 
 
 #define BUFFSIZE    2047

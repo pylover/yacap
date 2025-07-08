@@ -18,7 +18,7 @@
  */
 #include <cutest.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 #include "helpers.h"
 
 
@@ -90,7 +90,7 @@ static struct yacap yacap = {
     .version = NULL,
     .flags = 0,
     .userptr = &root,
-    .commands = (const struct yacap_command*[]) {
+    .commands = (struct yacap_command *const[]) {
         &add_cmd,
         NULL
     },

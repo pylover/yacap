@@ -18,24 +18,26 @@
  */
 #include <cutest.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 #include "helpers.h"
 
 
 struct rootflags {
-    bool foo;
+    int foo;
     const char *bar;
 };
 
 
 struct thudflags{
-    bool baz;
+    int thud;
+    int baz;
     const char *arg;
 };
 
 
-static struct rootflags root = {false, NULL};
-static struct thudflags thud = {false, NULL};
+static struct rootflags _root;
+static struct thudflags _thud;
+
 
 static enum yacap_eatstatus
 _root_eater(const struct yacap_option *option, const char *value,
@@ -46,7 +48,7 @@ _root_eater(const struct yacap_option *option, const char *value,
 
     switch (option->key) {
         case 'f':
-            flags->foo = true;
+            flags->foo++;
             break;
         case 'b':
             flags->bar = value;
@@ -59,8 +61,16 @@ _root_eater(const struct yacap_option *option, const char *value,
 }
 
 
-enum yacap_eatstatus
-thud_eater(const struct yacap_option *option, const char *value,
+static int
+_thud_init(struct yacap_command *command) {
+    struct thudflags *state = (struct thudflags*) command->userptr;
+    state->thud++;
+    return 0;
+}
+
+
+static enum yacap_eatstatus
+_thud_eater(const struct yacap_option *option, const char *value,
         struct thudflags *flags) {
     if (option == NULL) {
         if (flags->arg) {
@@ -72,7 +82,7 @@ thud_eater(const struct yacap_option *option, const char *value,
 
     switch (option->key) {
         case 'z':
-            flags->baz = true;
+            flags->baz++;
             break;
         default:
             return YACAP_EAT_UNRECOGNIZED;
@@ -89,12 +99,16 @@ test_command() {
         {NULL}
     };
 
-    const struct yacap_command thud_cmd = {
+    struct yacap_command thud_cmd = {
         .name = "thud",
         .args = "qux",
         .options = thud_options,
-        .eat = (yacap_eater_t)thud_eater,
-        .userptr = &thud,
+        .commands = NULL,
+        .header = NULL,
+        .footer = NULL,
+        .init = _thud_init,
+        .eat = (yacap_eater_t)_thud_eater,
+        .userptr = &_thud,
     };
 
     struct yacap_option root_options[] = {
@@ -111,44 +125,54 @@ test_command() {
         .footer = NULL,
         .version = NULL,
         .flags = 0,
-        .userptr = &root,
-        .commands = (const struct yacap_command*[]) {
+        .userptr = &_root,
+        .commands = (struct yacap_command *const[]) {
             &thud_cmd,
             NULL
         },
     };
 
     const struct yacap_command *cmd;
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo thud qux", &cmd));
     isnotnull(cmd);
+    eqint(1, _thud.thud);
     eqptr(&thud_cmd, cmd);
 
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo", &cmd));
     isnotnull(cmd);
+    eqint(0, _thud.thud);
+    eqint(0, _root.foo);
     eqptr(&yacap, cmd);
 
-    memset(&root, 0, sizeof(struct rootflags));
-    memset(&thud, 0, sizeof(struct thudflags));
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -f thud qux", &cmd));
     eqptr(&thud_cmd, cmd);
-    istrue(root.foo);
+    eqint(1, _thud.thud);
+    eqint(1, _root.foo);
 
-    memset(&root, 0, sizeof(struct rootflags));
-    memset(&thud, 0, sizeof(struct thudflags));
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap,
                 "foo -f -b qux thud -z quux", &cmd));
     eqptr(&thud_cmd, cmd);
-    istrue(root.foo);
-    istrue(thud.baz);
-    eqstr("qux", root.bar);
+    eqint(1, _thud.thud);
+    eqint(1, _root.foo);
+    eqint(1, _thud.baz);
+    eqstr("qux", _root.bar);
 
-    memset(&root, 0, sizeof(struct rootflags));
-    memset(&thud, 0, sizeof(struct thudflags));
+    memset(&_root, 0, sizeof(struct rootflags));
+    memset(&_thud, 0, sizeof(struct thudflags));
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo thud -fzbqux quux", &cmd));
     eqptr(&thud_cmd, cmd);
-    istrue(root.foo);
-    istrue(thud.baz);
-    eqstr("qux", root.bar);
+    eqint(1, _thud.thud);
+    eqint(1, _root.foo);
+    eqint(1, _thud.baz);
+    eqstr("qux", _root.bar);
 }
 
 

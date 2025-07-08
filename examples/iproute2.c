@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "yacap.h"
+#include "include/yacap.h"
 
 
 static int
@@ -72,7 +72,7 @@ _route_main(const struct yacap *c, const struct yacap_command *cmd) {
 static struct yacap_command route = {
     .name = "route",
     .entrypoint = _route_main,
-    .commands = (const struct yacap_command*[]) {
+    .commands = (struct yacap_command * const[]){
         &add,
         &delete,
         NULL
@@ -82,7 +82,7 @@ static struct yacap_command route = {
 
 /* Root yacap structure */
 static struct yacap cli = {
-    .commands = (const struct yacap_command*[]) {
+    .commands = (struct yacap_command * const[]) {
         &route,
         NULL
     },

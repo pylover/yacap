@@ -20,7 +20,7 @@
 #define OPTION_H_
 
 
-#include "yacap.h"
+#include "include/yacap.h"
 
 
 #define YACAP_OPTION_ARGNEEDED(opt) ((opt)->arg != NULL)

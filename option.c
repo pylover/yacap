@@ -18,9 +18,9 @@
  */
 #include <stdio.h>
 
+#include "include/yacap.h"
 #include "config.h"
 #include "helpers.h"
-#include "yacap.h"
 #include "option.h"
 
 
