@@ -117,7 +117,7 @@ _optiondb_init(const struct yacap *c, struct optiondb *db) {
             return -1;
         }
     }
-#endif
+#endif  // YACAP_USE_CLOG
 
     return 0;
 }
