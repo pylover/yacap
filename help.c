@@ -132,7 +132,7 @@ _print_subcommands(int fd, const struct yacap_command *cmd) {
     struct yacap_command * const *c = cmd->commands;
     struct yacap_command *s;
 
-    if (cmd->commands[0] == NULL) {
+    if ((!cmd->commands) || cmd->commands[0] == NULL) {
         return;
     }
 
