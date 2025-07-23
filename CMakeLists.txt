@@ -70,7 +70,7 @@ endif()
 
 # Install
 install(TARGETS yacap DESTINATION "lib")
-install(FILES yacap.h DESTINATION "include")
+install(FILES include/yacap.h DESTINATION "include")
 
 
 # Uninstall
