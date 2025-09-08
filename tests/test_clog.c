@@ -37,21 +37,21 @@ static struct yacap yacap = {
 static void
 test_verbose_short() {
     /* default logging level */
-    clog_verbosity = CLOG_INFO;
+    clog_verbositylevel = CLOG_INFO;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo", NULL));
-    eqint(CLOG_INFO, clog_verbosity);
+    eqint(CLOG_INFO, clog_verbositylevel);
 
-    clog_verbosity = CLOG_INFO;
+    clog_verbositylevel = CLOG_INFO;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -v", NULL));
-    eqint(CLOG_DEBUG, clog_verbosity);
+    eqint(CLOG_DEBUG, clog_verbositylevel);
 
-    clog_verbosity = CLOG_INFO;
+    clog_verbositylevel = CLOG_INFO;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vv", NULL));
-    eqint(CLOG_DEBUG2, clog_verbosity);
+    eqint(CLOG_TRACE, clog_verbositylevel);
 
-    clog_verbosity = CLOG_INFO;
+    clog_verbositylevel = CLOG_INFO;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo -vvv", NULL));
-    eqint(CLOG_DEBUG2, clog_verbosity);
+    eqint(CLOG_TRACE, clog_verbositylevel);
 }
 
 
@@ -67,24 +67,24 @@ test_verbose_long() {
         .flags = 0,
     };
 
-    clog_verbosity = -1;
+    clog_verbositylevel = -1;
     eqint(YACAP_USERERROR, yacap_parse_string(&yacap, "foo --verbosity", NULL));
 
-    clog_verbosity = -1;
+    clog_verbositylevel = -1;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity d", NULL));
-    eqint(CLOG_DEBUG, clog_verbosity);
+    eqint(CLOG_DEBUG, clog_verbositylevel);
 
-    clog_verbosity = -1;
+    clog_verbositylevel = -1;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity debug", NULL));
-    eqint(CLOG_DEBUG, clog_verbosity);
+    eqint(CLOG_DEBUG, clog_verbositylevel);
 
-    clog_verbosity = -1;
+    clog_verbositylevel = -1;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity=debug", NULL));
-    eqint(CLOG_DEBUG, clog_verbosity);
+    eqint(CLOG_DEBUG, clog_verbositylevel);
 
-    clog_verbosity = -1;
+    clog_verbositylevel = -1;
     eqint(YACAP_OK, yacap_parse_string(&yacap, "foo --verbosity 2", NULL));
-    eqint(CLOG_ERROR, clog_verbosity);
+    eqint(CLOG_ERROR, clog_verbositylevel);
 }
 
 

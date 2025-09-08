@@ -130,16 +130,16 @@ _optiondb_init(const struct yacap *c, struct optiondb *db) {
 
 void
 _clogquieter() {
-    if (clog_verbosity > CLOG_SILENT) {
-        clog_verbosity--;
+    if (clog_verbositylevel > CLOG_SILENT) {
+        clog_verbositylevel--;
     }
 }
 
 
 void
 _clogverboser() {
-    if (clog_verbosity < CLOG_DEBUG2) {
-        clog_verbosity++;
+    if (clog_verbositylevel < CLOG_TRACE) {
+        clog_verbositylevel++;
     }
 }
 
@@ -148,25 +148,25 @@ _clogverbosity(const char *value) {
     int valuelen = value? strlen(value): 0;
 
     if (valuelen == 0) {
-        clog_verbosity = CLOG_INFO;
+        clog_verbositylevel = CLOG_INFO;
         return;
     }
 
     if (valuelen == 1) {
         if (ISDIGIT(value[0])) {
             /* -v0 ... -v5 */
-            clog_verbosity = atoi(value);
-            if (!BETWEEN(clog_verbosity, CLOG_SILENT, CLOG_DEBUG2)) {
-                clog_verbosity = CLOG_INFO;
+            clog_verbositylevel = atoi(value);
+            if (!BETWEEN(clog_verbositylevel, CLOG_SILENT, CLOG_TRACE)) {
+                clog_verbositylevel = CLOG_INFO;
                 return;
             }
             return;
         }
     }
 
-    clog_verbosity = clog_verbosity_from_string(value);
-    if (clog_verbosity == CLOG_UNKNOWN) {
-        clog_verbosity = CLOG_INFO;
+    clog_verbositylevel = clog_verbosity_from_string(value);
+    if (clog_verbositylevel == CLOG_UNKNOWN) {
+        clog_verbositylevel = CLOG_INFO;
         return;
     }
 }

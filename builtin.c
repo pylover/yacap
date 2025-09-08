@@ -45,7 +45,7 @@ const struct yacap_option opt_verboseflag = {
     .key = 'v',
     .arg = NULL,
     .flags = YACAP_OPTION_MULTIPLE,
-    .help = "Increase the clog_verbosity on each occurance, e.g. -vvv"
+    .help = "Increase the clog's verbosity level on each occurance, e.g. -vvv"
 };
 
 
@@ -54,7 +54,7 @@ const struct yacap_option opt_quietflag = {
     .key = 'q',
     .arg = NULL,
     .flags = YACAP_OPTION_MULTIPLE,
-    .help = "Decrease the clog_verbosity on each occurance, e.g. -qq"
+    .help = "Decrease the clog's verbosity level on each occurance, e.g. -qq"
 };
 #endif
 

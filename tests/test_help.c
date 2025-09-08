@@ -71,10 +71,10 @@ test_help_doc() {
 "Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
-"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
-"                           -vvv\n"
-"  -q                       Decrease the clog_verbosity on each occurance, e.g.\n"  // NOLINT
-"                           -qq\n"
+"  -v                       Increase the clog's verbosity level on each occuran-\n"  // NOLINT
+"                           ce, e.g. -vvv\n"
+"  -q                       Decrease the clog's verbosity level on each occuran-\n"  // NOLINT
+"                           ce, e.g. -qq\n"
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
@@ -175,10 +175,10 @@ test_help_default() {
 "Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
-"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
-"                           -vvv\n"
-"  -q                       Decrease the clog_verbosity on each occurance, e.g.\n"  // NOLINT
-"                           -qq\n"
+"  -v                       Increase the clog's verbosity level on each occuran-\n"  // NOLINT
+"                           ce, e.g. -vvv\n"
+"  -q                       Decrease the clog's verbosity level on each occuran-\n"  // NOLINT
+"                           ce, e.g. -qq\n"
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
@@ -227,10 +227,10 @@ test_help_options() {
 "Options:\n"
 "  -h, --help               Give this help list and exit\n"
 "  -?, --usage              Give a short usage message and exit\n"
-"  -v                       Increase the clog_verbosity on each occurance, e.g.\n"  // NOLINT
-"                           -vvv\n"
-"  -q                       Decrease the clog_verbosity on each occurance, e.g.\n"  // NOLINT
-"                           -qq\n"
+"  -v                       Increase the clog's verbosity level on each occuran-\n"  // NOLINT
+"                           ce, e.g. -vvv\n"
+"  -q                       Decrease the clog's verbosity level on each occuran-\n"  // NOLINT
+"                           ce, e.g. -qq\n"
 "      --verbosity=LEVEL    Verbosity level. one of: '0|s|silent', '1|f|fatal',\n"  // NOLINT
 "                           '2|e|error', '3|w|warn', '4|i|info' and '5|d|debug'.\n"  // NOLINT
 "                           if this option is not given, the verbosity level wi-\n"  // NOLINT
